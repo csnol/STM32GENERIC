@@ -111,6 +111,7 @@ inline void digitalWrite(uint8_t pin, uint8_t value) {
   stm32_port_pin_type port_pin = variant_pin_list[pin];
   HAL_GPIO_WritePin(port_pin.port, port_pin.pinMask, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
+
 inline int digitalRead(uint8_t pin) {
   //    if (pin >= sizeof(variant_pin_list) / sizeof(variant_pin_list[0])) {
   //        return 0;
@@ -136,13 +137,11 @@ static const uint8_t variant_gpiopin_pos_static[] = {
 };
 #undef PIN
 
-#ifndef STM32H7
 #define PIN(a, b) { GPIO##a , LL_GPIO_PIN_##b }
 static const stm32_port_pin_type variant_pin_list_ll_static[] = {
   PIN_LIST
 };
 #undef PIN
-#endif
 
 #ifdef __cplusplus
 
@@ -296,7 +295,6 @@ class PORTemulation
       port->ODR ^= pins;
       return *this;
     }
-#ifndef STM32H7	
     inline PORTemulation & operator |= (int pins) __attribute__((always_inline)) {
       port->BSRR = pins;
       return *this;
@@ -305,16 +303,6 @@ class PORTemulation
       port->BSRR = (~pins) << 16U;
       return *this;
     }
-#else
-    inline PORTemulation & operator |= (int pins) __attribute__((always_inline)) {
-      port->BSRRL = pins;
-      return *this;
-    }
-    inline PORTemulation & operator &= (int pins) __attribute__((always_inline)) {
-      port->BSRRH = ~pins;
-      return *this;
-    }
-#endif
 };
 
 class PINemulation

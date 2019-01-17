@@ -17,7 +17,7 @@
 */
 
 /**
-  * \file syscalls_sam3.c
+  * \file syscalls.c
   *
   * Implementation of newlib syscall.
   *
@@ -41,7 +41,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-#include <sys/errno.h>
 
 // Helper macro to mark unused parameters and prevent compiler warnings.
 // Appends _UNUSED to the variable name to prevent accidentally using them.
@@ -55,6 +54,7 @@
  *        Exported variables
  *----------------------------------------------------------------------------*/
 
+#include <sys/errno.h>
 #undef errno
 extern int errno ;
 //extern int  _end ;
@@ -91,7 +91,7 @@ caddr_t _sbrk( int incr ) {
 }
 
 __attribute__((weak))
-int link(const char *old, const char *new)
+int _link(const char *old, const char *new)
 {
     UNUSED(old);
     UNUSED(new);	

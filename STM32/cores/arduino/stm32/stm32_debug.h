@@ -63,6 +63,7 @@ void _Error_Handler(char* file, uint32_t line);
 #ifdef __cplusplus
 }
 
+#if  __CORTEX_M  > 0  /* M0/M0+ not swo */
 #include "Stream.h"
 
 /*********************************************************************
@@ -110,6 +111,7 @@ public:
 };
 
 extern SWO SerialSWO;
+#endif
 
 #endif
 

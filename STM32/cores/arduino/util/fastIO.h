@@ -18,13 +18,8 @@ FAST IO MACRO  by huaweiwx@sina.com 2016.2
 
 //fast_io
 #define PORTPIN_IN(p,n)     ((GPIO##p##->IDR) &(1<<n))
-#ifdef STM32H7
-#define PORTPIN_LOW(p,n)    ((GPIO##p->BSRRL) = (1<<n))
-#define PORTPIN_HIGH(p,n)   ((GPIO##p->BSRRH) = (1<<n))
-#else
 #define PORTPIN_LOW(p,n)    ((GPIO##p->BSRR) = (1<<n))
 #define PORTPIN_HIGH(p,n)   ((GPIO##p->BSRR) = ((1<<n)<<16U))
-#endif
 #define PORTPIN_TOGGLE(p,n) ((GPIO##p->ODR) ^=(1<<n))
 #define PORTPIN_Mode(p,n,x)  pinMode(P##p##n,x)
 

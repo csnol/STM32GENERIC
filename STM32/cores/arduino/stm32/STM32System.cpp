@@ -19,10 +19,19 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 */
+#include "Arduino.h"
+#include <reent.h>        // required for _write_r
+#include "stm32_debug.h"
+//#include "stm32def.h"
+//#include "STM32System.h"
 
-#include "STM32System.h"
+//#include "cmsis_gcc.h"
 
-#include "cmsis_gcc.h"
+#if  __CORTEX_M  == 0  /* M0/M0+ not swo */
+#if USE_SWOPRINTERR > 0
+#error "!This is a cortex M0 chip, unsupport SWO!"
+#endif
+#endif
 
 static const int print_fileno = 3;
 
@@ -69,9 +78,9 @@ extern "C" int _write(int file, char *ptr, int len ) {
 		errprint->write(ptr, len);
 		errprint->flush();
 #else
-	    int cnt = len;
+	int cnt = len;
 	    while(cnt){
-	   	   ITM_SendChar(*prt);
+	   	   ITM_SendChar(*ptr);
 		   ptr++;
            cnt--;		   
 		}
@@ -86,4 +95,13 @@ extern "C" int _write(int file, char *ptr, int len ) {
 	return 0;  //return no-void warning add by huaweiwx@sina.com 2017.7.21
 }
 
-SWO  SerialSWO;
+struct _reent;
+extern "C"  int _write_r(struct _reent *r, int file, const void *ptr, size_t len) {
+  (void) r;     /* Not used, avoid warning */
+  _write(file, (char *)ptr, (int)len);
+  return len;
+}
+
+#if  __CORTEX_M  > 0  /* M0/M0+ not swo */
+  SWO  SerialSWO;
+#endif

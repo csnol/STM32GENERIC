@@ -35,10 +35,11 @@
 # define CAL_FACTOR (F_CPU/7000)
 #endif
 
-#if USE_ITMRXBUFFER > 0
-  volatile int32_t ITM_RxBuffer;                    /*!< External variable to receive characters. */
-#endif
- 
+#if  __CORTEX_M  > 0  /* M0/M0+ not swo */
+#  if USE_ITMRXBUFFER > 0
+     volatile int32_t ITM_RxBuffer;                    /*!< External variable to receive characters. */
+#  endif
+#endif 
 /** delay between led error flashes
  * \param[in] millis milliseconds to delay
  */
@@ -269,6 +270,7 @@ void ProcessHardFault(uint32_t lr, uint32_t msp, uint32_t psp)
     debug("psr = 0x%x\n", psr);
     while(1);
 }
+
 void hard_fault_handler_hook(uint32_t lr, uint32_t msp, uint32_t psp) __attribute__ ((weak, alias("ProcessHardFault")));
 
 #endif
