@@ -229,7 +229,6 @@ void STM_FSMC_LCD_Init(void)
 #ifndef DATA_IN_ExtSRAM
 void initVariant() {
 	STM_FSMC_SRAM_Init();
-//  setHeapAtSram();
 }
 #endif
 

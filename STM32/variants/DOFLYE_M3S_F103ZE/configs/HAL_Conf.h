@@ -7,6 +7,9 @@
 #define _HAL_DEFAULT_CONFIG_H_
 
 /***************  for freeRtos ****************/
+#ifndef   portUSE_HEAP
+#  define portUSE_HEAP 0  /*  port heap used heap_useNewlib */
+#endif
 
 #ifndef portTickUSE_TIMx
     #define portTickUSE_TIMx 7   /* 0/7 use systick/TIM7*/

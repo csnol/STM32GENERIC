@@ -6,7 +6,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5-3rd-party-Hardware-specification
 
 name=STM32(HAL & LL)
-version=1.8.5
+version=1.8.9
 
 # STM compile variables
 # ----------------------
@@ -35,10 +35,10 @@ compiler.size.cmd=arm-none-eabi-size
 compiler.ldflags=
 
 compiler.S.flags=-c -g -x assembler-with-cpp
-compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -Dprintf=iprintf -MMD
-compiler.cpp.flags=-c -g -Os {compiler.warning_flags} -std=gnu++14 -fpermissive -ffunction-sections -fdata-sections -nostdlib -fno-threadsafe-statics --param max-inline-insns-single=500 -fno-rtti -Dprintf=iprintf -MMD
+compiler.c.flags=-c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -MMD
+compiler.cpp.flags=-c -g -Os {compiler.warning_flags} -std=gnu++14 -fpermissive -ffunction-sections -fdata-sections -nostdlib -fno-threadsafe-statics --param max-inline-insns-single=500 -fno-rtti -MMD
 compiler.ar.flags=rcs
-compiler.c.elf.flags=-mcpu={build.mcu} -mthumb -Os -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common
+compiler.c.elf.flags=-mcpu={build.mcu} -mthumb -Os -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--defsym=LD_MAX_SIZE={upload.maximum_size} -Wl,--defsym=LD_MAX_DATA_SIZE={upload.maximum_data_size} -Wl,--defsym=LD_FLASH_OFFSET={upload.ld_flash_offset} -Wl,--defsym=LD_RAM_OFFSET={upload.ld_ram_offset}
 
 compiler.extra_flags=-mcpu={build.mcu} -mthumb -DF_CPU={build.f_cpu} -D{build.series} -DSTM32GENERIC -DRAM_LENGTH={upload.maximum_data_size} -DFLASH_LENGTH={upload.maximum_size}
 compiler.define=-DARDUINO=
@@ -46,6 +46,8 @@ compiler.combine.flags=-u _sbrk -u link -u _close -u _fstat -u _isatty -u _lseek
 
 
 # this can be overriden in boards.txt
+upload.ld_flash_offset=0
+upload.ld_ram_offset=0
 build.log_level=
 build.extra_flags=
 build.extra_flags_usb=
@@ -54,7 +56,7 @@ build.extra_flags_serial_auto=
 build.extra_flags_jtag=
 build.extra_flags_os=
 build.extra_flags_menu={compiler.extra_flags} {build.extra_flags_usb} {build.extra_flags_serial} {build.extra_flags_serial_auto} {build.extra_flags_jtag} {build.extra_flags_os}
-build.ldscript=ld/ldscript.ld
+build.ldscript=ldscript.ld
 build.extra_lib=
 build.spacil_includes="-I{build.core.path}/stm32"  "-I{build.system.path}/{build.series}/HAL_Inc" "-I{build.system.path}/{build.series}/HAL_Src" "-I{build.system.path}/{build.series}/stm32_chip"
 
@@ -93,7 +95,7 @@ recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DARDUIN
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" -Wl,--start-group {compiler.combine.flags} {object_files} "{build.extra_lib}" "{build.path}/{archive_file}" -lstdc++ -lc -Wl,--end-group -lm -lgcc --specs=nano.specs
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} "-T{build.system.path}/linker_scripts/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.elf" "-L{build.path}" -Wl,--start-group {compiler.combine.flags} {object_files} "{build.extra_lib}" "{build.path}/{archive_file}" -lstdc++ -lc -Wl,--end-group -lm -lgcc --specs=nano.specs
 
 ## Create bin
 recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"

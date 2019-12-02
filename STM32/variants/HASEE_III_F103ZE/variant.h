@@ -34,4 +34,6 @@
 #define USB_DISC_PIN      PG11
 #define USB_DISC_LOW      // disconnet by set PG11 set LOW.   add  by huaweiwx@sina.com 2017.4.23
 
+#define GPIO_CLOCKOPEN  1  /*GPIO clock had opend by FSMC_Init*/
+
 #endif

@@ -410,7 +410,6 @@ static void MspInit(void)
 #ifndef DATA_IN_ExtSDRAM
 void initVariant() {
 	BSP_SDRAM_Init();
-//  setHeapAtSram();
 }
 #endif
 

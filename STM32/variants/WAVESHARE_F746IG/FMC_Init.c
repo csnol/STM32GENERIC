@@ -494,7 +494,6 @@ __weak void BSP_SDRAM_MspDeInit(SDRAM_HandleTypeDef  *hsdram, void *Params)
 #ifndef DATA_IN_ExtSDRAM
 void initVariant() {
 	BSP_SDRAM_Init();
-//  setHeapAtSram();
 }
 #endif
 

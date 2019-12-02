@@ -7,9 +7,6 @@
 #define _HAL_DEFAULT_CONFIG_H_
 
 /***************  for freeRtos ****************/
-#ifndef   portUSE_HEAP
-#  define portUSE_HEAP 0  /*  port heap used heap_useNewlib */
-#endif
 
 #ifndef  configTOTAL_HEAP_SIZE
 # define configTOTAL_HEAP_SIZE         (RAM_LENGTH/4)
@@ -18,6 +15,9 @@
 #ifndef portTickUSE_TIMx
 # if defined(STM32F103RE)
     #define portTickUSE_TIMx 7
+    #ifndef   portUSE_HEAP
+    #  define portUSE_HEAP 0  /*  port heap used heap_useNewlib */
+    #endif
 # else
     #define portTickUSE_TIMx 0   /* 0/7 use systick/TIM7*/
 # endif

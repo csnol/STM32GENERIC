@@ -80,5 +80,17 @@
    PIN(C,15), \
    PIN(D,2 ),
 
+#ifndef  PINA_MASK
+#define  PINA_MASK  0b1001111111110011
+#endif
+#ifndef  PINB_MASK
+#define  PINB_MASK  0b1111111111111111
+#endif
+#ifndef  PINC_MASK
+#define  PINC_MASK  0b1111111111111111
+#endif
+#ifndef  PIND_MASK
+#define  PIND_MASK  0b0000000000000100
+#endif
 
 #endif

@@ -7,8 +7,10 @@
 void SystemClock_Config(void) __weak;
 #if defined(USE_HSI)
 void SystemClock_Config(void) {
-#if F_CPU == 8000000L
+#if F_CPU <= 24000000L
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
+#elif F_CPU <= 48000000L
+    LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 #else
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
 #endif	
@@ -52,8 +54,13 @@ void SystemClock_Config(void) {
 #else   //HSE
 //HSE
 void SystemClock_Config(void) {
-
+#if F_CPU <= 24000000L
+    LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
+#elif F_CPU <= 48000000L
+    LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
+#else
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
+#endif	
 	
     LL_RCC_HSE_Enable();
 

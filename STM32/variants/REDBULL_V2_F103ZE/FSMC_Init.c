@@ -184,13 +184,13 @@ void STM_FSMC_SRAM_Init(void)
 	IS61LV25616AL-10T 10ns
 	IS62WV51216BLL-55 55ns
   */
-  Timing.AddressSetupTime      = 2;	  //  6ns(1/168M)*(HCLK+1) ns	
-  Timing.AddressHoldTime       = 1;   //  FSMC_ACCESS_MODE_A unused 
+  Timing.AddressSetupTime      = 0;	  //  14ns(1/72M)*(HCLK+1) ns	
+  Timing.AddressHoldTime       = 0;   //  FSMC_ACCESS_MODE_A unused 
 //Timing.DataSetupTime         = 1;   //  14ns(1/72M)* (0+1) 14ns  for IS64/61LVx-10T/12T
   Timing.DataSetupTime         = 3;   //  14ns(1/72M)* (1+3) 56ns  for IS62WV51216BLL-55TL
-  Timing.BusTurnAroundDuration = 1;
-  Timing.CLKDivision           = 2;
-  Timing.DataLatency           = 2;
+  Timing.BusTurnAroundDuration = 0;
+  Timing.CLKDivision           = 0;
+  Timing.DataLatency           = 0;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   /* ExtTiming */
 
@@ -201,7 +201,7 @@ void STM_FSMC_SRAM_Init(void)
 }
 
 NOR_HandleTypeDef norHandle;
-uint8_t STM_FSMC_NOR_Init(void)
+void STM_FSMC_NOR_Init(void)
 { 	
   static FSMC_NORSRAM_TimingTypeDef Timing;
   norHandle.Instance = FSMC_NORSRAM_DEVICE;
@@ -233,15 +233,7 @@ uint8_t STM_FSMC_NOR_Init(void)
   norHandle.Init.WriteBurst 		= FSMC_WRITE_BURST_DISABLE;
 
   /* ExtTiming */
-
-  if(HAL_NOR_Init(&norHandle, &Timing, &Timing) != HAL_OK)
-  {
-    return HAL_ERROR;
-  }
-  else
-  {
-    return HAL_OK;  // return 0
-  }
+  HAL_NOR_Init(&norHandle, &Timing, &Timing);
 }
 
 NAND_HandleTypeDef nandHandle;
@@ -305,7 +297,6 @@ void STM_FSMC_LCD_Init(void)
 #ifndef DATA_IN_ExtSRAM
 void initVariant() {
 	STM_FSMC_SRAM_Init();
-//  setHeapAtSram();
 }
 #endif
 

@@ -28,4 +28,6 @@
 #define SDA PB9
 #define SCL PB8
 
+#define GPIO_CLOCKOPEN  1  /*GPIO clock had opend by FSMC_Init*/
+
 #endif

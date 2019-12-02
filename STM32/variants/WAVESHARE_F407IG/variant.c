@@ -43,6 +43,7 @@ void SystemClock_Config(void) {
 }
 
 #if USE_EXTRAMSYSMALLOC
+extern void setHeap(unsigned char* s, unsigned char* e);
 void setHeapAtCCram(void){
  setHeap((unsigned char*)(0x10000000), (unsigned char*)(0x10000000 + 64*1024));
 }

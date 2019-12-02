@@ -69,7 +69,7 @@ extern "C"{
 #endif
 
 void    STM_FSMC_SRAM_Init(void);
-uint8_t STM_FSMC_NOR_Init(void);
+void    STM_FSMC_NOR_Init(void);
 void    STM_FSMC_NAND_Init(void);
 
 #if USE_EXTRAMSYSMALLOC

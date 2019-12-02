@@ -187,13 +187,13 @@ void STM_FSMC_SRAM_Init(void)
 	IS61LV25616AL-10TL  10ns
 	IS62WV51216BLL-55TL 55ns
   */
-  Timing.AddressSetupTime        = 2;
-  Timing.AddressHoldTime         = 1;
+  Timing.AddressSetupTime        = 0;	//  14ns(1/72M)*(HCLK+1) ns
+  Timing.AddressHoldTime         = 0;
 //  Timing.DataSetupTime         = 1;   //  14ns(1/72M)* (0+1) 14ns  for IS64/61LVx-10T/12T
   Timing.DataSetupTime           = 3;   //  14ns(1/72M)* (1+3) 56ns  for IS62WV51216BLL-55TL
-  Timing.BusTurnAroundDuration   = 1;
-  Timing.CLKDivision             = 2;
-  Timing.DataLatency             = 2;
+  Timing.BusTurnAroundDuration   = 0;
+  Timing.CLKDivision             = 0;
+  Timing.DataLatency             = 0;
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
   /* ExtTiming */
 
@@ -306,7 +306,6 @@ void STM_FSMC_LCD_Init(void)
 void initVariant() {
 #ifndef DATA_IN_ExtSRAM
 	STM_FSMC_SRAM_Init();
-//  setHeapAtSram();
 #endif
 //	STM_FSMC_NOR_Init();
 //	STM_FSMC_NAND_Init();

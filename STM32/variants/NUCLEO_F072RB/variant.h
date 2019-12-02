@@ -2,12 +2,13 @@
 #define VARIANT_H
 
 //NUCLEO BOARD
-#ifndef SB16
+#ifndef SB16      /*can use MCO while SB16 and SB50 is on */
 # define SB16 1   /*SB16 is open/closed 0/1 default is 0*/
 #endif
 #ifndef SB50
 # define SB50 1   /*SB50 is open/closed 0/1 default is 0*/
 #endif
+
 #ifndef EXTERNCRYSTAL8M
 # define EXTERNCRYSTAL8M 0  /*extern 8M crystal isn't installed*/
 #endif
