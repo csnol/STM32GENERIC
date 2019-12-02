@@ -64,7 +64,7 @@ void stm32AfUARTInit(const USART_TypeDef *instance,
     GPIO_TypeDef *rxPort, uint32_t rxPin,
     GPIO_TypeDef *txPort, uint32_t txPin) {
 
-#ifdef STM32F1
+#if defined (STM32F1)||defined (GD32F10X)||defined (GD32F20X)
     stm32AfInit(chip_af_usart_rx, sizeof(chip_af_usart_rx) / sizeof(chip_af_usart_rx[0]), instance, rxPort, rxPin, GPIO_MODE_AF_INPUT, GPIO_PULLUP);
 #else
     stm32AfInit(chip_af_usart_rx, sizeof(chip_af_usart_rx) / sizeof(chip_af_usart_rx[0]), instance, rxPort, rxPin, GPIO_MODE_AF_PP, GPIO_PULLUP);

@@ -268,16 +268,16 @@ bool fastDigitalRead(uint8_t pin) {
 
 #else  // CORE_TEENSY / STM32GENERIC /EFM32GENERIC
 //------------------------------------------------------------------------------
-inline void fastDigitalWrite(uint8_t pin, bool value) {
+static inline void fastDigitalWrite(uint8_t pin, bool value) {
   digitalWrite(pin, value);
 }
 //------------------------------------------------------------------------------
-inline bool fastDigitalRead(uint8_t pin) {
+static inline bool fastDigitalRead(uint8_t pin) {
   return digitalRead(pin);
 }
 #endif  // CORE_TEENSY& STM32GENERIC
 //------------------------------------------------------------------------------
-inline void fastDigitalToggle(uint8_t pin) {
+static inline void fastDigitalToggle(uint8_t pin) {
 #if defined(STM32GENERIC)||defined(EFM32GENERIC)  //add by huaweiwx@sina.com 2018.8.28
 	digitalToggle(pin);
 #else
@@ -302,7 +302,7 @@ inline void fastDigitalToggle(ARDUINOPIN_TypeDef pin) {
 #endif
 
 //------------------------------------------------------------------------------
-inline void fastPinMode(uint8_t pin, uint8_t mode) {
+static inline void fastPinMode(uint8_t pin, uint8_t mode) {
   pinMode(pin, mode);
 }
 #endif  // __AVR__

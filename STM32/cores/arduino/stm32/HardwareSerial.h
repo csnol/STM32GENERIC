@@ -32,6 +32,7 @@
 #include "stm32_gpio.h"
 #include "Stream.h"
 #include "util/toolschain.h"
+//#include "RingBuffer.h"
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 128
@@ -44,7 +45,7 @@
 #endif
 
 /*from Arduino_Core*/
-#ifdef UART_WORDLENGTH_7B
+#ifdef  UART_WORDLENGTH_7B
 #define SERIAL_7N1 0x04
 #define SERIAL_7N2 0x0C
 #define SERIAL_6E1 0x22
@@ -70,10 +71,10 @@ class HardwareSerial : public Stream{
     void begin(const uint32_t baud = 115200, uint8_t config = SERIAL_8N1);
     void configForLowPower(void);
     void end(void);
-    int available(void);
-    int availableForWrite();
-    int peek(void);
-    int read(void);
+    int  available(void);
+    int  availableForWrite();
+    int  peek(void);
+    int  read(void);
     void flush(void);
     size_t write(const uint8_t c);
     using Print::write; // pull in write(str) and write(buf, size) from Print
@@ -89,8 +90,8 @@ class HardwareSerial : public Stream{
     __deprecated("have a new func instead: setPins(tx,rx).add by huaweiwx")
     void stm32SetTX(uint8_t tx);
 
-    USART_TypeDef *instance = NULL;
     UART_HandleTypeDef *handle = NULL;
+    USART_TypeDef *instance = NULL;
 
     uint8_t receive_buffer = 0;
 

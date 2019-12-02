@@ -38,5 +38,11 @@
 	#ifdef STM32L4
 		#include "system_stm32l4xx.c"
 	#endif	
+	#ifdef GD32F1x0
+		#include "system_gd32f1x0.c"
+	#endif
+	#ifdef GD32F2
+		#include "system_gd32f20x.c"
+	#endif
 #  endif
 #endif

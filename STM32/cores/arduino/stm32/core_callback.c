@@ -54,6 +54,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "core_callback.h"
 
+#ifndef CALLBACK_LIST_SIZE
+#define CALLBACK_LIST_SIZE  4
+#endif
+
 // List of callback to call
 static void (*callbackList[CALLBACK_LIST_SIZE])(void);
 

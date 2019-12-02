@@ -34,9 +34,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "usb_device.h"
+#include <usb_device.h>
 #include "usbd_core.h"
-#include "usbd_desc.h"
+#include <usbd_desc.h>
 #include "cdc/usbd_cdc.h"
 #include "cdc/usbd_cdc_if.h"
 

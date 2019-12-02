@@ -48,9 +48,6 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#ifndef CALLBACK_LIST_SIZE
-#define CALLBACK_LIST_SIZE  4
-#endif
 
 /* Exported functions ------------------------------------------------------- */
 void registerCoreCallback(void (*func)(void));

@@ -39,7 +39,7 @@ typedef enum {
     TIM_ETR
 } TIMER_SIGNALS;
 
-#ifdef STM32F1
+#if defined(STM32F1)||defined(GD32F10X)|| defined(GD32F20X)
 
 typedef void (*stm32_af_callback)();
 

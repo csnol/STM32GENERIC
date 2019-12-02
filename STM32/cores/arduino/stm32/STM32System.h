@@ -5,7 +5,7 @@
 #include "unistd.h"
 
 // Returns if we are in an interrupt
-inline bool isInterrupt() {
+static inline bool isInterrupt() {
     return (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0 ;
 }
 

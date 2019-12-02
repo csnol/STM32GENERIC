@@ -67,10 +67,10 @@ typedef struct {
 
 extern const stm32_port_pin_type variant_pin_list[NUM_DIGITAL_PINS];
 
-inline GPIO_TypeDef* pinToPort(uint8_t pin) {
+static inline GPIO_TypeDef* pinToPort(uint8_t pin) {
   return variant_pin_list[pin].port; /* equal_to digitalPinToPort(pin)*/
 }
-inline uint32_t pinToBitMask(uint8_t pin) {
+static inline uint32_t pinToBitMask(uint8_t pin) {
   return variant_pin_list[pin].pinMask; /* equal_to digitalPinToBitMask(pin)*/
 }
 
@@ -89,14 +89,14 @@ extern stm32_pwm_disable_callback_func stm32_pwm_disable_callback;
 extern void attachInterrupt(uint8_t, void (*)(void), int mode);
 extern void detachInterrupt(uint8_t);
 
-inline void digitalWriteHigh(uint8_t pin) {
+static inline void digitalWriteHigh(uint8_t pin) {
   //    if (pin >= sizeof(variant_pin_list) / sizeof(variant_pin_list[0])) {
   //        return;
   //    }
   stm32_port_pin_type port_pin = variant_pin_list[pin];
   HAL_GPIO_WritePin(port_pin.port, port_pin.pinMask, GPIO_PIN_SET);
 }
-inline void digitalWriteLow(uint8_t pin) {
+static inline void digitalWriteLow(uint8_t pin) {
   //    if (pin >= sizeof(variant_pin_list) / sizeof(variant_pin_list[0])) {
   //        return;
   //    }
@@ -104,7 +104,7 @@ inline void digitalWriteLow(uint8_t pin) {
   HAL_GPIO_WritePin(port_pin.port, port_pin.pinMask, GPIO_PIN_RESET);
 }
 
-inline void digitalWrite(uint8_t pin, uint8_t value) {
+static inline void digitalWrite(uint8_t pin, uint8_t value) {
   //    if (pin >= sizeof(variant_pin_list) / sizeof(variant_pin_list[0])) {
   //        return;
   //    }
@@ -112,7 +112,7 @@ inline void digitalWrite(uint8_t pin, uint8_t value) {
   HAL_GPIO_WritePin(port_pin.port, port_pin.pinMask, value ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-inline int digitalRead(uint8_t pin) {
+static inline int digitalRead(uint8_t pin) {
   //    if (pin >= sizeof(variant_pin_list) / sizeof(variant_pin_list[0])) {
   //        return 0;
   //    }
@@ -121,7 +121,7 @@ inline int digitalRead(uint8_t pin) {
   return HAL_GPIO_ReadPin(port_pin.port, port_pin.pinMask);
 }
 
-inline void digitalToggle(uint8_t pin) {
+static inline void digitalToggle(uint8_t pin) {
   stm32_port_pin_type port_pin = variant_pin_list[pin];
   HAL_GPIO_TogglePin(port_pin.port, port_pin.pinMask);
 }
@@ -145,15 +145,15 @@ static const stm32_port_pin_type variant_pin_list_ll_static[] = {
 
 #ifdef __cplusplus
 
-inline static void digitalWriteHigh(__ConstPin CPin) {
+static inline void digitalWriteHigh(__ConstPin CPin) {
   LL_GPIO_SetOutputPin((GPIO_TypeDef*)CPin.ulPortBase, CPin.pinMask);
 }
-inline static void digitalWriteLow(__ConstPin CPin) {
+static inline void digitalWriteLow(__ConstPin CPin) {
   LL_GPIO_ResetOutputPin((GPIO_TypeDef*)CPin.ulPortBase, CPin.pinMask);
 }
 
 template<typename T>
-inline static void digitalWrite(__ConstPin CPin, T value) {
+static inline void digitalWrite(__ConstPin CPin, T value) {
   if (value) {
     LL_GPIO_SetOutputPin((GPIO_TypeDef*)CPin.ulPortBase, CPin.pinMask);
   } else {
@@ -162,20 +162,20 @@ inline static void digitalWrite(__ConstPin CPin, T value) {
 }
 
 template<typename T = bool>
-inline static T digitalRead(__ConstPin CPin) {
+static inline T digitalRead(__ConstPin CPin) {
   return LL_GPIO_IsInputPinSet((GPIO_TypeDef*)CPin.ulPortBase, CPin.pinMask);
 }
 
 extern "C" void pinModeLL(GPIO_TypeDef *port, uint32_t ll_pin, uint8_t mode);
-inline static void pinMode(__ConstPin CPin, uint8_t mode) {
-#ifdef STM32F1
+static inline void pinMode(__ConstPin CPin, uint8_t mode) {
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X)
   pinMode(CPin.ucPin,mode); 
 #else	
   pinModeLL((GPIO_TypeDef *)CPin.ulPortBase, CPin.pinMask, mode);
 #endif
 }
 
-inline static void digitalToggle(__ConstPin CPin) {
+static inline void digitalToggle(__ConstPin CPin) {
   LL_GPIO_TogglePin((GPIO_TypeDef*)CPin.ulPortBase, CPin.pinMask);
 }
 
@@ -183,10 +183,12 @@ inline static void digitalToggle(__ConstPin CPin) {
 
 class DDRemulation
 {
-  public:
-    DDRemulation(GPIO_TypeDef *port, uint16_t mask = 0xffff): port(port), mask(mask) {}
+  protected:
     GPIO_TypeDef *port;
     uint16_t mask;
+	
+  public:
+    DDRemulation(GPIO_TypeDef *port, uint16_t mask = 0xffff): port(port), mask(mask) {}
 
 	inline void setMask(uint16_t val){
 		mask = val;
@@ -354,76 +356,83 @@ extern DDRemulation   DDRK;
 
 /*gpio low layer interface class*/
 class LL_PIN {
+  protected:
+    __ConstPin CPin;
+
   public:
     constexpr LL_PIN(__ConstPin CPin): CPin(CPin) {}
-    __ConstPin CPin;
 	
-    template<typename T>
-    inline LL_PIN & operator = (T value) {
+    template<typename T> inline  __attribute__((always_inline))
+    LL_PIN & operator = (T value) {
       this->write(value);
       return *this;
     }
-    template<typename T>
-    inline LL_PIN & operator ^= (T value) {
+    template<typename T> inline  __attribute__((always_inline))
+     LL_PIN & operator ^= (T value) {
       if(value) this->toggle();
       return *this;
     }
 
-    LL_PIN& operator = (LL_PIN& rhs) {
+    inline  __attribute__((always_inline))
+	LL_PIN& operator = (LL_PIN& rhs) {
       this->write(rhs.read());
       return *this;
     }
 
-    template<typename T>
-    inline void write(T value) {
+    template<typename T> inline __attribute__((always_inline))
+	void write(T value)  const{
       digitalWrite(CPin, value);
     }
 
     inline __attribute__((always_inline))
-    void high() {
+    void high() const{
       digitalWriteHigh(CPin);
     }
 
     inline __attribute__((always_inline))
-    void low() {
+    void low() const{
       digitalWriteLow(CPin);
     }
 
-    template<typename T = bool>
-    inline operator T () {
-      return this->read();
-    }
-
-    template<typename T = bool>
-    inline T read() {
+    template<typename T = bool> inline  __attribute__((always_inline))
+    T read() const {
       return digitalRead(CPin);
     }
 
-    inline void operator  !() __attribute__((always_inline)) {
+    template<typename T = bool>  inline  __attribute__((always_inline))
+     operator T () const{
+      return this->read();
+    }
+
+    inline  __attribute__((always_inline))
+	void operator  !() const {
       this->toggle();
     }
 
     /*----- comptabled with DigitalPin ----------*/
     inline __attribute__((always_inline))
-    void toggle() {
+    void toggle() const {
       digitalToggle(CPin);
     }
 
-    template<typename T>
-    inline  void config(uint8_t mode, T level) {  /*compatale with digitalPin*/
+    template<typename T> inline  __attribute__((always_inline))
+    void config(uint8_t mode, T level) const{  /*compatale with digitalPin*/
       this->mode(mode);
       this->write(level);
     }
 
-    inline void mode(uint8_t mode) {
+    inline  __attribute__((always_inline)) 
+	void mode(uint8_t mode) const{
       pinMode(CPin, mode);
     }
 
-    inline void attach(voidFuncPtr callback, uint8_t mode) {
+    inline  __attribute__((always_inline)) 
+	void attach(voidFuncPtr callback, uint8_t mode) const{
       attachInterrupt(CPin.ucPin, callback, mode);
     }
 
-    inline void detach(void) {
+    inline  __attribute__((always_inline)) 
+	void detach(void) const {
       detachInterrupt(CPin.ucPin);
     }
 
@@ -432,8 +441,10 @@ class LL_PIN {
 uint32_t pulseIn(__ConstPin CPin, bool state = false, uint32_t timeout = 1'000'000L );
 
 class InputPin : public LL_PIN {
+  protected:
+    uint32_t ulDelayCnt = 1;
+	
   public:
-    uint32_t ulDelayCnt = F_CPU / 10'000'000;  
     constexpr InputPin(__ConstPin CPin, bool initial_value = 1): LL_PIN(CPin) {
       config(INPUT, initial_value);
     }
@@ -446,7 +457,7 @@ class InputPin : public LL_PIN {
     inline operator T () {
       /*Waiting for stability*/
       if (ulDelayCnt) {                           
-        for (volatile uint32_t i = ulDelayCnt; i > 0; i--);
+          _delay_loop_2(ulDelayCnt);
       }
        return read();
     }
@@ -482,9 +493,9 @@ class InputPin : public LL_PIN {
 
 class OutputPin : public LL_PIN {
   public:
-    uint32_t ulDelayCnt = F_CPU / 10'000'000;
+    uint32_t ulDelayCnt = 1; /*default 1 / F_CPU */
 
-	constexpr OutputPin(__ConstPin CPin, bool initial_value = 0): LL_PIN(CPin) {
+	constexpr OutputPin(__ConstPin CPin, bool initial_value = 1): LL_PIN(CPin) {
       config(OUTPUT, initial_value);
     }
 
@@ -494,11 +505,11 @@ class OutputPin : public LL_PIN {
 
     void pulse(bool value = true) {
       if (ulDelayCnt) {
-        for (volatile uint32_t i = ulDelayCnt; i > 0; i--);
+          _delay_loop_2(ulDelayCnt);
       }
       this->write(value);
       if (ulDelayCnt) {
-        for (volatile uint32_t i = ulDelayCnt; i > 0; i--);
+          _delay_loop_2(ulDelayCnt);
       }
       this->toggle();
     }
@@ -526,17 +537,18 @@ class OutputPin : public LL_PIN {
 
 template < uint8_t nbits = 8, uint8_t bit_order = MSBFIRST>
 class ClockedInput {
+  protected:
+    uint32_t ulDelayCnt = 1 ; /*default 1 / F_CPU(mhz) us */
+    InputPin  data;
+    OutputPin clock;
+  
     // A DirectIO implementation of shiftIn. Also supports
     // a variable number of bits (1-32); shiftIn is always 8 bits.
   public:
     // Define a type large enough to hold nbits bits (see base.h)
     typedef bits_type(nbits) bits_t;
-	
-    uint32_t ulDelayCnt = F_CPU / 10'000'000;
 
     constexpr ClockedInput(__ConstPin data_pin, __ConstPin clock_pin , bool pullup = true) : data(data_pin, pullup), clock(clock_pin) {}
-    InputPin  data;
-    OutputPin clock;
 
     inline void setWaitTime(uint32_t time){
 		ulDelayCnt = time;
@@ -549,12 +561,12 @@ class ClockedInput {
       bits_t value = 0;
       bits_t mask = (bit_order == LSBFIRST) ? 1 : (bits_t(1) << (nbits - 1));
 
-      data.setWaitTime(0);  /*use this ulDelayCnt*/
+      data.setWaitTime(ulDelayCnt);  /*use this ulDelayCnt*/
 
       for (uint8_t i = 0; i < nbits; i++) {
         clock = HIGH;
         if (ulDelayCnt) {
-          for (volatile uint32_t i = ulDelayCnt; i > 0; i--);
+          _delay_loop_2(ulDelayCnt);
         }
 
         if (data) {
@@ -570,29 +582,30 @@ class ClockedInput {
           mask >>= 1;
         }
         if (ulDelayCnt) {
-          for (volatile uint32_t i = ulDelayCnt; i > 0; i--);
+           _delay_loop_2(ulDelayCnt);
         }
       }
       return value;
     }
 
-    operator bits_t() {
+    operator bits_t () {
       return read();
     }
 };
 
 template < uint8_t nbits = 8, uint8_t bit_order = MSBFIRST>
 class ClockedOutput {
+  protected:
+    uint32_t ulDelayCnt = 1;
+    OutputPin data;
+    OutputPin clock;
     // A DirectIO implementation of shiftOut. Also supports
     // a variable number of bits (1-32); shiftOut is always 8 bits.
   public:
     // Define a type large enough to hold nbits bits (see base.h)
     typedef bits_type(nbits) bits_t;
-    uint32_t ulDelayCnt = F_CPU / 10'000'000;
 
     constexpr ClockedOutput(__ConstPin data_pin, __ConstPin clock_pin): data(data_pin), clock(clock_pin) {};
-    OutputPin data;
-    OutputPin clock;
 
     inline void setWaitTime(uint32_t time){
 		ulDelayCnt = time;
@@ -638,7 +651,7 @@ class ClockedOutput {
 // data = HIGH;
 // cs = HIGH;
 
-#define with(pin, val) for(boolean _loop_##pin=((pin=val),true);_loop_##pin; _loop_##pin=((pin=!val), false))
+#define with(pin, val) for(bool _loop_##pin=((pin=val),true);_loop_##pin; _loop_##pin=((pin=!val), false))
 
 
 #endif /* __cplusplus */

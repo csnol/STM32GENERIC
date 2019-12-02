@@ -60,7 +60,7 @@
   */
 
 /*---------- -----------*/
-#ifdef MENU_USB_IAD  /*huaweiwx@sina.com 2017.9.15 add*/
+#if (USE_USBDCOMPOSITE)  /*huaweiwx@sina.com 2017.9.15 add*/
  #define USBD_MAX_NUM_INTERFACES     3
 #else
  #define USBD_MAX_NUM_INTERFACES     1
@@ -105,7 +105,7 @@
   */
 
 /* Memory management macros */
-#ifdef MENU_USB_IAD  /*huaweiwx@sina.com 2017.9.15 add*/
+#if (USE_USBDCOMPOSITE)  /*huaweiwx@sina.com 2017.9.15 add*/
  #ifndef USBD_malloc
   #define USBD_malloc               malloc
  #endif
@@ -125,6 +125,14 @@
 #define USBD_memcpy               /* Not used */
 
 #define USBD_Delay   HAL_Delay
+
+#if (USE_USBDDFU)
+/* DFU Class Config */
+#define USBD_DFU_MAX_ITF_NUM                   1
+#define USBD_DFU_XFER_SIZE                     1024   /* Max DFU Packet Size   = 1024 bytes */
+#define USBD_DFU_APP_DEFAULT_ADD               0x08007000 /*ADDR_FLASH_PAGE_24*/
+#define USBD_DFU_APP_END_ADD                   0x0801FFFF /*ADDR_FLASH_PAGE_64*/
+#endif
 
 /* For footprint reasons and since only one allocation is handled in the HID class
    driver, the malloc/free is changed into a static allocation method */

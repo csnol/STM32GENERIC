@@ -62,7 +62,6 @@ void shiftOut(uint32_t ulDataPin, uint32_t ulClockPin, uint32_t ulBitOrder, uint
         }
 
 		digitalWrite(ulClockPin, HIGH ) ;
-		_NOP();
 		digitalWrite(ulClockPin, LOW ) ;		
 	}
 }

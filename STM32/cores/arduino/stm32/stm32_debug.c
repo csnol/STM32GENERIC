@@ -21,33 +21,24 @@
 */
 
 #include "Arduino.h"
-#include "stm32_debug.h"
-
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
 #pragma GCC diagnostic ignored "-Wformat"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 //------------------------------------------------------------------------------
-/** calibration factor for delayMS */
-#if defined(STM32F7)||defined(STM32H7)
-# define CAL_FACTOR (F_CPU/2000)
-#else
-# define CAL_FACTOR (F_CPU/7000)
-#endif
 
 #if  __CORTEX_M  > 0  /* M0/M0+ not swo */
 #  if USE_ITMRXBUFFER > 0
-     volatile int32_t ITM_RxBuffer;                    /*!< External variable to receive characters. */
+  volatile int32_t ITM_RxBuffer;                    /*!< External variable to receive characters. */
 #  endif
 #endif 
 /** delay between led error flashes
  * \param[in] millis milliseconds to delay
  */
 static void delayMS(uint32_t millis) {
-  uint32_t iterations = millis * CAL_FACTOR;
   uint32_t i;
-  for(i = 0; i < iterations; ++i) {
-    asm volatile("nop\n\t");
+  for(i = millis; i ; i--) {
+    _delay_loop_us(1000);
   }
 }
 
@@ -125,13 +116,16 @@ void debug_if(int condition, const char *format, ...) {
 }
 
 void print_log(const char *level, const char *format, const char *file, const int line, ...) {
-
+#if USE_TIMESTAMP  /*arduino Serial Monitor can output timestamp huaweiwx@sina.com 2019.10.15*/
     uint32_t m = micros();
 
     uint32_t seconds = m / 1000000;
     uint32_t fractions = m % 1000000;
 
     debug("[%2u.%-6u]%10s %3d %s:", seconds, fractions, file, line, level);
+#else
+    debug("%10s %3d %s:",file, line, level);
+#endif
 
     va_list argList;
     va_start(argList, line);
@@ -156,22 +150,26 @@ char *stm32PinName(uint8_t pin) {
     static char ret[10];
     int index = 0;
 
-    if (variant_pin_list[0].port != GPIOA || variant_pin_list[0].pinMask != GPIO_PIN_0) {
-        if (pin < 10) {
-            ret[index++] = '0' + pin;
-        } else {
-            ret[index++] = '0' + pin / 10;
-            ret[index++] = '0' + pin % 10;
-        }
-        ret[index++] = ' ';
-        ret[index++] = '(';
+    if (pin < 10) {
+        ret[index++] = '0' + pin;
+    } else {
+        ret[index++] = '0' + pin / 10;
+        ret[index++] = '0' + pin % 10;
     }
-
+    ret[index++] = '(';
     ret[index++] = 'P';
 
     stm32_port_pin_type port_pin = variant_pin_list[pin];
-
+#ifdef GD32F20X
+    if((uint32_t)port_pin.port <= (uint32_t)GPIOG){
+        ret[index++] = 'A' + ((uint32_t)port_pin.port - (uint32_t)GPIOA) / ((uint32_t)GPIOB - (uint32_t)GPIOA);
+	}
+	else {  /*for GD32F20X GPIOH/I */
+        ret[index++] = 'H' + ((uint32_t)port_pin.port - (uint32_t)GPIOH) / ((uint32_t)GPIOI - (uint32_t)GPIOH);
+	}
+#else
     ret[index++] = 'A' + ((uint32_t)port_pin.port - (uint32_t)GPIOA) / ((uint32_t)GPIOB - (uint32_t)GPIOA);
+#endif	
     int num = __builtin_ffs(port_pin.pinMask) - 1;
     if (num < 10) {
         ret[index++] = '0' + num;
@@ -180,14 +178,10 @@ char *stm32PinName(uint8_t pin) {
         ret[index++] = '0' + num % 10;
     }
 
-    if (variant_pin_list[0].port != GPIOA || variant_pin_list[0].pinMask != GPIO_PIN_0) {
-        ret[index++] = ')';
-    }
-
+    ret[index++] = ')';
     ret[index] = 0;
 
     return ret;
-
 }
 
 //_Error_Handler() created by CubeMX. huaweiwx@sina.com  2017.12.8
@@ -288,6 +282,10 @@ void assert_failed(uint8_t* file, uint32_t line)
  /**
 * @brief This function handles Hard fault interrupt.
 */
+void HardFault_callback(void) __attribute__ ((weak));
+void HardFault_callback(void){
+	errorCallback((char*)"HardFault",31);
+}
 void HardFault_Handler(void)
 {
   #if USE_HARDFAUILTHOOK
@@ -299,7 +297,7 @@ void HardFault_Handler(void)
     " b hard_fault_handler_hook \n"
     );
   #else
-  	errorCallback((char*)"HardFault",31);
+    HardFault_callback();
   #endif
     while(1);
 }
@@ -307,27 +305,40 @@ void HardFault_Handler(void)
 /**
 * @brief This function handles Memory management fault.
 */
+void MemManage_callback(void) __attribute__ ((weak));
+void MemManage_callback(void){
+	errorCallback((char*)"MemFault",32);	
+}
 void MemManage_Handler(void)
 {
-	errorCallback("MemFault",32);
-    while(1);
+    MemManage_callback();
+    while(1){
+	};
 }
 
 /**
 * @brief This function handles Pre-fetch fault, memory access fault.
 */
+void BusFault_callback(void) __attribute__ ((weak));
+void BusFault_callback(void){
+	errorCallback((char*)"BusFault",33);	
+}
 void BusFault_Handler(void)
 {
-	errorCallback("BusFault",33);
+    BusFault_callback();
     while(1);
 }
 
 /**
 * @brief This function handles Undefined instruction or illegal state.
 */
+void UsageFault_callback(void) __attribute__ ((weak));
+void UsageFault_callback(void){
+	errorCallback((char*)"Usage fault",34);
+}
 void UsageFault_Handler(void)
 {
-	errorCallback("UsageFault",34);
+    UsageFault_callback();
     while(1);
 }
 #endif

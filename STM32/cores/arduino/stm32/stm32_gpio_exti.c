@@ -24,13 +24,15 @@
 
 #include "stm32_gpio.h"
 
-#define CHANGE 1
-#define FALLING 2
-#define RISING 3
+#define LOW     0x0
+#define HIGH    0x1
+#define CHANGE  0x2
+#define FALLING 0x3
+#define RISING  0x4
 
 typedef void (*stm32_exti_callback_func)();
 
-#if defined(STM32F0) || defined(STM32L0)
+#if defined(STM32F0) || defined(STM32L0)||defined(GD32F1x0)
 const uint8_t exti_irq[] = {EXTI0_1_IRQn, EXTI0_1_IRQn, EXTI2_3_IRQn, EXTI2_3_IRQn, EXTI4_15_IRQn,
         EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn,
         EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn, EXTI4_15_IRQn};
@@ -58,17 +60,19 @@ void attachInterrupt(uint8_t pin, stm32_exti_callback_func callback, int mode) {
 
     GPIO_InitStruct.Pin = port_pin.pinMask;
     switch(mode) {
+        case CHANGE:
+            GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+            break;
+        case FALLING:
+		case LOW:
+            GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+            break;
         case RISING:
+		case HIGH:
+        default:
             GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
             break;
 
-        case FALLING:
-            GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-            break;
-
-        case CHANGE:
-            default:
-            GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     }
 
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -83,7 +87,7 @@ void detachInterrupt(uint8_t pin) {
     callbacks[__builtin_ffs(variant_pin_list[pin].pinMask) - 1] = NULL;
 }
 
-#if defined(STM32F0) || defined(STM32L0) 
+#if defined(STM32F0) || defined(STM32L0) ||defined(GD32F1x0)
 void EXTI0_1_IRQHandler(void) {
   for(uint32_t pin = GPIO_PIN_0; pin <= GPIO_PIN_1; pin=pin<<1) {
     HAL_GPIO_EXTI_IRQHandler(pin);

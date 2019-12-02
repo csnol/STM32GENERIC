@@ -110,7 +110,7 @@ void pwmWrite(uint8_t pin, int dutyCycle, int frequency, int durationMillis) {
             if (pwm_config[i].port == NULL) {
                 pinMode(pin, OUTPUT);
             }
-#ifdef STM32F0  // there is no pclk2
+#if defined(STM32F0)||defined(GD32F1x0)  // there is no pclk2
 			uint32_t timerFreq = HAL_RCC_GetPCLK1Freq();
 #else
 			uint32_t timerFreq = HAL_RCC_GetPCLK2Freq();
@@ -158,7 +158,7 @@ void stm32ScheduleMicros(uint32_t microseconds, void (*callback)()) {
         if (pwm_config[i].port == NULL && pwm_config[i].callback == NULL) {
 
             pwm_config[i].callback = callback;
-#ifdef STM32F0  // there is no pclk2
+#if  defined(STM32F0)||defined(GD32F1x0)  // there is no pclk2
             pwm_config[i].waveLengthCycles = HAL_RCC_GetPCLK1Freq() * (uint64_t)microseconds / 1000000;
 #else
             pwm_config[i].waveLengthCycles = HAL_RCC_GetPCLK2Freq() * (uint64_t)microseconds / 1000000;

@@ -158,7 +158,11 @@ void pinMode(uint8_t pin, uint8_t mode) {
       break;
 
     case ANALOG:                    //add by huaweiwx@sina.com 2017.6.9
+#ifdef GPIO_MODE_ANALOG_ADC_CONTROL  /*STM32L4*/
+      init.Mode = GPIO_MODE_ANALOG_ADC_CONTROL;
+#else
       init.Mode = GPIO_MODE_ANALOG;
+#endif
       init.Pull = GPIO_NOPULL;
       break;
 

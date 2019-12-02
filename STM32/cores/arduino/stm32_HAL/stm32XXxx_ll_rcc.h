@@ -1,15 +1,25 @@
 
 #include "stm32_build_defines.h"
 
-#ifdef STM32F0
+#if defined(STM32F0)
 	#include "stm32f0xx_ll_rcc.h"
 	#include "stm32f0xx_ll_system.h"
 	#include "stm32f0xx_ll_cortex.h"
 #endif
-#ifdef STM32F1
+#if defined(GD32F1x0)
+	#include "gd32f1x0_ll_rcc.h"
+	#include "gd32f1x0_ll_system.h"
+	#include "gd32f1x0_ll_cortex.h"
+#endif
+#if defined(STM32F1)
 	#include "stm32f1xx_ll_rcc.h"
 	#include "stm32f1xx_ll_system.h"
 	#include "stm32f1xx_ll_cortex.h"
+#endif
+#if defined(GD32F2)
+	#include "gd32f2xx_ll_rcc.h"
+	#include "gd32f2xx_ll_system.h"
+	#include "gd32f2xx_ll_cortex.h"
 #endif
 #ifdef STM32F2
 	#include "stm32f2xx_ll_rcc.h"

@@ -204,11 +204,13 @@ static inline uint32_t BB_pinOutAdr(uint32_t pin) {
 #if BITBAND_OPTION
 /*gpio bitband interface class*/
 class BB_PIN {
-  public:
-    BB_PIN(__ConstPin CPin): CPin(CPin) {}
+  protected:
     __ConstPin CPin;
 
-#ifdef STM32F1
+  public:
+    BB_PIN(__ConstPin CPin): CPin(CPin) {}
+
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X)
     /*F1 ll_gpio_pin to gpio_pin :  (ll_gpio_pin>>GPIO_PIN_MASK_POS) & 0x0000FFFFU*/
 	const uint8_t  pos       = POSITION_VAL((CPin.pinMask >> GPIO_PIN_MASK_POS) & 0x0000FFFFU);
 #else
@@ -221,12 +223,12 @@ class BB_PIN {
     const uint32_t bb_outadr = BITBAND(outReg, pos);
 
     template<typename T = bool>
-    inline T read() {
+    inline T read() const{
       return MEM_ADDR(this->bb_inadr);
     }
 
     template<typename T>
-    inline  void write(T value) {
+    inline  void write(T value) const{
       MEM_ADDR(this->bb_outadr) =(bool)value;
     }
 
@@ -246,47 +248,49 @@ class BB_PIN {
       return *this;
     }
 
-    inline void high() {
+    inline void high() const {
       MEM_ADDR(this->bb_outadr) = 1;
     }
 
-    inline void low() {
+    inline void low() const {
       MEM_ADDR(this->bb_outadr) = 0;
     }
 
-    inline operator bool () __attribute__((always_inline)) {
+    inline  __attribute__((always_inline))
+	operator bool () const {
       return (MEM_ADDR(this->bb_inadr));
     }
 
 
-    inline void operator  !() __attribute__((always_inline)) {
+    inline  __attribute__((always_inline)) 
+	void operator  !() const {
       this->toggle();
     }
 
     /*----- comptabled with DigitalPin ----------*/
     inline __attribute__((always_inline))
-    void toggle() {
+    void toggle() const {
 		digitalToggle(CPin);
     }
 
     inline __attribute__((always_inline))
-    void config(uint8_t mode, bool value) {  /*compatale with digitalPin*/
+    void config(uint8_t mode, bool value) const{  /*compatale with digitalPin*/
       this->mode(mode);
       this->write(value);
     }
 
     inline __attribute__((always_inline))
-    void mode(uint8_t mode) {
+    void mode(uint8_t mode) const {
       pinMode(CPin, mode);
     }
 
     inline __attribute__((always_inline))
-    void attach(voidFuncPtr callback, uint8_t mode) {
+    void attach(voidFuncPtr callback, uint8_t mode) const {
       attachInterrupt(CPin, callback, mode);
     }
 
     inline __attribute__((always_inline))
-    void detach(void) {
+    void detach(void) const {
       detachInterrupt(CPin);
     }
 

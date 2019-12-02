@@ -22,23 +22,41 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include "stm32_def.h"
-
-/*C including option*/
 #include "bit_constants.h"
 
 #ifdef __cplusplus
-extern "C"{
+ #include <algorithm>
+ using std::min;
+ using std::max;
+#else // C
+ #include <stdlib.h>
+ #ifndef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+ #endif
+ #ifndef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+ #endif
+ #ifndef abs
+  #define abs(x) ((x)>0?(x):-(x))
+ #endif
 #endif
 
-#define HIGH 0x1
-#define LOW  0x0
 
+
+#define LOW     0x0
+#define HIGH    0x1
+#define CHANGE  0x2
+#define FALLING 0x3
+#define RISING  0x4
+
+#ifdef PI
+#undef PI
 #define PI 3.1415926535897932384626433832795
+#endif
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
 #define DEG_TO_RAD 0.017453292519943295769236907684886
@@ -53,16 +71,9 @@ enum BitOrder {  /*compatible with arduino sam huaweiwx@sina.com 2018.1.12*/
 	MSBFIRST = 1
 };
 
-#define CHANGE 1
-#define FALLING 2
-#define RISING 3
 
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define abs(x) ((x)>0?(x):-(x))
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define round(x)     ((x)>=0?(long long)((x)+0.5):(long long)((x)-0.5))
+
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
 #define sq(x) ((x)*(x))
@@ -93,6 +104,10 @@ typedef unsigned int word;
 
 typedef bool boolean;
 typedef uint8_t byte;
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 void init(void);
 void initVariant(void);
@@ -183,7 +198,6 @@ long map(long, long, long, long, long);
 #include "stm32_gpio.h"
 #include "wiring_pulse.h"  /*copy from Arduino_core_STM32 huaweiwx@sina.com 2017.11*/
 #include "stm32_debug.h"
-
 
 #ifdef __cplusplus
 

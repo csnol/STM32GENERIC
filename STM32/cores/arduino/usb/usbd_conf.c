@@ -2,8 +2,10 @@
 
 #if (USER_USBDCONF < 1)
 	
-#ifdef STM32F1
- #include "usbd_conf_F1.inc"
+#if defined(STM32F1)||defined(GD32F20X)
+  #if defined(USB_BASE) || defined(USB_OTG_DEVICE_BASE)
+    #include "usbd_conf_F1.inc"  
+  #endif
 #elif defined(STM32F2)
 // #include "usbd_conf_F2.inc"
 #elif defined(STM32F3)
@@ -16,7 +18,6 @@
  #include "usbd_conf_L0.inc"
 #elif defined(STM32L1)
  #include "usbd_conf_L1.inc"
-#elif defined(STM32F2)
 #elif defined(STM32L4)
  #include "usbd_conf_L4.inc"
 #endif

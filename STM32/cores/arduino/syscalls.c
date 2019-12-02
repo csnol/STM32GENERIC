@@ -57,10 +57,10 @@
 #include <sys/errno.h>
 #undef errno
 extern int errno ;
-//extern int  _end ;
 
 static unsigned char *heap_brk = NULL;
 static unsigned char *heap_end = NULL;
+//extern int  _end ;
 extern char _end; /* Defined by the linker */
 
 void setHeap(unsigned char *start, unsigned char *end) {
@@ -89,6 +89,14 @@ caddr_t _sbrk( int incr ) {
   heap_end += incr ;
   return (caddr_t) prev_heap_end ;
 }
+
+/*
+ environ 
+ A pointer to a list of environment variables and their values.
+ For a minimal environment, this empty list is adequate:
+ */
+char *__env[1] = { 0 };
+char **environ = __env;
 
 __attribute__((weak))
 int _link(const char *old, const char *new)
@@ -152,6 +160,17 @@ __attribute__((weak))
 int _read(UNUSED_PARAM(int file), UNUSED_PARAM(char *ptr), UNUSED_PARAM(int len) )
 {
   return 0 ;
+}
+
+
+/*
+ wait
+ Wait for a child process. Minimal implementation:
+ */
+int _wait(int *status) {
+    UNUSED(status);
+    errno = ECHILD;
+    return -1;
 }
 
 /* move to STM32SYSTEM.cpp use Serial.

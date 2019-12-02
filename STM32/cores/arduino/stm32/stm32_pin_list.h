@@ -30,20 +30,12 @@ enum {
 };
 #undef PIN
 
-#if 1 //ndef STM32H7
 #define PIN(a, b) P##a##b(GPIO##a##_BASE,LL_GPIO_PIN_##b,__P##a##b)
-#else
-#define PIN(a, b) P##a##b(GPIO##a##_BASE,GPIO_PIN_##b,__P##a##b)
-#endif
 constexpr __ConstPin PIN_LIST __IGNORE(0, 0, -1);
 #undef PIN
 
 #if USE_AVREMULATION > 0   /*avr Pa_b*/
-#if 1 // ndef STM32H7
 #define PIN(a, b) P##a##_##b(GPIO##a##_BASE,LL_GPIO_PIN_##b,__P##a##b)
-#else
-#define PIN(a, b) P##a##_##b(GPIO##a##_BASE,GPIO_PIN_##b,__P##a##b)
-#endif
 constexpr __ConstPin PIN_LIST _IGNORE(0, 0, -1);
 #undef PIN
 #endif
