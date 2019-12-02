@@ -1,7 +1,7 @@
 /*
-  Example  8. Changing task priorities  更改任务优先级
+  Example 8. Changing task priorities  更改任务优先级
   
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -24,7 +24,6 @@
   the source code for any proprietary components.  See the licensing section
   of http://www.FreeRTOS.org for full details of how and when the exception
   can be applied.
-
 */
 
 #include "FreeRTOS.h"
@@ -98,7 +97,7 @@ void vTask1( void *pvParameters )
 
 void vTask2( void *pvParameters )
 {
-/*unsigned*/ portBASE_TYPE uxPriority;
+  portBASE_TYPE uxPriority;
 
   /* Task1 will always run before this task as Task1 has the higher priority.
   Neither Task1 nor Task2 ever block so will always be in either the

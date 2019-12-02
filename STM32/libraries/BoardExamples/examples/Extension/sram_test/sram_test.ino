@@ -6,7 +6,8 @@
       ILLUMINATI_F407ZG
       REDBULL_V2_F103ZE
       WAVESHARE_F746IG
-   Allocate SRAM_LENGTH or SDRAM_LENGTH ram, and write to Serial the results
+      F429CORE
+	  Allocate SRAM_LENGTH or SDRAM_LENGTH ram, and write to Serial the results
 */
 
 #include "bsp.h"    //defined SRAM_LENGTH or SDRAM_LENGTH in this file
@@ -15,6 +16,7 @@
 void setup() {
   pinMode(led, OUTPUT);
   Serial.begin(115200);
+  delay(2000);
 }
 
 #if defined(SDRAM_LENGTH)
@@ -26,8 +28,6 @@ void setup() {
 #endif
 
 uint32_t size = EXTRAM_LENGTH - 8  /* malloc overhead*/;
-
-extern "C" void setHeapAtSram(void);
 void loop() {
   setHeapAtSram();
   Serial.println("===========");
@@ -49,7 +49,7 @@ void loop() {
   uint32_t sum = 0;
   uint32_t sum_check = 0;
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     data[i] = i & 0xff;
     sum += i & 0xff;
   }
@@ -59,7 +59,7 @@ void loop() {
   Serial.println(" ms");
   start = millis();
 
-  for (int i = 0; i < size; i++) {
+  for (uint32_t i = 0; i < size; i++) {
     sum_check += data[i];
   }
 

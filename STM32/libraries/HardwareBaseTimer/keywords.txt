@@ -10,6 +10,7 @@ Timer7	KEYWORD1
 
 #######################################
 
+
 #######################################
 # Methods and Functions (KEYWORD2)
 pause	KEYWORD2
@@ -26,7 +27,10 @@ getBaseFrequency	KEYWORD2
 setPeriod	KEYWORD2
 #######################################
 
+
 #######################################
 # Constants (LITERAL1)
+TIM_TRGO_UPDATE	LITERAL1
+
 
 #######################################

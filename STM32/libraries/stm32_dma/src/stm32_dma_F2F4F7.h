@@ -1,3 +1,6 @@
+/*
+  add dma request type: DAC by huaweiwx@sina.com 2018.7.22
+*/
 
 typedef struct {
     void *periphInstance;
@@ -30,9 +33,14 @@ const dma_request_to_instance_t dmaRequestToStream[] = {
     {SDMMC1, SDIO_RXTX, DMA2_Stream3, DMA_CHANNEL_4, 3 + 8, DMA2_Stream3_IRQn},
 #endif
 
+#if defined(DAC1)
+    {DAC1,   DAC1_CH1,  DMA1_Stream5, DMA_CHANNEL_5, 5,     DMA1_Stream5_IRQn},
+    {DAC1,   DAC1_CH2,  DMA1_Stream6, DMA_CHANNEL_5, 6,     DMA1_Stream6_IRQn},
+#endif
+
 };
 
-inline static void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
+static inline void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
     handle->Instance = dmaRequestToStream.dmaInstance;
     handle->Init.Channel = dmaRequestToStream.channel;
 }

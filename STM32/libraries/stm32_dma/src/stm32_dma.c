@@ -31,7 +31,7 @@
 #include "stm32_dma_H7.h"
 #elif defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
 #include "stm32_dma_F2F4F7.h"
-#elif defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32L1)
+#elif defined(STM32F0) || defined(STM32F1)  || defined(GD32F1x0) || defined(GD32F2) || defined(STM32F3) || defined(STM32L1)
 #include "stm32_dma_F0F1F3L1.h"
 #elif defined(STM32L0)
 #include "stm32_dma_L0.h"
@@ -233,10 +233,12 @@ extern void DMA1_Channel4_5_6_7_IRQHandler() {
 #endif
 
 // F0
+#ifndef DMA1_Channel4_5_IRQHandler
 extern void DMA1_Channel4_5_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[4]);
     HAL_DMA_IRQHandler(dmaHandles[5]);
 }
+#endif
 
 // F1, F3, L1, L4
 extern void DMA1_Channel4_IRQHandler() {
@@ -292,12 +294,12 @@ extern void DMA2_Channel5_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[5 + 8]);
 }
 
-// L4
+// L4,GD32F20X
 extern void DMA2_Channel6_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[6 + 8]);
 }
 
-// L4
+// L4,GD32F20X
 extern void DMA2_Channel7_IRQHandler() {
     HAL_DMA_IRQHandler(dmaHandles[7 + 8]);
 }

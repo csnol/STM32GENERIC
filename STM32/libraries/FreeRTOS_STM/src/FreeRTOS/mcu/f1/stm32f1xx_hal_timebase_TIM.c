@@ -40,7 +40,7 @@
   *
   ******************************************************************************
   */
-#if defined(STM32F1)||defined(STM32F2)||defined(STM32L1)
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F2)||defined(STM32F2)||defined(STM32L1)
 /* Includes ------------------------------------------------------------------*/
 #include "../../Source/include/FreeRTOS.h"
 /** @addtogroup STM32F1xx_HAL_Examples

@@ -68,7 +68,7 @@ static unsigned int cal = CAL_GUESS;
 void burnCPU(uint16_t ticks) {
   while (ticks--) {
     for (unsigned int i = 0; i < cal; i++) {
-      asm("nop");
+	  __asm__ volatile ("nop"); /* add volatile for gcc huaweiwx@sina.com 2019.11*/
     }
   }
 }

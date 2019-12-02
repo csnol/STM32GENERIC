@@ -16,9 +16,12 @@
 
 void  __attribute__((weak)) vApplicationIdleHook( void ) {
   void loop();
-  loop();
+  for (;;) {
+	  loop();
+  }
 }
 
+#if defined( configUSE_MALLOC_FAILED_HOOK)
 void vApplicationMallocFailedHook( void )
 {
     /* vApplicationMallocFailedHook() will only be called if
@@ -27,7 +30,9 @@ void vApplicationMallocFailedHook( void )
     //taskDISABLE_INTERRUPTS();
     _Error_Handler(__FILENAME__, __LINE__);
 }
+#endif
 
+#if ( configCHECK_FOR_STACK_OVERFLOW >= 1 )
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName )
 {
 //    ( void ) pcTaskName;
@@ -38,8 +43,8 @@ void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName )
     function is called if a stack overflow is detected. */
     //taskDISABLE_INTERRUPTS();
    _Error_Handler(pcTaskName, (uint32_t)pxTask);
-	for(;;);
 }
+#endif
 
 void osSystickHandler(void);
 

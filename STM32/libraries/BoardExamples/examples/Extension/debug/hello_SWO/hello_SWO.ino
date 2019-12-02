@@ -1,5 +1,5 @@
 /*
-  swoViewer.ino use stlink/jlink swo print info demo. huaweiwx@sina.com 2018.12.24
+  hello_SWO.ino use stlink/jlink swo print info demo. huaweiwx@sina.com 2018.12.24
 
      if we use a stlink/jlink debuger and conected the swo pin, we can print some info to
   stlinkutility/JLinkSWOViewer as serial.

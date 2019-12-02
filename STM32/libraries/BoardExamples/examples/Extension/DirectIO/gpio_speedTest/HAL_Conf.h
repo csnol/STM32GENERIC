@@ -18,5 +18,6 @@
 
 #define  USE_ARDUINOSTREAMING 1
 
+#define  USE_BITBAND          1
 
 #endif

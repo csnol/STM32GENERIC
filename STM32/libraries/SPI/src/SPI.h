@@ -6,7 +6,7 @@
 
 #include "stm32_HAL/stm32XXxx_ll_spi.h"
 
-#if defined(STM32F1) || defined(STM32F4)
+#if defined(STM32F1)  || defined(GD32F20X) || defined(STM32F4)
 #define SPI_HAS_OLD_DMATRANSFER
 #endif
 
@@ -270,6 +270,8 @@ inline void SPIClass::transfer(uint8_t *buf, size_t count) {
 }
 
 extern SPIClass SPI;
+#if  USE_SOFTWARE_SPI
+  #include "SpiSoft.h"
+#endif
 
-#include "SoftSPI.h"
 #endif

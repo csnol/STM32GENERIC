@@ -1,7 +1,7 @@
 /*
-  Example  2. Using the Task Parameter  使用任务参数
+  Example 2. Using the Task Parameter  使用任务参数
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -50,12 +50,12 @@ void setup( void )
 {
   Serial.begin(115200);
   /* Create one of the two tasks. */
-  xTaskCreate(  vTaskFunction,      /* Pointer to the function that implements the task. */
-    "Task 1",       /* Text name for the task.  This is to facilitate debugging only. */
-    200,          /* Stack depth - most small microcontrollers will use much less stack than this. */
-    (void*)pcTextForTask1,  /* Pass the text to be printed in as the task parameter. */
-    1,            /* This task will run at priority 1. */
-    NULL );         /* We are not using the task handle. */
+  xTaskCreate( vTaskFunction,      /* Pointer to the function that implements the task. */
+               "Task 1",       /* Text name for the task.  This is to facilitate debugging only. */
+               200,          /* Stack depth - most small microcontrollers will use much less stack than this. */
+               (void*)pcTextForTask1,  /* Pass the text to be printed in as the task parameter. */
+               1,            /* This task will run at priority 1. */
+               NULL );         /* We are not using the task handle. */
 
   /* Create the other task in exactly the same way.  Note this time that we
   are creating the SAME task, but passing in a different parameter.  We are

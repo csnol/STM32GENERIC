@@ -55,7 +55,7 @@ int writePin WRITEPIN;
 int readPin  READPIN;
 #endif
 
-unsigned long i = 0;
+volatile unsigned long i = 0;
 
 void setup() {
   Serial.begin(115200);

@@ -26,9 +26,14 @@ const dma_request_to_instance_t dmaRequestToStream[] = {
     {SPI2, SPI_RX, DMA1_Channel4, 4, 2, DMA1_Channel4_IRQn},
 #endif
 
+#if defined(DAC)
+    {DAC,   DAC1_CH1,  DMA1_Channel2, 2, 1, DMA1_Channel2_IRQn},
+    {DAC,   DAC1_CH2,  DMA1_Channel3, 3, 1, DMA1_Channel3_IRQn},
+#endif
+
 };
 
-inline static void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
+static inline void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
     handle->Instance = dmaRequestToStream.dmaInstance;
     handle->Init.Request = dmaRequestToStream.requestNumber;
 }

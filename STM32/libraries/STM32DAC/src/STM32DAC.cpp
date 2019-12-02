@@ -3,11 +3,155 @@
 
 #ifdef STM32H7
 #define DAC DAC1
-#define __HAL_RCC_DAC1_CLK_ENABLE __HAL_RCC_DAC12_CLK_ENABLE
 #endif
 
+#ifdef DAC4
+static DAC_HandleTypeDef DAC_Handle[4];
+#else
 static DAC_HandleTypeDef DAC_Handle[2];
+#endif
 static DAC_ChannelConfTypeDef  DAC_ChannelConf;
+
+////////////////////////// DAC INTERFACE FUNCTIONS /////////////////////////////
+
+/**
+  * @brief DAC MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration
+  * @param hdac: DAC handle pointer
+  * @retval None
+  */
+extern "C"
+void HAL_DAC_MspInit(DAC_HandleTypeDef *hdac)
+{
+  /* DAC Periph clock enable */
+  if (hdac->Instance == DAC1) {
+#ifdef __HAL_RCC_DAC_CLK_ENABLE
+    __HAL_RCC_DAC_CLK_ENABLE();
+#endif
+#ifdef __HAL_RCC_DAC1_CLK_ENABLE
+    __HAL_RCC_DAC1_CLK_ENABLE();
+#endif
+#ifdef __HAL_RCC_DAC12_CLK_ENABLE
+    __HAL_RCC_DAC12_CLK_ENABLE();
+#endif
+  }
+#ifdef DAC2
+  else if (hdac->Instance == DAC2) {
+#ifdef __HAL_RCC_DAC2_CLK_ENABLE
+    __HAL_RCC_DAC2_CLK_ENABLE();
+#endif
+#ifdef __HAL_RCC_DAC12_CLK_ENABLE
+    __HAL_RCC_DAC12_CLK_ENABLE();
+#endif
+  }
+#endif
+#ifdef DAC3
+  else if (hdac->Instance == DAC3) {
+#ifdef __HAL_RCC_DAC3_CLK_ENABLE
+    __HAL_RCC_DAC3_CLK_ENABLE();
+#endif
+  }
+#endif
+#ifdef DAC4
+  else if (hdac->Instance == DAC4) {
+#ifdef __HAL_RCC_DAC4_CLK_ENABLE
+    __HAL_RCC_DAC4_CLK_ENABLE();
+#endif
+  }
+#endif
+
+  /* Configure DAC GPIO pins */
+//  pinmap_pinout(g_current_pin, PinMap_DAC);
+}
+/**
+  * @brief  DeInitialize the DAC MSP.
+  * @param  hdac: pointer to a DAC_HandleTypeDef structure that contains
+  *         the configuration information for the specified DAC.
+  * @retval None
+  */
+void HAL_DAC_MspDeInit(DAC_HandleTypeDef *hdac)
+{
+  /* DAC Periph clock disable */
+  if (hdac->Instance == DAC1) {
+#ifdef __HAL_RCC_DAC_FORCE_RESET
+    __HAL_RCC_DAC_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC1_FORCE_RESET
+    __HAL_RCC_DAC1_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC12_FORCE_RESET
+    __HAL_RCC_DAC12_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC_RELEASE_RESET
+    __HAL_RCC_DAC_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC1_RELEASE_RESET
+    __HAL_RCC_DAC1_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC12_RELEASE_RESET
+    __HAL_RCC_DAC12_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC_CLK_DISABLE
+    __HAL_RCC_DAC_CLK_DISABLE();
+#endif
+#ifdef __HAL_RCC_DAC1_CLK_DISABLE
+    __HAL_RCC_DAC1_CLK_DISABLE();
+#endif
+#ifdef __HAL_RCC_DAC12_CLK_ENABLE
+    __HAL_RCC_DAC12_CLK_ENABLE();
+#endif
+  }
+#ifdef DAC2
+  else if (hdac->Instance == DAC2) {
+#ifdef __HAL_RCC_DAC2_FORCE_RESET
+    __HAL_RCC_DAC2_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC12_FORCE_RESET
+    __HAL_RCC_DAC12_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC2_RELEASE_RESET
+    __HAL_RCC_DAC2_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC12_RELEASE_RESET
+    __HAL_RCC_DAC12_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC2_CLK_ENABLE
+    __HAL_RCC_DAC2_CLK_ENABLE();
+#endif
+#ifdef __HAL_RCC_DAC12_CLK_ENABLE
+    __HAL_RCC_DAC12_CLK_ENABLE();
+#endif
+  }
+#endif
+#ifdef DAC3
+  else if (hdac->Instance == DAC3) {
+#ifdef __HAL_RCC_DAC3_FORCE_RESET
+    __HAL_RCC_DAC3_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC3_RELEASE_RESET
+    __HAL_RCC_DAC3_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC3_CLK_DISABLE
+    __HAL_RCC_DAC3_CLK_DISABLE();
+#endif
+  }
+#endif
+#ifdef DAC4
+  else if (hdac->Instance == DAC4) {
+#ifdef __HAL_RCC_DAC4_FORCE_RESET
+    __HAL_RCC_DAC4_FORCE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC4_RELEASE_RESET
+    __HAL_RCC_DAC4_RELEASE_RESET();
+#endif
+#ifdef __HAL_RCC_DAC4_CLK_DISABLE
+    __HAL_RCC_DAC4_CLK_DISABLE();
+#endif
+  }
+#endif
+}
 
 extern "C"
 void DAC_Init(const uint32_t DACx, const uint32_t trig) {
@@ -29,9 +173,13 @@ void DAC_Init(const uint32_t DACx, const uint32_t trig) {
 
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+#ifdef __HAL_RCC_DAC12_CLK_ENABLE
+    __HAL_RCC_DAC12_CLK_ENABLE();
+#endif
 #if defined(__HAL_RCC_DAC1_CLK_ENABLE)
   __HAL_RCC_DAC1_CLK_ENABLE();
-#else
+#endif
+#if defined(__HAL_RCC_DAC_CLK_ENABLE)
   __HAL_RCC_DAC_CLK_ENABLE();
 #endif
 
@@ -148,7 +296,7 @@ static DMA_HandleTypeDef  hdma_dac1;
 extern "C"
 void DAC_Start_DMA(uint32_t DACx, uint32_t* pData, uint32_t Length, uint32_t Alignment) {
     /* DMA1 clock enable */
-#if defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
+#if defined(STM32L0)|| defined(STM32F0)||defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
     __HAL_RCC_DMA1_CLK_ENABLE();
 #else	
     __HAL_RCC_DMA2_CLK_ENABLE(); 

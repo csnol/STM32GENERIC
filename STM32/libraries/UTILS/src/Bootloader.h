@@ -74,6 +74,27 @@ int  UTIL_checkUserCode(uint32_t usrAddr);
 void UTIL_jumpToUser(uint32_t usrAddr);
 void start_application(uintptr_t address);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+
+static int getRstSource(void){
+	uint32_t rst = 0;
+	if (__HAL_RCC_GET_FLAG(RCC_FLAG_IWDGRST))rst |= 4;
+
+	if (__HAL_RCC_GET_FLAG(RCC_FLAG_PINRST)) rst |= 2;
+	
+#ifdef RCC_FLAG_BORRST // STM32L4
+	if (__HAL_RCC_GET_FLAG(RCC_FLAG_BORRST)) rst |= 1;
+#else	 
+	if (__HAL_RCC_GET_FLAG(RCC_FLAG_PORRST)) rst |= 1;
+#endif	 
+
+	__HAL_RCC_CLEAR_RESET_FLAGS();
+
+	return rst;
+}
+
+
 #ifdef __cplusplus
  } //  extern "C"
 #endif /* __cplusplus */

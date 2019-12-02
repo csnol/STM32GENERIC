@@ -91,7 +91,7 @@ void setup(void)
 #define RXPIN PC11
   SERIALX.setPins(TXPIN,RXPIN);
   
-  SERIALX.begin(15200);
+  SERIALX.begin(115200);
   delay(200);
   SERIALX.println("\n");
   SERIALX.println("ADC Demo - Regular 12 bit conversion DMA: ADC3 on PA1");

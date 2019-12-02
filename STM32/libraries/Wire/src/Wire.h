@@ -138,21 +138,20 @@ class TwoWire : public Stream {
 			};
     WIRE_StatusTypeDef setPins(uint8_t sda,uint8_t scl);
 	
-#if USE_ITERATOR >0
+#if USE_ITERATOR == 0
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    void begin(){Init();}
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    void begin(uint8_t adr){Init(adr);}
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    void begin(int adr){Init((uint8_t)adr);}
+    void end();
+#endif
+
     void Init();
     void Init(uint8_t);
     void Init(int);
     void deInit();
-#else
-    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
-    void begin();
-    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
-    void begin(uint8_t);
-    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
-    void begin(int);
-    void end();
-#endif
-	
 	
     void setClock(uint32_t);
 	

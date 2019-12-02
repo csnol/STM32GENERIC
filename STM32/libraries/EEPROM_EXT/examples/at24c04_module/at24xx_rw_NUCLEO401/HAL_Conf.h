@@ -3,9 +3,9 @@
      ARDUINO HAL 项目配置文件， 改写 系统、库、缺省定义，配置改变系统的缺省参数/中断优先级等,节约内存；
 
      define priority(配置的优先次序):
-      1  HAL_Conf.h in sketch project path
- 	  2  HAL_Conf.h in variants/{variant}/configs.
- 	  3  use default define  (in cores/arduino/stm32/stm32_build_defines.h)
+		    1  HAL_Conf.h in sketch project path
+		    2  HAL_Conf.h in variants/{variant}/configs.
+		    3  use default define  (in cores/arduino/stm32/stm32_build_defines.h)
 
      !!! Don't rename this file, 请不要改变文件名和扩展名!!!
      use this config file for save space
@@ -16,30 +16,33 @@
 #define __HALSPECELCONFIG_H__
 
 
-# define AT24CXX_TYPE   AT24C02
+# define AT24CXX_TYPE   AT24C02  /*AT24C02/04/08/16/32/64/128/256/512*/
 # define AT24CXX_A2A1A0 0
 # define AT24CXX_DEV    I2C1
-# define VCC_PIN    PA8
-# define GND_PIN    PB10
+#if 0  /*use waresoft PB4/5 */
+# define VCC_PIN        PA8   /* moduel power vcc */
+# define GND_PIN        PB10  /* moduel power gnd*/
 # define AT24CXX_SDA    PB4
 # define AT24CXX_SCL    PB5
+#else /*use waresoft PA5/6 */
+# define AT24CXX_SDA    PA5
+# define AT24CXX_SCL    PA6
+#endif
+#define  USE_WARESOFT           1   /* Some external eeprom are not connected to any i2c port. using a software emulate i2c port*/
 
 
-
-#define  USE_ARDUINOSTREAMING	1
+#define  USE_ARDUINOSTREAMING	1   /* overloading << */
 
 /*
   for stl begin/end is keywords for iteration
   if set USE_ITERATOR, arduino lib SPI/SOFTSPI/WARE/SOFTWARE use Init/deInit instead of begin/end
 */
-#define  USE_ITERATOR  1   
+#define  USE_ITERATOR  1
 
-/* Some external eeprom are not connected to any i2c port. using a software emulate i2c port*/
-#define  USE_WARESOFT  1
 
 #ifdef   USE_FULL_ASSERT /*DEBUG*/
 /* ------------------------------------------------------------------
- * set USE_ERRORBLINK 1  for _Error_Handler/AssertError output information redirect to led blinking the err code 
+   set USE_ERRORBLINK 1  for _Error_Handler/AssertError output information redirect to led blinking the err code
    blink err code:
      HardFault       31
      MemManage fault 32

@@ -2,7 +2,7 @@
   Example 14. Sending and Receiving on a Queue from Within an Interrupt
               从中断中发送和接收队列
   
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -104,9 +104,9 @@ void setup( void )
 
 static void vIntegerGenerator( void *pvParameters )
 {
-TickType_t xLastExecutionTime;
-unsigned portLONG ulValueToSend = 0;
-int i;
+  TickType_t xLastExecutionTime;
+  unsigned portLONG ulValueToSend = 0;
+  int i;
 
   /* Initialize the variable used by the call to vTaskDelayUntil(). */
   xLastExecutionTime = xTaskGetTickCount();

@@ -81,8 +81,12 @@ class STM32DMA
 
 
 
-#if defined(STM32F0) || defined(STM32F1) || defined(STM32F3) || defined(STM32L0)|| defined(STM32L1)||defined(STM32L4)
+#if defined(STM32F0) || defined(STM32F1) || defined(GD32F1x0) || defined(GD32F2)|| defined(STM32F3) || defined(STM32L0)|| defined(STM32L1)||defined(STM32L4)
+  #ifdef DMA1_Channel7_BASE
     HAL_StatusTypeDef Init(DMA_Channel_TypeDef* channel = DMA1_Channel7)
+  #else
+    HAL_StatusTypeDef Init(DMA_Channel_TypeDef* channel = DMA1_Channel5)
+  #endif
 #elif defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
     HAL_StatusTypeDef Init(DMA_Stream_TypeDef* channel = DMA2_Stream7)
 #elif defined(STM32H7)

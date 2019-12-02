@@ -55,7 +55,7 @@ void setup()
 #define TXPIN PC10  
 #define RXPIN PC11
   SERIALX.setPins(TXPIN,RXPIN); 
-  SERIALX.begin(15200);
+  SERIALX.begin(115200);
   delay(200);
   SERIALX.println("ADC Demo - Single Channel Regular Conversion, Interrupts: ADC1 on PA1");
   

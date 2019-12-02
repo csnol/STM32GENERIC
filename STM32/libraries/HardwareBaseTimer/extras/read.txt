@@ -1,0 +1,52 @@
+﻿详见 STM32 ARDUINO HALMX 应用集锦（一）：systic  http://bbs.mydigit.cn/read.php?tid=2316400 
+
+一、STM32 通常都有以下5个类型定时器：
+1  基本定时器(basic timers)；
+2  通用定时器(General-purpose timers)；
+3  高级定时器(Advanced-control timers)；
+4  系统嘀嗒定时器(systick) 1个；
+5  看门狗定时器(独立看门狗和窗口看门狗) 2个；
+另外在一些低功耗芯片系列还包含有低功耗定时器的类型；
+
+二、定时器的用途：
+
+1  系统嘀嗒定时器在arduino中作为系统计数计时用，将系统时钟分频成1ms的最小单位进行计数，HAL 库还提供了一个获取计数值的函数：
+HAL_GetTick() 来获取开机至当前时间的Tick数，即ms数；顺便在这里说一下，HAL 库内部对Tick（ms）数计数是一个32位整数 uint32_t , 因此最大可以记录时间长度为：
+   0xffffffff/1000ms/86400 = 49 天； 
+   注意：尽管我们业余玩家不会碰到连续开机超过49天的情形，但如果设计产品，使用者可能不关机超过 49 天的情形，需要在应用程序中处理计数器溢出；
+   
+arduino 应用该定时器还扩充了以下四个有用的函数：
+
+delay(ms);  /*延时 ms 毫秒*/
+millis()；/*arduino 兼容函数 直接调用 HAL_GetTick() 来获取开机至当前时间的ms数*/
+micros()；/*根据当前毫秒数和 systick 寄存器的计数值计算当前微秒值*/
+delayMicroseconds(us) ； /*微秒级别延时*/
+delay_us(us); /*arduino 兼容函数,直接通过宏定义用delayMicroseconds(us)来置换 */
+
+另外 HAL 还提供了一个接口，让系统能够每个Tick(毫秒)做一次用户指定的任务，这就是SYSTICK的回调函数：
+void HAL_SYSTICK_Callback(void)；
+只要用户自己写了该回调函数，系统就会自动调用该函数(这部分详见我的一个示例：\libraries\BoardExamples\examples\Official\systic_callback\systic_callback.ino)
+
+2 看门狗定时，以后详细介绍；
+
+3 基本定时器、通用和高级定时器，该帖开始将分别介绍 ；
+
+三、基本定时器库：
+1 在stm32 通常有两个基本定时器 TIM6/7，和 systick 非常类似，都是以系统时钟分频计数并产生中断，区别是 systick 内部是24位计数器，而基本定时器是16位计数器，另外基本定时器可以触发dim中断；另外 SYSTICK 是M0/M3/M4/M7 内核的一部份，
+而，TIM6/7 则属于集成在芯片上的外设；systick的中断优先级别也高于TIM 中断的优先级；
+STM32 ARDUINO 内核 没有使用到基本定时器TIM6/7， 这一资源留给了用户根据需要来应用，但有一个例外：就是FreeRTOS; 
+FreeRTOS和HAL结合得非常好，ST 发行的HAL驱动库就包含了这个第三方组件；
+简单说一下实时多任务操作系统FreeRTOS，根据任务的优先级别，高级别的任务可以打断低级的任务的运行抢占mcu资源，否则按时间片轮流分配时间，任务间可以协同工作；为了充分发挥操作系统的分配资源，调度任务的功能，ARDUINO STM32 可以用两个FreeRTOS库，一个是原生于基于maple库 ARDUINO中; 在 danieleff/STM32GENERIC 的arduino版本中也已经移植过来了，在我的最初HAL版本中也照搬了这个库，但现在我已经抛弃了该库（你仍然可以使用该库， 但需要去danieleff/STM32GENERIC 下载），现在包中的FreeRTOS是用最新HAL库组件重新写了FreeRTOS库，这是因为前者是基于SYSTICK中断来调度，而ST强烈推荐使用一个定时器来做系统时钟，这是在FreeRTOS中会调整定时器中断的优先级，来实现任务优先级的调度，而不会中断关键处理中断；这个FreeRTOS中使用定时器 TIM7；
+
+简单总结一下就是：如果你用了FreeRTOS，就不要再使用TIM7，可以使用TIM6，如果没有用到FreeRTOS，可以使用TIM6/7；
+
+四、何时用到基本定时器？
+上面说到 TIM6/7和 systick，也是计数计时，定时中断做一些用户指定的事，除触发dma外，基本功能差不多；
+区别在于：
+1 我们使用TIM6/7 可以设定我们需要的定时时间间隔，而不是systick的毫秒单位，尽管我们可以按我们的需要来设置systick，但这样弄乱了系统时间，这不是我们希望的，而通过设置计数标志的方法，增加了检查该标志的麻烦和时间；
+2 精确度，不另行设置而借用系统 systick，只能精确到毫秒级，而我们直接使用TIM6/7中断可以精确到us级；
+3 基本定时器使用简单；
+
+五、应用实例：
+http://bbs.mydigit.cn/read.php?tid=2453692
+

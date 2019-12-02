@@ -1,8 +1,8 @@
 /*
-  Example  4. Using the Blocked state to create a delay
-              使用阻止状态创建延迟
+  Example 4. Using the Blocked state to create a delay
+             使用阻止状态创建延迟
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -64,7 +64,7 @@ void setup( void )
 
 void vTaskFunction( void *pvParameters )
 {
-char *pcTaskName;
+  char *pcTaskName;
 
   /* The string to print out is passed in via the parameter.  Cast this to a
   character pointer. */

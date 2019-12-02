@@ -15,12 +15,30 @@
 #ifndef __HALSPECELCONFIG_H__
 #define __HALSPECELCONFIG_H__
 
+#define USE_KEYS         1
+/* selected oneof the following */
+//#define SPIFLASHDISK_SIZE    2040       /*use spiflash 25q16 2040k user define, max 2040k,*/
+//#define USE_SDIOSDCARD 1                /*use spi sdcard **/
+//#define USE_SPISDCARD  1                /*use spi sdcard **/
+
+#if (USE_SPISDCARD > 0) || (USE_SDIOSDCARD > 0) || SPIFLASHDISK_SIZE
+# define USE_FILESYSTEM  1
+#else
+# define USE_FILESYSTEM  0
+#endif
+
+
+#define  USE_ARDUINOSTREAMING 1
+
+// #define SAVE_MEMOREYS  
+#ifdef SAVE_MEMOREYS
+
 /*USE_SERIALx default 1*/
 #if defined(ARDUINO_NUCLEO_F303RE)||defined(ARDUINO_NUCLEO_F401RE)||defined(ARDUINO_NUCLEO_F411RE)||\
-    defined(ARDUINO_NUCLEO_L476RG)||defined(ARDUINO_NUCLEO_F207ZG)||defined(ARDUINO_NUCLEO_F767ZI)||defined(ARDUINO_NUCLEO_H743ZI)||\
+    defined(STM32L476RE)||defined(ARDUINO_NUCLEO_L476RG)||defined(ARDUINO_NUCLEO_F207ZG)||defined(ARDUINO_NUCLEO_F767ZI)||\
     defined(ARDUINO_DISCOVERY_F303VC)
 #ifndef USE_SERIAL1
-#define USE_SERIAL1 0  /*0 unused serial2 save space*/
+#define USE_SERIAL1 0  /*0 unused serial1 save space*/
 #endif
 #else
 #ifndef USE_SERIAL1
@@ -28,8 +46,8 @@
 #endif
 #endif
 
-#if defined(ARDUINO_NUCLEO_F303RE)||defined(ARDUINO_NUCLEO_F401RE)||defined(ARDUINO_NUCLEO_F411RE)||defined(ARDUINO_NUCLEO_L476RG)||\
-    defined(ARDUINO_DISCOVERY_F303VC)
+#if defined(ARDUINO_NUCLEO_F303RE)||defined(ARDUINO_NUCLEO_F401RE)||defined(ARDUINO_NUCLEO_F411RE)||\
+    defined(STM32L476RE)||defined(ARDUINO_NUCLEO_L476RG)|| defined(ARDUINO_DISCOVERY_F303VC)|| defined(ARDUINO_GD207IK_EVAL)
 #ifndef USE_SERIAL2
 #define USE_SERIAL2 1
 #endif
@@ -52,6 +70,7 @@
 #ifndef USE_SERIAL4
 #define USE_SERIAL4 0/*0 unused serial4 save space*/
 #endif
+
 #ifndef USE_SERIAL5
 #define USE_SERIAL5 0/*0 unused serial5 save space*/
 #endif
@@ -67,37 +86,29 @@
 #endif
 
 /*USE_SPIx default 1*/
-#ifndef USE_SPI1
-#define USE_SPI1 0 /*0 unused spi2 save space*/
-#endif
-
 #ifndef USE_SPI2
-#define USE_SPI2 0 /*0 unused spi2 save space*/
+#define USE_SPI2 0 /*0/1 unused/use spi2 save space*/
 #endif
 
 #ifndef USE_SPI3
-#define USE_SPI3 0 /*0 unused spi2 save space*/
+#define USE_SPI3 0 /*0/1 unused/use spi3 save space*/
 #endif
 
 #ifndef USE_SPI4
-#define USE_SPI4 0 /*0 unused spi2 save space*/
+#define USE_SPI4 0 /*0/1 unused/use spi4 save space*/
 #endif
 
 #ifndef USE_SPI5
-#define USE_SPI5 0 /*0 unused spi2 save space*/
+#define USE_SPI5 0 /*0/1 unused/use spi5 save space*/
 #endif
 
 #ifndef USE_SPI6
-#define USE_SPI6 0 /*0 unused spi2 save space*/
+#define USE_SPI6 0 /*0/1 unused/use spi6 save space*/
 #endif
 
 /*USE_I2Cx default 1*/
-#ifndef USE_I2C1
-#define USE_I2C1 0
-#endif
-
 #ifndef USE_I2C2
-#define USE_I2C2 0
+#define USE_I2C2 0 /*0/1 unused/use i2C2 save space*/
 #endif
 
 #ifndef USE_I2C3
@@ -108,4 +119,8 @@
 #define USE_I2C4 0
 #endif
 
-#endif
+#endif // SAVE_MEMOREYS
+
+#define ADC_DEFAULT_RESOLUTION  12 /*analogRead use 12 bit resolution*/
+
+#endif //__HALSPECELCONFIG_H__

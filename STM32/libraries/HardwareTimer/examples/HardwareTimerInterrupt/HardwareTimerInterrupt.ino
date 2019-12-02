@@ -1,7 +1,10 @@
 /*
 * This example sets timerx software interrupt
-* add TIM5/8~17 for all chip if have by huaweiwx@sina.com  
+* 普通定时器和高级定时器TIM1~5/8~17/21~22(视所选板载芯片)的定时器中断。 
+*
+* 2018.5.28 huaweiwx<huaweiwx@sina.com>
 */
+
 
 #include "HardwareTimer.h"
 //#define Timerx Timer1

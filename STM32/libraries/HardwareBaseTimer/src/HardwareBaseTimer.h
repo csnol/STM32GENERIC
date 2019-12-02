@@ -4,12 +4,14 @@
 
 #ifndef _HARDWAREBASETIMER_H_
 #define _HARDWAREBASETIMER_H_
-
 #include <Arduino.h>
+
+#if defined(TIM6)||defined(TIM7)
 #include "stm32_gpio_af.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 
 class HardwareBaseTimer {
 public:
@@ -20,19 +22,15 @@ public:
     void pause(void) {
 		HAL_TIM_Base_Stop(&handle);
     };
-
-    void resume(void);
+    void resume(uint32_t mode = 0);
 
     uint32_t getPrescaleFactor();
-
     void setPrescaleFactor(uint32_t factor);
 
     uint32_t getOverflow();
-
     void setOverflow(uint32_t val);
 
     uint32_t getCount(void);
-
     void setCount(uint32_t val);
 
     uint32_t setPeriod(uint32_t microseconds);
@@ -60,18 +58,20 @@ public:
 
 #pragma GCC diagnostic pop
 
-#if defined(TIM6)||defined(TIM7)
-#ifdef TIM6
+# ifdef TIM6
+#  if  (FREERTOS == 0) || (portTickUSE_TIMx != 6) 
     extern HardwareBaseTimer Timer6;
-#endif
+#  endif
+# endif
 
-#ifdef TIM7
-  #if FREERTOS == 0 
+# ifdef TIM7
+#  if  (FREERTOS == 0) || (portTickUSE_TIMx != 7) 
     extern HardwareBaseTimer Timer7;
-  #endif	
-#endif
+   #endif	
+# endif
+
 #else
- #error !!! This chip have not TIM6 or TIM7 !!!
+ #error !!! This chip have not base Timers (TIM6 or TIM7) !!!
 #endif
 
 #endif //HARDWARETIMER_H_

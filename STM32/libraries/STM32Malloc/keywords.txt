@@ -1,0 +1,27 @@
+#######################################
+# Syntax Coloring Map BSP
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+MALLOCClass	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+alloc	KEYWORD2  
+perused	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+#sram/sdram
+SRAM_START	LITERAL1
+SDRAM_START	LITERAL1
+SRAM_LENGTH	LITERAL1
+SDRAM_LENGTH	LITERAL1
+USE_EXTRAMSYSMALLOC	LITERAL1
+
+#nand
+NAND_DEVICE_ADDR	LITERAL1

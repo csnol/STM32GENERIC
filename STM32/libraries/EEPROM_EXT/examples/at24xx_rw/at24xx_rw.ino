@@ -29,15 +29,19 @@ void setup() {
     ----------------------------------------------------------------------------*/
   EEPROM.Init(); /* Init ExtEEPROM gpio */
 
-#if 0  //write all eeprom with page number; run one times only
-  for (auto i = 0; i < EEPROM.length(); i++) {
+#if 0  //write all eeprom with page number;  run one times only
+  for (auto i = 0; i < EEPROM.length()-1; i++) {
 
     //    EEPROM.write(i, (uint8_t)i & 0xff);   /*use write function*/
-    EEPROM[i]  =  (uint8_t)i & 0xff;       /*use iteration*/
+    if((i  &  0xff)==0){
+      EEPROM[i] = (i>>8) & 0xff;
+    }else{
+      EEPROM[i]  =  (uint8_t)i & 0xff;       /*use iteration*/
+    }
   }
 #endif
 
-  char s[17] = {0};
+  char s[17] = {0};  /*16 +1(end by 0)*/
   for (uint32_t  page = 0; page < EEPROM.length() / 256; page++) {
     Serial << "page: " << page + 1  <<  "/" <<  EEPROM.length() / 256 << " \n";
     for (auto i = 0; i < 16; i++) {

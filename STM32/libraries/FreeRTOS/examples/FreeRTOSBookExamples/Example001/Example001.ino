@@ -1,6 +1,6 @@
 /*
   Example  1. Creating Tasks  创建任务
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
   This file is part of the FreeRTOS.org distribution.
 
   FreeRTOS.org is free software; you can redistribute it and/or modify
@@ -41,12 +41,12 @@ void setup( void )
 {
   Serial.begin(115200);
   /* Create one of the two tasks. */
-  xTaskCreate(  vTask1,   /* Pointer to the function that implements the task. */
-    "Task 1", /* Text name for the task.  This is to facilitate debugging only. */
-    200,    /* Stack depth - most small microcontrollers will use much less stack than this. */
-    NULL,   /* We are not using the task parameter. */
-    1,      /* This task will run at priority 1. */
-    NULL );   /* We are not using the task handle. */
+  xTaskCreate( vTask1,   /* Pointer to the function that implements the task. */
+               "Task 1", /* Text name for the task.  This is to facilitate debugging only. */
+               200,      /* Stack depth - most small microcontrollers will use much less stack than this. */
+               NULL,     /* We are not using the task parameter. */
+               1,        /* This task will run at priority 1. */
+               NULL );   /* We are not using the task handle. */
 
   /* Create the other task in exactly the same way. */
   xTaskCreate( vTask2, "Task 2", 200, NULL, 1, NULL );
@@ -65,8 +65,8 @@ void setup( void )
 
 void vTask1( void *pvParameters )
 {
-const char *pcTaskName = "Task 1 is running\r\n";
-volatile unsigned long ul;
+  const char *pcTaskName = "Task 1 is running\r\n";
+  volatile unsigned long ul;
 
   /* As per most tasks, this task is implemented in an infinite loop. */
   for( ;; )
@@ -87,8 +87,8 @@ volatile unsigned long ul;
 
 void vTask2( void *pvParameters )
 {
-const char *pcTaskName = "Task 2 is running\r\n";
-volatile unsigned long ul;
+  const char *pcTaskName = "Task 2 is running\r\n";
+  volatile unsigned long ul;
 
   /* As per most tasks, this task is implemented in an infinite loop. */
   for( ;; )

@@ -17,7 +17,7 @@ OutputPin outputEnable(nCE_PIN);
 #endif
 
 uint8_t read165(void) {
-  readCLK.pulse();    //getdate
+  readCLK.pulse();       //74165 getdate
   uint8_t val = sinp165; //shiftin
 }
 
@@ -26,7 +26,7 @@ void setup() {
   Serial.begin(115200);  /*set param: 115200bps 8N1*/
   
 #ifdef nCE_PIN
-  outputEnable = LOW;
+  outputEnable = LOW; 
 #endif
 }
 

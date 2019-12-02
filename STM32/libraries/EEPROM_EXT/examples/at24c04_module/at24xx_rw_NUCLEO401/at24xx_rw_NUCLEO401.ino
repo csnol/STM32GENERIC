@@ -43,9 +43,15 @@ void setup() {
     EEPROM[0] = 0x55;
     EEPROM[1] = 0xaa;
     EEPROM[2] = AT24CXX_TYPE & 0xff;
-    EEPROM[3] = AT24CXX_TYPE >> 8;      
-    for (uint16_t i = 4; i < EEPROM.length(); i++) {
-      EEPROM.write_byte(i, (uint8_t) i);   /*use write function*/
+    EEPROM[3] = AT24CXX_TYPE >> 8;
+    for (uint16_t i = 4; i < EEPROM.length()-1; i++) {
+      if((i  &  0xff)==0){
+//      EEPROM.write_byte(i, (i>>8));        /*use write function*/
+        EEPROM[i] = (i>>8);
+      }else{
+//      EEPROM.write_byte(i, (uint8_t) i);   /*use write function*/
+        EEPROM[i]  =  (uint8_t)i;            /*use iteration*/
+      }
     }
   }
   char s[17] = {0};
@@ -79,4 +85,3 @@ void loop() {
   digitalToggle(LED_BUILTIN);
   delay(500);           // wait 0.5 seconds for next toggle
 }
-

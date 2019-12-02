@@ -30,7 +30,7 @@
    @brief Wire library, uses the WireBase to create the primary interface
           while keeping low level interactions invisible to the user.
 
-   Library for STM32GENERIC by huaweiwx@sina.com 2017.10 
+   Library for NOVOTON/EFM32/STM32GENERIC by huaweiwx@sina.com 2018.10 
 */
 
 #ifndef _WIRESOFT_H_
@@ -60,7 +60,7 @@ class TwoWireSoft : public WireBase {
                 ARDUINOPIN_TypeDef  scl, 
 	            uint8_t i2c_delay = SOFT_STANDARD )
                 : sda(sda), scl(scl), i2c_delay(i2c_delay) {}
-				
+
     void Init(uint8_t self_addr = 0) {
       WireBase::Init(self_addr);
       pinMode(this->scl, OUTPUT_OD);
@@ -83,7 +83,7 @@ class TwoWireSoft : public WireBase {
     ~TwoWireSoft(){
 	  deInit();	
 	}
-	
+
     void sclPin(bool state) {
       I2C_DELAY(this->i2c_delay);
       digitalWrite(this->scl, state);

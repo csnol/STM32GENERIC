@@ -2,7 +2,7 @@
   Example 16. Re-writing vPrintString() to Use a Gatekeeper Task
   重新编写 vPrintString()以使用一个守卫把关任务
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
   This file is part of the FreeRTOS.org distribution.
 
   FreeRTOS.org is free software; you can redistribute it and/or modify

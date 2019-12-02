@@ -17,13 +17,13 @@ OutputPin outputEnable(nOE_PIN);
 #endif
 
 void write595(uint8_t val) {
-  sout595.write(val);
-  storageCLK.pulse();
+  sout595.write(val);  //shift val to 74595;
+  storageCLK.pulse();  //74595 output;
 }
 
 void setup() {
 #ifdef nOE_PIN
-  outputEnable = LOW;
+  outputEnable = LOW;  //74595 enable
 #endif
 }
 

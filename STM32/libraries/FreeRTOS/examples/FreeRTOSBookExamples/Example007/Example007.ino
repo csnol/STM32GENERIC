@@ -1,7 +1,7 @@
 /*
-  Example  7. Defining an Idle Task Hook Function   定义空闲任务挂钩函数
+  Example 7. Defining an Idle Task Hook Function   定义空闲任务挂钩函数
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -88,8 +88,7 @@ void vTaskFunction( void *pvParameters )
 }
 /*-----------------------------------------------------------*/
 
-//------------------  vApplicationIdleHook: default idle hook ----------------
-//
+/*------------  vApplicationIdleHook: idle hook ------------*/
 void vApplicationIdleHook( void ) // FreeRTOS expects C linkage
 {
   /* This hook function does nothing but increment a counter. */

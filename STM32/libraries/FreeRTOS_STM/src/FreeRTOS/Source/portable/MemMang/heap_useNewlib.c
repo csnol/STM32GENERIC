@@ -58,10 +58,9 @@
 
 #include "newlib.h"
 #if (__NEWLIB__ != 2) || (__NEWLIB_MINOR__ != 5)
-  #warning "This wrapper was verified for newlib version 2.5.0; please ensure newlib's external requirements for malloc-family are unchanged!"
+//  #warning "This wrapper was verified for newlib version 2.5.0; please ensure newlib's external requirements for malloc-family are unchanged!"
 #endif
 
-//#include "FreeRTOS.h" // defines public interface we're implementing here
 #if !defined(configUSE_NEWLIB_REENTRANT) ||  (configUSE_NEWLIB_REENTRANT!=1)
   #warning "#define configUSE_NEWLIB_REENTRANT 1 // Required for thread-safety of newlib sprintf, strtok, etc..."
   // If you're *really* sure you don't need FreeRTOS's newlib reentrancy support, remove this warning...
@@ -113,9 +112,13 @@ char * sbrk(int incr) {
 }
 //! Synonym for sbrk.
 char * _sbrk(int incr) { return sbrk(incr); };
-
+#if (__NEWLIB__ >= 3)
+void __malloc_lock(struct _reent *ptr __attribute__((__unused__)))     {       vTaskSuspendAll(); };
+void __malloc_unlock(struct _reent *ptr __attribute__((__unused__)))   { (void)xTaskResumeAll();  };
+#else
 void __malloc_lock()     {       vTaskSuspendAll(); };
 void __malloc_unlock()   { (void)xTaskResumeAll();  };
+#endif
 
 // newlib also requires implementing locks for the application's environment memory space,
 // accessed by newlib's setenv() and getenv() functions.

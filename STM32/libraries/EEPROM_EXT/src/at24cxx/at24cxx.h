@@ -65,24 +65,24 @@
 
 
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-qualifiers"
+// #pragma GCC diagnostic push
+// #pragma GCC diagnostic ignored "-Wignored-qualifiers"
 
 class EERef {
   protected:
-    uint8_t  read_byte(const int index);
-    void     write_byte(const int index, uint8_t val);
+    uint8_t  read_byte(int index) const;
+    void     write_byte(int index, uint8_t val) const;
 
   public:
     EERef(const int index ): index( index ) {}
 
     //Access/read members.
-    uint8_t operator*() const {return read_byte((const int)index);}
-    operator const uint8_t() const {return **this;}
+    uint8_t  operator*()  const{return read_byte(index);}
+    operator  uint8_t()  const{return **this;}
 
     //Assignment/write members.
     EERef &operator=(const EERef &ref ) { return *this = *ref;}
-    EERef &operator = (uint8_t in)      { return  write_byte((const int)index, in), *this;}
+    EERef &operator = (uint8_t in)      { return  write_byte(( int)index, in), *this;}
     EERef &operator +=(uint8_t in)      { return *this = **this + in;}
     EERef &operator -=(uint8_t in)      { return *this = **this - in;}
     EERef &operator *=(uint8_t in)      { return *this = **this * in;}
@@ -116,7 +116,7 @@ class EEPtr {
   public:
     EEPtr( const int index ): index( index ) {}
 
-    operator const int() const {return index;}
+    operator int() const {return index;}
     EEPtr &operator=(int in) {return index = in, *this;}
 
     //Iterator functionality.
@@ -130,10 +130,12 @@ class EEPtr {
     EEPtr operator-- (int) {return index--;}
     int index; //Index of current EEPROM cell.
 };
-#pragma GCC diagnostic pop
+// #pragma GCC diagnostic pop
 
 class EXTEEPROM : public WARE {
   public:
+    EERef operator[](const int idx) { return idx;}
+ 
     uint8_t devAdr;
     uint16_t devType;
 
@@ -141,7 +143,6 @@ class EXTEEPROM : public WARE {
       : WARE(sda, scl), devAdr(devAdr), devType(devType) {}
     ~EXTEEPROM() {}
 
-    EERef operator[](const int idx) { return idx;}
     uint8_t read(int idx ) { return EERef(idx);}
     void write(int idx, uint8_t val) {(EERef(idx)) = val;}
     void update(int idx, uint8_t val) {EERef(idx).update( val );}
@@ -207,7 +208,7 @@ class EXTEEPROM : public WARE {
 
 extern EXTEEPROM  EEPROM;
 
-inline uint8_t EERef::read_byte(const int index) {return EEPROM.read_byte((uint16_t)index);}
-inline void EERef::write_byte(const int index, uint8_t val) {return EEPROM.write_byte((uint16_t)index, val);}
+inline uint8_t EERef::read_byte(int index) const{return EEPROM.read_byte((uint16_t)index);}
+inline void EERef::write_byte(int index, uint8_t val) const{return EEPROM.write_byte((uint16_t)index, val);}
 #endif
 

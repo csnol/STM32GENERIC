@@ -21,10 +21,6 @@
 # define I2C_PORT_NR 1
 #endif
 
-#if USE_ITERATOR >0  /*for stl begin/end is keywords for iteration*/
-#define begin Init
-#define end   deInit
-#endif
 
 TwoWire *slaveTwoWire[I2C_PORT_NR];
 
@@ -48,7 +44,7 @@ WIRE_StatusTypeDef TwoWire::setPins(uint8_t _sda,uint8_t _scl) {
 	return WIRE_ERROR;
 }
 
-void TwoWire::begin(void){
+void TwoWire::Init(void){
     if(pdev->status !=WIRE_OK) return;  //
     pdev->rxBufferIndex = 0;
     pdev->rxBufferLength = 0;
@@ -96,7 +92,7 @@ void TwoWire::begin(void){
     setClock(100000);
 }
 
-void TwoWire::begin(uint8_t address) {
+void TwoWire::Init(uint8_t address) {
     pdev->rxBufferIndex = 0;
     pdev->rxBufferLength = 0;
 
@@ -158,22 +154,22 @@ void TwoWire::begin(uint8_t address) {
     HAL_I2C_Slave_Receive_IT(&pdev->handle, &pdev->slaveBuffer, 1);
 
     //TODO rewrite IRQ handling to not use HAL_I2C_EV_IRQHandler, so F1 can also work L0?
-#if !(defined(STM32F1)||defined(STM32L0))
+#if !(defined(STM32F1)||defined(GD32F2)||defined(STM32L0))
      HAL_I2C_EnableListen_IT(&pdev->handle);
 #endif
 }
 
-void TwoWire::begin(int address) {
-   begin((uint8_t)address);
+void TwoWire::Init(int address) {
+   Init((uint8_t)address);
 }
 
-void TwoWire::end(void) {
+void TwoWire::deInit(void) {
   HAL_I2C_DeInit(&pdev->handle);
 }
 
 void TwoWire::setClock(uint32_t frequency) {
 
-#if defined(STM32F1) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)
+#if defined(STM32F1)  || defined(GD32F2) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)
         pdev->handle.Init.ClockSpeed = frequency;
         pdev->handle.Init.DutyCycle = I2C_DUTYCYCLE_2;
 #else
@@ -332,7 +328,7 @@ size_t TwoWire::write(uint8_t data) {
               return 0;
         }
         // put byte in tx buffer
-       pdev->txBuffer[pdev->txBufferIndex] = data;
+        pdev->txBuffer[pdev->txBufferIndex] = data;
         ++pdev->txBufferIndex;
         // update amount in buffer
         pdev->txBufferLength = pdev->txBufferIndex;
@@ -527,7 +523,7 @@ void TwoWire::onRequest( void (*function)(void) ) {
 }
 
 
-#if defined(SDA) || defined(SCL)
+#if defined(SDA) && defined(SCL)
     TwoWire Wire = TwoWire(SDA, SCL);
 #else
     TwoWire Wire = TwoWire(I2C1);

@@ -2943,6 +2943,10 @@ stm32_dev_t* UTIL_getStmDev(uint16_t id);
 #elif defined(STM32L4R5ZI)
   #define CHIP_ID 0x470 //STM32L4R5xx" 
   #define CHIP_INFO CHIP_ID470
+  
+#elif defined(GD32F207IK)
+  #define CHIP_ID 0x418 //STM32L4R5xx" 
+  #define CHIP_INFO CHIP_ID418
 
 #else 
 #warning   UNKNOWN CHIP PLEASE FIXED ME

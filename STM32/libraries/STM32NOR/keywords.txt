@@ -12,17 +12,6 @@ NOR_IDTypeDef	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-#BSP nor
-STM_FSMC_NOR_Init	KEYWORD2
-NOR_ReadData	KEYWORD2  
-NOR_WriteData	KEYWORD2
-NOR_ReadID	KEYWORD2
-NOR_ReturnToReadMode	KEYWORD2
-NOR_ProgramData	KEYWORD2
-NOR_EraseBlock	KEYWORD2
-NOR_EraseChip	KEYWORD2
-
-#arduino
 Init	KEYWORD2
 readData	KEYWORD2  
 writeData	KEYWORD2

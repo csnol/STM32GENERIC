@@ -92,6 +92,10 @@
    extern uint32_t SystemCoreClock;
 #endif
 
+#ifndef USE_FULL_ASSERT
+#define NDEBUG
+#endif
+
 #ifndef portTickUSE_TIMx
 #  ifdef TIM7
 #    define portTickUSE_TIMx 7

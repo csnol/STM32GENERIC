@@ -1,8 +1,8 @@
 /*
-  Example  6. Combining blocking and non-blocking tasks
+  Example 6. Combining blocking and non-blocking tasks
               组合阻止和非阻塞任务
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -70,7 +70,7 @@ void setup( void )
 
 void vContinuousProcessingTask( void *pvParameters )
 {
-char *pcTaskName;
+  char *pcTaskName;
 
   /* The string to print out is passed in via the parameter.  Cast this to a
   character pointer. */
@@ -89,7 +89,7 @@ char *pcTaskName;
 
 void vPeriodicTask( void *pvParameters )
 {
-TickType_t xLastWakeTime;
+  TickType_t xLastWakeTime;
 
   /* The xLastWakeTime variable needs to be initialized with the current tick
   count.  Note that this is the only time we access this variable.  From this
@@ -107,7 +107,6 @@ TickType_t xLastWakeTime;
     vTaskDelayUntil( &xLastWakeTime, ( 500 / portTICK_PERIOD_MS ) );
   }
 }
-
 
 /****************  default idle hook callback if configUSE_IDLE_HOOK ***************************
  * 1  STM32GENERIC loop() is call by default idle hook if enable(set configUSE_IDLE_HOOK to 1) *

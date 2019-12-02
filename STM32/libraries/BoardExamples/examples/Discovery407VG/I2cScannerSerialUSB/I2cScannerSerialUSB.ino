@@ -55,7 +55,7 @@ void setup()
   
   enableDevices();
 
-  SERIALINTERFACE.begin(15200);
+  SERIALINTERFACE.begin(115200);
   //while (!SERIALINTERFACE);             // Leonardo: wait for serial monitor
   while(SERIALINTERFACE.available()==0)
   {

@@ -33,7 +33,7 @@
    'standardised' Arduino method for interfacing with I2C devices regardless of
    whether it is I2C hardware or emulating software.
 
-   for EFM32/STM32 GENERIC by huaweiwx@sina.com 2018.10
+   for NOVOTON/EFM32/STM32GENERIC by huaweiwx@sina.com 2018.10
 */
 
 #ifndef _WIREBASE_H_

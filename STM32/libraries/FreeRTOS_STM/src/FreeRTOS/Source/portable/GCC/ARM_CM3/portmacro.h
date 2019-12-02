@@ -210,8 +210,8 @@ not necessary for to use this port.  They are defined so the common demo files
 
 portFORCE_INLINE static BaseType_t xPortIsInsideInterrupt( void )
 {
-uint32_t ulCurrentInterrupt;
-BaseType_t xReturn;
+    uint32_t ulCurrentInterrupt;
+	BaseType_t xReturn;
 
 	/* Obtain the number of the currently executing interrupt. */
 	__asm volatile( "mrs %0, ipsr" : "=r"( ulCurrentInterrupt ) );
@@ -232,7 +232,7 @@ BaseType_t xReturn;
 
 portFORCE_INLINE static void vPortRaiseBASEPRI( void )
 {
-uint32_t ulNewBASEPRI;
+	uint32_t ulNewBASEPRI;
 
 	__asm volatile
 	(
@@ -248,7 +248,7 @@ uint32_t ulNewBASEPRI;
 
 portFORCE_INLINE static uint32_t ulPortRaiseBASEPRI( void )
 {
-uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
+	uint32_t ulOriginalBASEPRI, ulNewBASEPRI;
 
 	__asm volatile
 	(

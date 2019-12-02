@@ -1,5 +1,5 @@
 /*
-  Blink2_FreeRTOS90.ino
+  Blink_2LED.ino
   Turns 2 LEDs on/off , running in FreeRTOS V9.0/10.0
 
   This example code is in the public domain.
@@ -23,7 +23,7 @@
 
 static void myTask1(void  __attribute__ ((unused)) *argument)
 {
-  /*Task setup*/
+  /*Task1 setup*/
   pinMode(LED, OUTPUT);
 
  
@@ -42,10 +42,10 @@ static void myTask1(void  __attribute__ ((unused)) *argument)
   /* USER CODE END Task1 */
 }
 
-#if defined(LED1_BUILTIN)
+#if defined(LED1)
 static void myTask2(void __attribute__ ((unused)) *argument)
 {
-  /*Task setup*/
+  /*Task2 setup*/
   pinMode(LED1, OUTPUT);
   /* USER CODE BEGIN Task2 */
   /* Infinite loop */
@@ -62,29 +62,25 @@ static void myTask2(void __attribute__ ((unused)) *argument)
 
 // the setup function runs once when you press reset or power the board.
 void setup() {
-    Serial.begin(115200);
-    delay(1000);
-  //  osThreadDef(task1Name, myTask1, osPriorityNormal, 0, 128);
-  //  myTask1Handle=osThreadCreate(osThread(task1Name), NULL);
-  xTaskCreate(myTask1,
-              NULL,
-              configMINIMAL_STACK_SIZE,
-              NULL,
-              tskIDLE_PRIORITY + 2,
-              NULL);
-#if defined(LED1_BUILTIN)
+  Serial.begin(115200);
+
+  xTaskCreate(myTask1,                         /* Pointer to the function that implements the task. */
+              NULL,                            /* Text name for the task.  This is to facilitate debugging only. */
+              configMINIMAL_STACK_SIZE + 100,  /* Stack depth the task1 include the print func, add stack 100*/
+              NULL,                            /* We are not using the task parameter. */
+              tskIDLE_PRIORITY + 1,            /* This task will run at priority tskIDLE_PRIORITY + 1. */
+              NULL);                           /* We are not using the task handle. */
+#if defined(LED1)
   xTaskCreate(myTask2,
               NULL,
               configMINIMAL_STACK_SIZE,
               NULL,
-              tskIDLE_PRIORITY + 1,
+              tskIDLE_PRIORITY,
               NULL);
 #endif
   // osKernelStart();
   vTaskStartScheduler();  //FreeRTOS start and never return!
-
-  _Error_Handler(__FILENAME__, __LINE__);
-  }
+}
 
 /****************  default idle hook callback if configUSE_IDLE_HOOK *******************
  * 1  STM32GENERIC loop() is default idle hook if enable(set configUSE_IDLE_HOOK to 1) *

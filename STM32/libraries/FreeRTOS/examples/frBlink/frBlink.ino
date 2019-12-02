@@ -69,7 +69,6 @@ void setup() {
   portBASE_TYPE s1, s2;
 
   Serial.begin(115200);
-  delay(1000);
   
   // initialize semaphore
   sem = xSemaphoreCreateCounting(1, 0);
@@ -87,6 +86,7 @@ void setup() {
   } else {
     Serial.println(F("Creation ok"));
   }
+  
   // start scheduler
   vTaskStartScheduler();
   Serial.println("Insufficient RAM");
@@ -99,4 +99,6 @@ void setup() {
  * 3  loop must never block.                                                           *
  * 4  This default idle hook can be overload by vApplicationIdleHook()                 * 
  ***************************************************************************************/
-void loop() {}
+void loop() {
+	for(;;){}
+}

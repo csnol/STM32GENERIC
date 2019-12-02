@@ -1,16 +1,20 @@
-/**  extRam_DMA.ino   sram(sdram) DMA  test pass whit following  boards:
+/**  extRam_DMA.ino   sram(sdram) DMA  test pass with following  boards:
+      GD32F207IKT6     (32M SDRAM)
       DISCOVERY_F746NG
-      WaveShare F746I)(8M SDRAM) Checksum 4293918720
-      DISCOVERY_F429ZI(8M SDRAM) Checksum 4293918720
-      F429IG_CORE(8M SDRAM)      Checksum 4293918720
-      ARMFLY_F407ZG (1M SRAM)    Checksum 4294836224
-      HASEE_III_F103ZE
-      ILLUMINATI_F407ZG
-      REDBULL_V2_F103ZE
+      WaveShare F746I) (8M SDRAM)
+      DISCOVERY_F429ZI (8M SDRAM)
+      F429IG_CORE      (8M SDRAM)
+      ARMFLY_F407ZG     (1M SRAM)
+      ILLUMINATI_F407ZG (1M SRAM)
+      HASEE_III_F103ZE  (1M SRAM)
+      REDBULL_V2_F103ZE (1M SRAM)
+      F103Z_CORE        (1M SRAM)
+      UPTECH_F103Z    (256k SRAM)
 */
 
 #include <stm32_dma.h>
-STM32DMA<>dma;
+STM32DMA<STM32DMA<>::MEMTOMEM>dma;
+//STM32DMA<>dma;
 
 #include <STM32ExtRAM.h>
 STM32EXTRAM& extRAM = STM32EXTRAM::getInstance();
@@ -72,16 +76,16 @@ void setup() {
   }
 
   Serial.println("test DMA:");
-  uint32_t* ptr = extRAM.getRamBaseAddress<uint32_t>();
-  
+  uint32_t* ptr = (uint32_t *)extRAM.getRamBaseAddress();
+
   dma.Init();
   if (dma.start(ptr, dis, sizeof(dis)) == HAL_OK) {
     for (uint32_t i = 0; i < sizeof(dis) / sizeof(dis[0]); i++) {
-      Serial.print(dis[i],HEX);
-      if((i&0xf) == 0xf) 
-          Serial.println();
+      Serial.print(dis[i], HEX);
+      if ((i & 0xf) == 0xf)
+        Serial.println();
       else
-         Serial.print("  ");
+        Serial.print("  ");
     }
     Serial.println("\ndma test ok!");
   } else {
@@ -90,7 +94,7 @@ void setup() {
 }
 
 void loop() {
-  delay(500);
   digitalToggle(led);
+  delay(500);
 }
 

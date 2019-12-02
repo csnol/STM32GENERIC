@@ -1,5 +1,5 @@
 /*
-  2018.5.18  add TIM5/8~17 by huaweiwx
+  2018.5.18  add TIM5/8~17 21~22 by huaweiwx
   2018.5.28  for F3/F7/L4/H7 support channel5&6 by huaweiwx
 */
 
@@ -9,11 +9,7 @@
 #include <Arduino.h>
 #include "stm32_gpio_af.h"
 
-#if defined(TIM_CHANNEL_6) // Some chip(F3/7 L4 H7) there are 6 channels.  huaweiwx 2018.5.28
-#define  TIMER_CHANNELS 6
-#else
-#define  TIMER_CHANNELS 4
-#endif
+#define  TIMER_CHANNELS 4  // channel5 and channel 6 are not considered here has they don't have gpio output and they don't have interrupt
 
 typedef enum {
     //libmaple:                             // HAL compatible
@@ -31,15 +27,36 @@ typedef enum {
     TIMER_OUTPUT_COMPARE_FORCED_INACTIVE,   // == TIM_OCMODE_FORCED_INACTIVE  pin always low
 
     //Input capture
-    TIMER_INPUT_CAPTURE_RISING,          // == TIM_INPUTCHANNELPOLARITY_RISING
-    TIMER_INPUT_CAPTURE_FALLING,         // == TIM_INPUTCHANNELPOLARITY_FALLING
+    TIMER_INPUT_CAPTURE_RISING,             // == TIM_INPUTCHANNELPOLARITY_RISING
+    TIMER_INPUT_CAPTURE_FALLING,            // == TIM_INPUTCHANNELPOLARITY_FALLING
+    TIMER_INPUT_CAPTURE_BOTHEDGE,           // == TIM_INPUTCHANNELPOLARITY_BOTHEDGE
 
-    //PWM input capture on channel 1 + channel 2
-    //TIMER_INPUT_CAPTURE_PWM,             // == TIM_INPUTCHANNELPOLARITY_RISING (channel 1) + TIM_INPUTCHANNELPOLARITY_FALLING (channel 2)
+//  Used 2 channels for a single pin. One channel in TIM_INPUTCHANNELPOLARITY_RISING another channel in TIM_INPUTCHANNELPOLARITY_FALLING.
+//  Channels must be used by pair: CH1 with CH2, or CH3 with CH4
+//  This mode is very useful for Frequency and Dutycycle measurement
+//    TIMER_INPUT_CAPTURE_PWM,                // == TIM_INPUTCHANNELPOLARITY_RISING (channel 1) + TIM_INPUTCHANNELPOLARITY_FALLING (channel 2)
+    TIMER_INPUT_FREQ_DUTY_MEASUREMENT,
 
     //Encoder mode
-    //TIMER_ENCODER                        // == TIM_ENCODERMODE_TI1
+    TIMER_ENCODER,                            // == TIM_ENCODERMODE_TI1
+	
+    TIMER_NOT_USED = 0xFFFF  // This must be the last item of this enum
 } TIMER_MODES;
+
+typedef enum {
+  TICK_FORMAT, // default
+  MICROSEC_FORMAT,
+  HERTZ_FORMAT,
+} TimerFormat_t;
+
+typedef enum {
+  TICK_COMPARE_FORMAT, // default
+  MICROSEC_COMPARE_FORMAT,
+  HERTZ_COMPARE_FORMAT,
+  PERCENT_COMPARE_FORMAT,  // used for Dutycycle
+  RESOLUTION_8B_COMPARE_FORMAT,  // used for Dutycycle: [0.. 255]
+  RESOLUTION_12B_COMPARE_FORMAT  // used for Dutycycle: [0.. 4095]
+} TimerCompareFormat_t;
 
 #define TIMER_DEFAULT_PIN 0xFF
 
@@ -48,40 +65,33 @@ typedef enum {
 
 class HardwareTimer {
 public:
-    HardwareTimer(TIM_TypeDef *instance, const stm32_tim_pin_list_type *pin_list, int pin_list_size = 0);
+    HardwareTimer(TIM_TypeDef *instance, const stm32_tim_pin_list_type *pin_list , int pin_list_size = 0);
+    ~HardwareTimer(){};  // destructor
 
     void pause(void);
-
-    void resume(int channel = 0, TIMER_MODES mode = TIMER_DISABLED);
+    void resume(TIMER_MODES mode = TIMER_DISABLED,int channel = 0);
 
     uint32_t getPrescaleFactor();
-
     void setPrescaleFactor(uint32_t factor);
 
     uint32_t getOverflow();
-
     void setOverflow(uint32_t val);
 
     uint32_t getCount(void);
-
     void setCount(uint32_t val);
 
     uint32_t setPeriod(uint32_t microseconds);
-
     void setMode(int channel, TIMER_MODES mode, uint8_t pin = TIMER_DEFAULT_PIN);
 
     uint32_t getCompare(int channel);
-
     void setCompare(int channel, uint32_t compare);
 
     //Add interrupt to period update
     void attachInterrupt(void (*handler)(void));
-
     void detachInterrupt();
 
     //Add interrupt to channel
     void attachInterrupt(int channel, void (*handler)(void));
-
     void detachInterrupt(int channel);
 
     void refresh(void);
@@ -91,11 +101,10 @@ public:
     TIM_HandleTypeDef handle = {0};
 
     TIM_OC_InitTypeDef channelOC[TIMER_CHANNELS];
-
     TIM_IC_InitTypeDef channelIC[TIMER_CHANNELS];
 	
     //Callbacks: 0 for update, 1-4 for channels
-    void (*callbacks[5])(void);
+    void (*callbacks[TIMER_CHANNELS])(void);
 
     const stm32_tim_pin_list_type *tim_pin_list;
 
@@ -105,6 +114,7 @@ private:
     int  getChannel(int channel);
     void resumeChannel(int channel);
     void resumePwm(int channel);
+    void resumeEncoder(void);
 };
 
 #pragma GCC diagnostic pop
@@ -141,7 +151,9 @@ private:
     extern HardwareTimer Timer10;
 #endif
 #ifdef TIM11
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 11) 
     extern HardwareTimer Timer11;
+# endif
 #elif defined(TIM21)	/*L0 only*/
     extern HardwareTimer Timer21;
 #endif
@@ -165,7 +177,9 @@ private:
     extern HardwareTimer Timer16;
 #endif
 #ifdef TIM17
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 17) 
     extern HardwareTimer Timer17;
+# endif
 #endif
 
 #endif //HARDWARETIMER_H_

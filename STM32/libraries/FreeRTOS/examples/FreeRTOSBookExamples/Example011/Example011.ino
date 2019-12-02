@@ -1,7 +1,7 @@
 /*
   Example 11. Blocking When Sending to a Queue / Sending Structures on a Queue   发送到队列的队列/发送结构时阻塞
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -98,8 +98,8 @@ void setup( void )
 
 static void vSenderTask( void *pvParameters )
 {
-portBASE_TYPE xStatus;
-const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
+  portBASE_TYPE xStatus;
+  const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
 
   /* As per most tasks, this task is implemented within an infinite loop. */
   for( ;; )
@@ -134,9 +134,9 @@ const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
 
 static void vReceiverTask( void *pvParameters )
 {
-/* Declare the structure that will hold the values received from the queue. */
-xData xReceivedStructure;
-portBASE_TYPE xStatus;
+  /* Declare the structure that will hold the values received from the queue. */
+  xData xReceivedStructure;
+  portBASE_TYPE xStatus;
 
   /* This task is also defined within an infinite loop. */
   for( ;; )

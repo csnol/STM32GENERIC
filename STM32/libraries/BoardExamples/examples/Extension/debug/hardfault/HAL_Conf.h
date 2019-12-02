@@ -18,6 +18,14 @@
 #define  USE_BITBAND              1
 #define  USE_HARDFAUILTHOOK       0
 
+#if !(defined(STM32F0)||defined(STM32L0))  //  __CORTEX_M == 0 
+/*
+  M0/M0+ not swo, M3/4/7 only.
+  The __CORTEX_M define in the file core_CMx.h and HAL_Conf.h include befor it
+*/
+# define  USE_SWOPRINTERR         1    /* redirect STDERR USE swo output */
+#endif
+
 #ifdef USE_FULL_ASSERT /*DEBUG*/
 /* ------------------------------------------------------------------
  * set USE_ERRORBLINK 1  for _Error_Handler/AssertError output information redirect to led blinking the err code 

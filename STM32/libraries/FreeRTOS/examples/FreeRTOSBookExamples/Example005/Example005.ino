@@ -2,7 +2,7 @@
   Example 5. Converting the example tasks to use vTaskDelayUntil()
               将示例任务转换为使用 vTaskDelayUntil ()
   
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 

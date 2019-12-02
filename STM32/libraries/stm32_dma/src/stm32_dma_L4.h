@@ -27,9 +27,13 @@ const dma_request_to_instance_t dmaRequestToStream[] = {
     {SDMMC1, SDIO_RXTX, DMA2_Channel5, 3 + 8, 7, DMA2_Channel5_IRQn},
 #endif
 
+#if defined(DAC1)
+    {DAC1,   DAC1_CH1,  DMA1_Channel6, 6,  6,    DMA1_Channel6_IRQn},
+#endif
+
 };
 
-inline static void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
+static inline void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
     handle->Instance = dmaRequestToStream.dmaInstance;
     handle->Init.Request = dmaRequestToStream.requestNumber;
 }

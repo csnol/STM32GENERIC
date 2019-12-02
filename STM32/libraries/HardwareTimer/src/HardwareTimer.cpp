@@ -19,7 +19,7 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
 
-  2018.5.18  add TIM5/8~22 by huaweiwx
+  2018.5.18  add TIM5/8~17/21~22 by huaweiwx
   2018.5.28  for F3/F7/L4/H7 support channel5&6 by huaweiwx
 */
 
@@ -64,7 +64,7 @@ void HardwareTimer::pause() {
     HAL_TIM_Base_Stop(&handle);
 }
 
-void HardwareTimer::resume(int channel, TIMER_MODES mode) {
+void HardwareTimer::resume( TIMER_MODES mode, int channel) {
     bool hasInterrupt = false;
     for(size_t i=0; i<sizeof(callbacks) / sizeof(callbacks[0]); i++) {
         if (callbacks[i] != NULL) {
@@ -84,7 +84,7 @@ void HardwareTimer::resume(int channel, TIMER_MODES mode) {
 #elif defined(STM32F3)||defined(STM32L4)|| STM32F100xB|| STM32F100xE /*F100 TIM1_UP_TIM16*/
             HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, TIM_PRIORITY, 0);
             HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-#elif defined(STM32F1)||defined(STM32F2)||defined(STM32F4)|| defined(STM32F7)||defined(STM32H7)
+#elif defined(STM32F1)||defined(GD32F2)||defined(STM32F2)||defined(STM32F4)|| defined(STM32F7)||defined(STM32H7)
             HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, TIM_PRIORITY, 0);
             HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
 #endif
@@ -315,7 +315,9 @@ void HardwareTimer::resume(int channel, TIMER_MODES mode) {
 	
     if ( channel &&(mode == TIMER_PWM)){
 		resumePwm(channel);
-	} else {
+	}else if( channel &&(mode == TIMER_ENCODER)){
+		resumeEncoder();
+    }else {
 		resumeChannel(1);
 		resumeChannel(2);
 		resumeChannel(3);
@@ -369,6 +371,29 @@ void HardwareTimer::resumeChannel(int channel) {
             HAL_TIM_IC_Start(&handle, timChannel);
         }
     }
+}
+
+/*Encoder*/
+
+void HardwareTimer::resumeEncoder(void) {
+  TIM_Encoder_InitTypeDef sConfig;
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  HAL_TIM_Encoder_Init(&handle, &sConfig);
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  HAL_TIMEx_MasterConfigSynchronization(&handle, &sMasterConfig);
+  
 }
 
 uint32_t HardwareTimer::getPrescaleFactor() {
@@ -516,6 +541,11 @@ void HardwareTimer::setMode(int channel, TIMER_MODES mode, uint8_t pin) {
             pinMode = GPIO_MODE_AF_PP;
             pull = GPIO_PULLDOWN;
             break;
+
+        case TIMER_ENCODER:
+            channelOC[channel - 1].OCMode = TIM_ENCODERMODE_TI1;
+            break;
+
 		default:
 		    break;
     }
@@ -535,7 +565,7 @@ void HardwareTimer::setMode(int channel, TIMER_MODES mode, uint8_t pin) {
                     GPIO_InitStruct.Pull = pull;
                     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
-                    #ifdef STM32F1
+                    #if defined(STM32F1)||defined(GD32F2)
                         tim_pin_list[i].alternate();
                     #else
                         GPIO_InitStruct.Alternate = tim_pin_list[i].alternate;
@@ -640,7 +670,9 @@ static void handleInterrupt(HardwareTimer *timer) {
     HardwareTimer Timer10(TIM10, chip_tim10, sizeof(chip_tim10) / sizeof(chip_tim10[0]));
 #endif
 #ifdef TIM11
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 11) 
     HardwareTimer Timer11(TIM11, chip_tim11, sizeof(chip_tim11) / sizeof(chip_tim11[0]));
+# endif
 #elif defined(TIM21)	/*L0 only not TIM11*/
     HardwareTimer Timer21(TIM21, chip_tim21, sizeof(chip_tim21) / sizeof(chip_tim21[0]));	
 #endif
@@ -662,7 +694,9 @@ static void handleInterrupt(HardwareTimer *timer) {
     HardwareTimer Timer16(TIM16, chip_tim16, sizeof(chip_tim16) / sizeof(chip_tim16[0]));
 #endif
 #ifdef TIM17
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 17) 
     HardwareTimer Timer17(TIM17, chip_tim17, sizeof(chip_tim17) / sizeof(chip_tim17[0]));
+# endif
 #endif
 //Timer interrupts:
 
@@ -698,7 +732,7 @@ extern "C" void TIM1_CC_IRQHandler(void) {
 //        if (interruptTimers[0] != NULL) handleInterrupt(interruptTimers[0]);
         if (interruptTimers[10] != NULL) handleInterrupt(interruptTimers[10]);
     }
-#elif defined(STM32F1)/*F101/103/105/107  TIM1_UP_TIM10 or TIM1_UP*/
+#elif defined(STM32F1)||defined(GD32F2)/*F101/103/105/107  TIM1_UP_TIM10 or TIM1_UP*/
     extern "C" void TIM1_BRK_TIM9_IRQHandler(void) {
         if (interruptTimers[0] != NULL) handleInterrupt(interruptTimers[0]);
         if (interruptTimers[9] != NULL) handleInterrupt(interruptTimers[9]);
