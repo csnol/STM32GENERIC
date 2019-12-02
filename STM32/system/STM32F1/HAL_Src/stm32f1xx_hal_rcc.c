@@ -1112,6 +1112,12 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
     case RCC_SYSCLKSOURCE_STATUS_PLLCLK:  /* PLL used as system clock */
     {
       pllmul = aPLLMULFactorTable[(uint32_t)(tmpreg & RCC_CFGR_PLLMULL) >> RCC_CFGR_PLLMULL_Pos];
+#if defined(RCC_CFGR_PLLMULL_4) /*gd32*/
+      if(tmpreg & RCC_CFGR_PLLMULL_4){
+		pllmul +=15;
+	  } 
+#endif
+	  
       if ((tmpreg & RCC_CFGR_PLLSRC) != RCC_PLLSOURCE_HSI_DIV2)
       {
 #if defined(RCC_CFGR2_PREDIV1)
@@ -1285,7 +1291,11 @@ void HAL_RCC_GetOscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     RCC_OscInitStruct->PLL.PLLState = RCC_PLL_OFF;
   }
   RCC_OscInitStruct->PLL.PLLSource = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLSRC);
+#if defined(RCC_CFGR_PLLMULL_4)  
+  RCC_OscInitStruct->PLL.PLLMUL = (uint32_t)(RCC->CFGR & (RCC_CFGR_PLLMULL | RCC_CFGR_PLLMULL_4));
+#else
   RCC_OscInitStruct->PLL.PLLMUL = (uint32_t)(RCC->CFGR & RCC_CFGR_PLLMULL);
+#endif
 #if defined(RCC_CR_PLL2ON)
   /* Get the PLL2 configuration -----------------------------------------------*/
   if((RCC->CR &RCC_CR_PLL2ON) == RCC_CR_PLL2ON)

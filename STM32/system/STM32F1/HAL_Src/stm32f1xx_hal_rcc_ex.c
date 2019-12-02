@@ -435,6 +435,11 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       if (HAL_IS_BIT_SET(RCC->CR,RCC_CR_PLLON))
       {
         pllmul = aPLLMULFactorTable[(uint32_t)(temp_reg & RCC_CFGR_PLLMULL) >> RCC_CFGR_PLLMULL_Pos];
+#if defined(RCC_CFGR_PLLMULL_4) /*gd32*/
+        if(temp_reg & RCC_CFGR_PLLMULL_4){
+		  pllmul +=15;
+		} 
+#endif
         if ((temp_reg & RCC_CFGR_PLLSRC) != RCC_PLLSOURCE_HSI_DIV2)
         {
 #if defined(STM32F105xC) || defined(STM32F107xC) || defined(STM32F100xB)\

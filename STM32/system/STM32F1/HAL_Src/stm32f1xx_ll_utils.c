@@ -109,7 +109,8 @@
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_9) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_6_5))
 #else
-#define IS_LL_UTILS_PLLMUL_VALUE(__VALUE__) (((__VALUE__) == LL_RCC_PLL_MUL_2) \
+#if defined(RCC_CFGR_PLLMULL_4)  /*gd32*/
+             #define IS_LL_UTILS_PLLMUL_VALUE(__VALUE__) (((__VALUE__) == LL_RCC_PLL_MUL_2) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_3) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_4) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_5) \
@@ -123,7 +124,40 @@
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_13) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_14) \
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_15) \
-                                          || ((__VALUE__) == LL_RCC_PLL_MUL_16))
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_16) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_17) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_18) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_19) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_20) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_21) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_22) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_23) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_24) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_25) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_26) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_27) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_28) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_29) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_30) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_31) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_32)) 
+#else
+             #define IS_LL_UTILS_PLLMUL_VALUE(__VALUE__) (((__VALUE__) == LL_RCC_PLL_MUL_2) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_3) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_4) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_5) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_6) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_7) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_8) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_9) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_10) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_11) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_12) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_13) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_14) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_15) \
+                                          || ((__VALUE__) == LL_RCC_PLL_MUL_16)) 
+#endif  /*RCC_CFGR_PLLMULL_4*/										  
 #endif /* RCC_CFGR_PLLMULL6_5 */
 
 #if defined(RCC_CFGR2_PREDIV1)
@@ -472,7 +506,7 @@ static uint32_t UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency, LL_UTIL
   /* Check the parameters */
   assert_param(IS_LL_UTILS_PLLMUL_VALUE(UTILS_PLLInitStruct->PLLMul));
 
-  /* Check different PLL parameters according to RM                          */
+  /* Check different PLL parameters according to RM */
 #if defined (RCC_CFGR2_PREDIV1)
   pllfreq = __LL_RCC_CALC_PLLCLK_FREQ(PLL_InputFrequency / (UTILS_PLLInitStruct->Prediv + 1U), UTILS_PLLInitStruct->PLLMul);
 #elif defined(RCC_CFGR2_PREDIV1SRC)

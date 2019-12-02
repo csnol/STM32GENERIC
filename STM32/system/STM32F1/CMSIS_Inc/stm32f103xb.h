@@ -65,8 +65,12 @@
 /**
   * @brief Configuration of the Cortex-M3 Processor and Core Peripherals 
  */
+#if defined(GD32F10X)
+#define __CM3_REV                  0x0201U  /*!< Core Revision r2p1                           */
+#else
 #define __CM3_REV                  0x0200U  /*!< Core Revision r2p0                           */
- #define __MPU_PRESENT             0U       /*!< Other STM32 devices does not provide an MPU  */
+#endif
+#define __MPU_PRESENT              0U       /*!< Other STM32 devices does not provide an MPU  */
 #define __NVIC_PRIO_BITS           4U       /*!< STM32 uses 4 Bits for the Priority Levels    */
 #define __Vendor_SysTickConfig     0U       /*!< Set to 1 if different SysTick Config is used */
 
@@ -1076,7 +1080,11 @@ typedef struct
 #define RCC_CFGR_PLLMULL_1                   (0x2U << RCC_CFGR_PLLMULL_Pos)    /*!< 0x00080000 */
 #define RCC_CFGR_PLLMULL_2                   (0x4U << RCC_CFGR_PLLMULL_Pos)    /*!< 0x00100000 */
 #define RCC_CFGR_PLLMULL_3                   (0x8U << RCC_CFGR_PLLMULL_Pos)    /*!< 0x00200000 */
-
+#if defined(GD32F10X)
+#define RCC_CFGR_PLLMULL_4_Pos               (29U)                             /*!< bit 29 of PLLMF GDADD*/
+#define RCC_CFGR_PLLMULL_4_Msk               (0x1U << RCC_CFGR_PLLMULL_4_Pos)    /*!< 0x20000000 */
+#define RCC_CFGR_PLLMULL_4                   RCC_CFGR_PLLMULL_4_Msk
+#endif
 #define RCC_CFGR_PLLXTPRE_HSE                0x00000000U                      /*!< HSE clock not divided for PLL entry */
 #define RCC_CFGR_PLLXTPRE_HSE_DIV2           0x00020000U                      /*!< HSE clock divided by 2 for PLL entry */
 
@@ -1123,6 +1131,26 @@ typedef struct
 #define RCC_CFGR_PLLMULL16_Pos               (19U)                             
 #define RCC_CFGR_PLLMULL16_Msk               (0x7U << RCC_CFGR_PLLMULL16_Pos)  /*!< 0x00380000 */
 #define RCC_CFGR_PLLMULL16                   RCC_CFGR_PLLMULL16_Msk            /*!< PLL input clock*16 */
+
+#if defined(GD32F10X)
+#define RCC_CFGR_PLLMULL17                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL2)  /*!< PLL source clock multiply by 17 */
+#define RCC_CFGR_PLLMULL18                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL3)  /*!< PLL source clock multiply by 18 */
+#define RCC_CFGR_PLLMULL19                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL4)  /*!< PLL source clock multiply by 19 */
+#define RCC_CFGR_PLLMULL20                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL5)  /*!< PLL source clock multiply by 20 */
+#define RCC_CFGR_PLLMULL21                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL6)  /*!< PLL source clock multiply by 21 */
+#define RCC_CFGR_PLLMULL22                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL7)  /*!< PLL source clock multiply by 22 */
+#define RCC_CFGR_PLLMULL23                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL8)  /*!< PLL source clock multiply by 23 */
+#define RCC_CFGR_PLLMULL24                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL9)  /*!< PLL source clock multiply by 24 */
+#define RCC_CFGR_PLLMULL25                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL10) /*!< PLL source clock multiply by 25 */
+#define RCC_CFGR_PLLMULL26                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL11) /*!< PLL source clock multiply by 26 */
+#define RCC_CFGR_PLLMULL27                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL12) /*!< PLL source clock multiply by 27 */
+#define RCC_CFGR_PLLMULL28                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL13) /*!< PLL source clock multiply by 28 */
+#define RCC_CFGR_PLLMULL29                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL14) /*!< PLL source clock multiply by 29 */
+#define RCC_CFGR_PLLMULL30                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL15) /*!< PLL source clock multiply by 30 */
+#define RCC_CFGR_PLLMULL31                   (RCC_CFGR_PLLMULL_4 | RCC_CFGR_PLLMULL16) /*!< PLL source clock multiply by 31 */
+#define RCC_CFGR_PLLMULL32                   (0x203C0000U)                             /*!< PLL source clock multiply by 32 */
+#endif
+
 #define RCC_CFGR_USBPRE_Pos                  (22U)                             
 #define RCC_CFGR_USBPRE_Msk                  (0x1U << RCC_CFGR_USBPRE_Pos)     /*!< 0x00400000 */
 #define RCC_CFGR_USBPRE                      RCC_CFGR_USBPRE_Msk               /*!< USB Device prescaler */

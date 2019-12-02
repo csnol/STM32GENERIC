@@ -202,9 +202,12 @@
 
 #if defined(STM32F102x6) || defined(STM32F102xB) || defined(STM32F103x6)\
  || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
-
-#define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5))
-
+  #ifdef GD32F10X
+    #define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5) || \
+	                                          ((__USBCLK__) == RCC_USBCLKSOURCE_PLL2) || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV2_5))
+  #else
+    #define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5))
+  #endif
 #endif /* STM32F102x6 || STM32F102xB || STM32F103x6 || STM32F103xB || STM32F103xE || STM32F103xG */
 
 /**
@@ -411,8 +414,8 @@ typedef struct
 #define RCC_USBCLKSOURCE_PLL_DIV1_5       0x00000000U
 #ifdef GD32F10X
 //  GD32 support div2 and div2.5  huaweiwx@sina.com
-#define RCC_USBCLKSOURCE_PLL_DIV_2   	(0x3 << RCC_CFGR_USBPRE_Pos)
-#define RCC_USBCLKSOURCE_PLL_DIV_2_5 	(0x2 << RCC_CFGR_USBPRE_Pos)
+#define RCC_USBCLKSOURCE_PLL_DIV2   	(0x3 << RCC_CFGR_USBPRE_Pos)
+#define RCC_USBCLKSOURCE_PLL_DIV2_5 	(0x2 << RCC_CFGR_USBPRE_Pos)
 #endif
 
 /**
@@ -580,6 +583,24 @@ typedef struct
 #define RCC_PLL_MUL16                   RCC_CFGR_PLLMULL16
 #endif /* STM32F105xC || STM32F107xC */
 
+#if defined(GD32F10X) //add by huaweiwx@sina.com 2017.6.28
+#define RCC_PLL_MUL17                   RCC_CFGR_PLLMULL17
+#define RCC_PLL_MUL18                   RCC_CFGR_PLLMULL18
+#define RCC_PLL_MUL19                   RCC_CFGR_PLLMULL19
+#define RCC_PLL_MUL20                   RCC_CFGR_PLLMULL20
+#define RCC_PLL_MUL21                   RCC_CFGR_PLLMULL21
+#define RCC_PLL_MUL22                   RCC_CFGR_PLLMULL22
+#define RCC_PLL_MUL23                   RCC_CFGR_PLLMULL23
+#define RCC_PLL_MUL24                   RCC_CFGR_PLLMULL24
+#define RCC_PLL_MUL25                   RCC_CFGR_PLLMULL25
+#define RCC_PLL_MUL26                   RCC_CFGR_PLLMULL26
+#define RCC_PLL_MUL27                   RCC_CFGR_PLLMULL27
+#define RCC_PLL_MUL28                   RCC_CFGR_PLLMULL28
+#define RCC_PLL_MUL29                   RCC_CFGR_PLLMULL29
+#define RCC_PLL_MUL30                   RCC_CFGR_PLLMULL30
+#define RCC_PLL_MUL31                   RCC_CFGR_PLLMULL31
+#define RCC_PLL_MUL32                   RCC_CFGR_PLLMULL32
+#endif
 /**
   * @}
   */

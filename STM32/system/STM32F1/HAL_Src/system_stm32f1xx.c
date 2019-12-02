@@ -298,9 +298,15 @@ void SystemCoreClockUpdate (void)
       pllmull = RCC->CFGR & RCC_CFGR_PLLMULL;
       pllsource = RCC->CFGR & RCC_CFGR_PLLSRC;
       
-#if !defined(STM32F105xC) && !defined(STM32F107xC)      
+#if !defined(STM32F105xC) && !defined(STM32F107xC)
+  #if defined(RCC_CFGR_PLLMULL_4)  /*gd32*/
+      if (RCC->CFGR & RCC_CFGR_PLLMULL_4) 
+		  pllmull = ( pllmull >> 18U) + 17U;
+	  else 
+		  pllmull = ( pllmull >> 18U) + 2U;
+  #else	  
       pllmull = ( pllmull >> 18U) + 2U;
-      
+  #endif    
       if (pllsource == 0x00U)
       {
         /* HSI oscillator clock divided by 2 selected as PLL clock entry */

@@ -414,6 +414,27 @@ typedef struct
 #define LL_RCC_PLL_MUL_15                  RCC_CFGR_PLLMULL15  /*!< PLL input clock*15 */
 #define LL_RCC_PLL_MUL_16                  RCC_CFGR_PLLMULL16  /*!< PLL input clock*16 */
 #endif /*RCC_CFGR_PLLMULL6_5*/
+
+
+#if defined(GD32F10X)  //add by huaweiwx@sina.com 2017.6.28
+#define ll_RCC_PLL_MUL_17                  RCC_CFGR_PLLMULL17
+#define ll_RCC_PLL_MUL_18                  RCC_CFGR_PLLMULL18
+#define ll_RCC_PLL_MUL_19                  RCC_CFGR_PLLMULL19
+#define ll_RCC_PLL_MUL_20                  RCC_CFGR_PLLMULL20
+#define ll_RCC_PLL_MUL_21                  RCC_CFGR_PLLMULL21
+#define ll_RCC_PLL_MUL_22                  RCC_CFGR_PLLMULL22
+#define ll_RCC_PLL_MUL_23                  RCC_CFGR_PLLMULL23
+#define ll_RCC_PLL_MUL_24                  RCC_CFGR_PLLMULL24
+#define ll_RCC_PLL_MUL_25                  RCC_CFGR_PLLMULL25
+#define ll_RCC_PLL_MUL_26                  RCC_CFGR_PLLMULL26
+#define ll_RCC_PLL_MUL_27                  RCC_CFGR_PLLMULL27
+#define ll_RCC_PLL_MUL_28                  RCC_CFGR_PLLMULL28
+#define ll_RCC_PLL_MUL_29                  RCC_CFGR_PLLMULL29
+#define ll_RCC_PLL_MUL_30                  RCC_CFGR_PLLMULL30
+#define ll_RCC_PLL_MUL_31                  RCC_CFGR_PLLMULL31
+#define ll_RCC_PLL_MUL_32                  RCC_CFGR_PLLMULL32
+#endif
+
 /**
   * @}
   */
@@ -614,7 +635,13 @@ typedef struct
   *         @arg @ref LL_RCC_PLL_MUL_16
   * @retval PLL clock frequency (in Hz)
   */
-#define __LL_RCC_CALC_PLLCLK_FREQ(__INPUTFREQ__, __PLLMUL__) ((__INPUTFREQ__) * (((__PLLMUL__) >> RCC_CFGR_PLLMULL_Pos) + 2U))
+#if defined(RCC_CFGR_PLLMULL_4) /*gd32*/
+  #define __LL_RCC_CALC_PLLCLK_FREQ(__INPUTFREQ__, __PLLMUL__)    \
+           ((__INPUTFREQ__) *(((__PLLMUL__) & (RCC_CFGR_PLLMULL_4)) ? ((((__PLLMUL__) & (RCC_CFGR_PLLMULL_4)) >> RCC_CFGR_PLLMULL_Pos) + 17U) :\
+                                                                       (((__PLLMUL__) >> RCC_CFGR_PLLMULL_Pos) + 2U)))
+#else  
+  #define __LL_RCC_CALC_PLLCLK_FREQ(__INPUTFREQ__, __PLLMUL__) ((__INPUTFREQ__) * (((__PLLMUL__) >> RCC_CFGR_PLLMULL_Pos) + 2U))
+#endif /* RCC_CFGR_PLLMULL_4 */
 #endif /* RCC_CFGR_PLLMULL6_5 */
 
 #if defined(RCC_PLLI2S_SUPPORT)
@@ -1497,8 +1524,13 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_IsReady(void)
   */
 __STATIC_INLINE void LL_RCC_PLL_ConfigDomain_SYS(uint32_t Source, uint32_t PLLMul)
 {
+#if defined(RCC_CFGR_PLLMULL_4)	
+  MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL |RCC_CFGR_PLLMULL_4,
+             (Source & (RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE)) | PLLMul);
+#else
   MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL,
              (Source & (RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE)) | PLLMul);
+#endif
 #if defined(RCC_CFGR2_PREDIV1)
 #if defined(RCC_CFGR2_PREDIV1SRC)
   MODIFY_REG(RCC->CFGR2, (RCC_CFGR2_PREDIV1 | RCC_CFGR2_PREDIV1SRC),
@@ -1574,7 +1606,11 @@ __STATIC_INLINE uint32_t LL_RCC_PLL_GetMainSource(void)
   */
 __STATIC_INLINE uint32_t LL_RCC_PLL_GetMultiplicator(void)
 {
+#if defined(RCC_CFGR_PLLMULL_4)	
+  return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLMULL | RCC_CFGR_PLLMULL_4));
+#else
   return (uint32_t)(READ_BIT(RCC->CFGR, RCC_CFGR_PLLMULL));
+#endif
 }
 
 /**
