@@ -167,7 +167,7 @@ extern HardwareSerial SerialUART7;
 
 #if defined(USART8) || defined(UART8)
 #if (USE_SERIAL8)
-extern HardwareSerial SerialUART7;
+extern HardwareSerial SerialUART8;
 #define Serial8 SerialUART8
 #endif
 #endif

@@ -318,7 +318,7 @@ void HardwareSerial::begin(const uint32_t baud, uint8_t config) {
     __HAL_RCC_UART8_CLK_ENABLE();
     HAL_NVIC_SetPriority(UART8_IRQn, USART_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(UART8_IRQn);
-	interruptUART18 = this;
+	interruptUART8 = this;
   }
 #endif
 #if defined(USART8) && (USE_SERIAL8)
