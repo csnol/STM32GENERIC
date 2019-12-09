@@ -38,17 +38,17 @@
 #include "stm32_gpio_af.h"
 
 #if defined(USART3_BASE) && !defined(USART3_IRQn)
-#if defined(STM32F0 )
-#if defined(STM32F091xC) || defined (STM32F098xx)
-#define USART3_IRQn USART3_8_IRQn
-#define USART3_IRQHandler USART3_8_IRQHandler
-#elif defined(STM32F030xC)
-#define USART3_IRQn USART3_6_IRQn
-#define USART3_IRQHandler USART3_6_IRQHandler
-#else
-#define USART3_IRQn USART3_4_IRQn
-#define USART3_IRQHandler USART3_4_IRQHandler
-#endif /* STM32F091xC || STM32F098xx */
+# if defined(STM32F0 )
+#  if defined(STM32F091xC) || defined (STM32F098xx)
+#    define USART3_IRQn USART3_8_IRQn
+#    define USART3_IRQHandler USART3_8_IRQHandler
+#  elif defined(STM32F030xC)
+#    define USART3_IRQn USART3_6_IRQn
+#    define USART3_IRQHandler USART3_6_IRQHandler
+#  else
+#    define USART3_IRQn USART3_4_IRQn
+#    define USART3_IRQHandler USART3_4_IRQHandler
+#  endif /* STM32F091xC || STM32F098xx */
 #endif /* STM32F0 */
 
 #if defined(STM32G0)
@@ -58,21 +58,21 @@
 #endif
 
 #if defined(USART4_BASE) && !defined(USART4_IRQn)
-#if defined(STM32F0)
+# if defined(STM32F0)
 /* IRQHandler is mapped on USART3_IRQHandler for STM32F0xx */
-#if defined(STM32F091xC) || defined (STM32F098xx)
-#define USART4_IRQn USART3_8_IRQn
-#elif defined(STM32F030xC)
-#define USART4_IRQn USART3_6_IRQn
-#else
-#define USART4_IRQn USART3_4_IRQn
-#endif /* STM32F091xC || STM32F098xx */
-#elif defined(STM32L0)
-#define USART4_IRQn USART4_5_IRQn
-#endif /* STM32F0xx */
-#if defined(STM32G0)
-#define USART4_IRQn USART3_4_LPUART1_IRQn
-#endif /* STM32G0xx */
+#   if defined(STM32F091xC) || defined (STM32F098xx)
+#     define USART4_IRQn USART3_8_IRQn
+#   elif defined(STM32F030xC)
+#     define USART4_IRQn USART3_6_IRQn
+#   else
+#     define USART4_IRQn USART3_4_IRQn
+#   endif /* STM32F091xC || STM32F098xx */
+# elif defined(STM32L0)
+#   define USART4_IRQn USART4_5_IRQn
+# endif /* STM32F0 */
+# if defined(STM32G0)
+#   define USART4_IRQn USART3_4_LPUART1_IRQn
+# endif /* STM32G0xx */
 #endif
 
 #if defined(USART5_BASE) && !defined(USART5_IRQn)
@@ -836,7 +836,7 @@ HardwareSerial SerialLPUART1(LPUART1);
 #endif
 
 
-extern "C" HardwareSerial* get_serialinst(UART_HandleTypeDef *huart){
+static HardwareSerial* getObj(UART_HandleTypeDef *huart){
 	HardwareSerial* rtn = interruptUART1;
 
 	if(huart->Instance == USART1) rtn = interruptUART1;
@@ -886,7 +886,7 @@ extern "C" HardwareSerial* get_serialinst(UART_HandleTypeDef *huart){
  }
  
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-  HardwareSerial* _m_serial  = get_serialinst(huart);
+  HardwareSerial* _m_serial  = getObj(huart);
   _m_serial->txStart = (_m_serial->txStart+1) % TX_BUFFER_SIZE;
   if (_m_serial->txStart != _m_serial->txEnd) {
     HAL_UART_Transmit_IT(_m_serial->handle, &_m_serial->txBuffer[_m_serial->txStart], 1);
@@ -894,7 +894,7 @@ extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-  HardwareSerial* _m_serial  = get_serialinst(huart);
+  HardwareSerial* _m_serial  = getObj(huart);
   _m_serial->rxBuffer[_m_serial->rxEnd % RX_BUFFER_SIZE] = _m_serial->receive_buffer;
   _m_serial->rxEnd = (_m_serial->rxEnd + 1) % RX_BUFFER_SIZE;
   HAL_UART_Receive_IT(_m_serial->handle, &_m_serial->receive_buffer, 1);
@@ -904,7 +904,7 @@ extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
   uint32_t tmpval;
-#if defined(STM32F1) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)||defined(GD32F10X)||defined(GD32F20X)
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)
 
   if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
     tmpval = huart->Instance->DR; /* Clear PE flag */

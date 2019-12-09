@@ -85,7 +85,7 @@
 #  define USE_USBDCONF  1
 #endif
 
-//USART
+//USART(UART)
 #ifndef USE_SERIAL1
 #define USE_SERIAL1 1
 #endif

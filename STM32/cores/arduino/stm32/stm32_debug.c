@@ -46,14 +46,15 @@ static void nblink(int n, int l){
   if(l){	
 	for  (uint8_t i = 0; i < 2*n; i++) {
       digitalToggle(LED_BUILTIN);
-      delayMS(250);
+      delayMS(500);
     }
   }else{
+    delayMS(490);
     for (uint8_t i = 0; i < n; i++) {
       digitalToggle(LED_BUILTIN);
       delayMS(10);
       digitalToggle(LED_BUILTIN);
-      delayMS(240);
+      delayMS(490);
     }
   }
 }
@@ -83,7 +84,7 @@ void errorLedBlink(char* file, uint32_t n) {
 	nblink(h,0);
 	nblink(d,1);
     nblink(l,0);
-	delayMS(2000);
+	delayMS(4000);
   }
 }
 
