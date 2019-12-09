@@ -387,11 +387,11 @@ void STM_FSMC_SRAM_Init(void)
   Timing.AccessMode = FSMC_ACCESS_MODE_A;
 										 
   Timing.AddressSetupTime      = 0;	   //8.33ns(1/120M)*(0+1);  5ns for EM7644SU16-70
-  Timing.AddressHoldTime       = 0;    //FSMC_ACCESS_MODE_A unused 
+  Timing.AddressHoldTime       = 1;    //FSMC_ACCESS_MODE_A unused 
   Timing.DataSetupTime         = 7;    //8.33ns(1/120M)* (7+1); 70ns for EM7644SU16-70
-  Timing.BusTurnAroundDuration = 0;
-  Timing.CLKDivision           = 0;
-  Timing.DataLatency           = 0;
+  Timing.BusTurnAroundDuration = 1;
+  Timing.CLKDivision           = 2;
+  Timing.DataLatency           = 2;
   
   /* ExtTiming */
   if (HAL_SRAM_Init(&sramHandle, &Timing, NULL) != HAL_OK)
