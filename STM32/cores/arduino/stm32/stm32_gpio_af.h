@@ -103,7 +103,16 @@ void stm32AfLPUARTInit(const USART_TypeDef *instance,
 void stm32AfSPIInit(const SPI_TypeDef *instance,
     GPIO_TypeDef *mosiPort, uint32_t mosiPin,
     GPIO_TypeDef *misoPort, uint32_t misoPin,
-	GPIO_TypeDef *sckPort, uint32_t sckPin);
+	GPIO_TypeDef *sckPort,  uint32_t sckPin);
+	
+void stm32AfSPIInitMasterNss(const SPI_TypeDef *instance,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin);        /*for master*/
+	
+void stm32AfSPIInitSlave(const SPI_TypeDef *instance,
+    GPIO_TypeDef *mosiPort, uint32_t mosiPin,
+    GPIO_TypeDef *misoPort, uint32_t misoPin,
+	GPIO_TypeDef *sckPort,  uint32_t sckPin,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin);
 
 SPI_TypeDef *stm32GetSPIInstance(GPIO_TypeDef *mosiPort, uint32_t mosiPin,
     GPIO_TypeDef *misoPort, uint32_t misoPin,
