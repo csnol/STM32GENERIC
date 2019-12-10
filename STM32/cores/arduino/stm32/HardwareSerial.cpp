@@ -38,7 +38,7 @@
 #include "stm32_gpio_af.h"
 
 #if defined(USART3_BASE) && !defined(USART3_IRQn)
-# if defined(STM32F0 )
+# if defined(STM32F0 ) || defined(GD32F1x0)
 #  if defined(STM32F091xC) || defined (STM32F098xx)
 #    define USART3_IRQn USART3_8_IRQn
 #    define USART3_IRQHandler USART3_8_IRQHandler
@@ -58,7 +58,7 @@
 #endif
 
 #if defined(USART4_BASE) && !defined(USART4_IRQn)
-# if defined(STM32F0)
+# if defined(STM32F0) || defined(GD32F1x0)
 /* IRQHandler is mapped on USART3_IRQHandler for STM32F0xx */
 #   if defined(STM32F091xC) || defined (STM32F098xx)
 #     define USART4_IRQn USART3_8_IRQn
@@ -76,7 +76,7 @@
 #endif
 
 #if defined(USART5_BASE) && !defined(USART5_IRQn)
-#if defined(STM32F0)
+#if defined(STM32F0) || defined(GD32F1x0)
 /* IRQHandler is mapped on USART3_IRQHandler for STM32F0xx */
 #if defined(STM32F091xC) || defined (STM32F098xx)
 #define USART5_IRQn USART3_8_IRQn
@@ -88,7 +88,7 @@
 #endif /* STM32F0 */
 #endif
 
-#if defined (STM32F0)
+#if defined (STM32F0) || defined(GD32F1x0)
 /* IRQHandler is mapped on USART3_IRQHandler for STM32F0xx */
 #if defined(USART6_BASE) && !defined(USART6_IRQn)
 #if defined(STM32F091xC) || defined (STM32F098xx)
@@ -697,7 +697,7 @@ extern "C" void USART3_IRQHandler(void) {
 #	endif   
 #else
   if(interruptUART3) HAL_UART_IRQHandler(interruptUART3->handle);
-# if defined(STM32F0xx)
+# if defined(STM32F0) || defined(GD32F1x0)
 #	if defined(UART4) && (USE_SERIAL4)
   if(interruptUART4) HAL_UART_IRQHandler(interruptUART4->handle);
 #		if defined(STM32F030xC)
@@ -720,11 +720,11 @@ extern "C" void UART4_IRQHandler(void) {
   if(interruptUART4) HAL_UART_IRQHandler(interruptUART4->handle);
 }
 HardwareSerial SerialUART4(UART4);
-#endif
+#endif //UART4
 
 #if defined(STM32L0)
 # if (defined(USART4) && (USE_SERIAL4)) || (defined(USART5) && (USE_SERIAL5))
-void USART4_5_IRQHandler(void)
+extern "C" void USART4_5_IRQHandler(void)
 {
 #   if defined(USART4) && (USE_SERIAL4)
   if(interruptUART4) HAL_UART_IRQHandler(interruptUART4->handle);
@@ -765,7 +765,7 @@ HardwareSerial SerialUART5(USART5);
 
 #endif //STM32L0
 
-#if (defined USART6)  && !defined(STM32F0)
+#if (defined USART6)  && !defined(STM32F0)  && !defined(GD32F1x0)
 #if (USE_SERIAL6)
 extern "C" void USART6_IRQHandler(void) {
   if(interruptUART6) HAL_UART_IRQHandler(interruptUART6->handle);
