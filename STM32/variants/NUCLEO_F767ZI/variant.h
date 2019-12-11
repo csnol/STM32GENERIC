@@ -11,7 +11,6 @@
 #define  BOARD_NR_KEY        1
 #define  BUTTON              PC13 
 #define  BUTTON_MASK         0x01
-#define  KEYS_LIST  	BUTTON
 
 /*wkup_pins def*/
 #ifdef PWR_WAKEUP_PIN1

@@ -32,6 +32,7 @@
 #define A5 PC0
 
 #define VARIANT_PIN_LIST \
+/* CN9 right Side    */\
    PIN(A,3 ), /* D0  */\
    PIN(A,2 ), /* D1  */\
    PIN(A,10), /* D2  */\
@@ -40,6 +41,7 @@
    PIN(B,4 ), /* D5  */\
    PIN(B,10), /* D6  */\
    PIN(A,8 ), /* D7  */\
+/* CN5 right Side    */\
    PIN(A,9 ), /* D8  */\
    PIN(C,7 ), /* D9  */\
    PIN(B,6 ), /* D10 */\
@@ -60,8 +62,8 @@
    PIN(C,13), /* D23  */\
    PIN(C,14), /* D24  */\
    PIN(C,15), /* D25  */\
-   PIN(F,0 ), /* D26  */\
-   PIN(F,1 ), /* D27  */\
+ /*  PIN(F,0 ),  D25  PD0/H0/F0*/\
+ /*  PIN(F,1 ),  D26  PD0/H0/F0*/\
    PIN(C,2 ), /* D28  */\
    PIN(C,3 ), /* D29  */\
  /* CN7 Right Side  */\
@@ -83,11 +85,12 @@
    PIN(A,6 ), /* D43  */\
    PIN(A,5 ), /* D44  */\
    PIN(C,4 ), /* D45  */\
-   PIN(A,0 ), /* D46  */\
-   PIN(A,1 ), /* D47  */\
-   PIN(A,4 ), /* D48  */\
-   PIN(B,0 ), /* D49  */\
-   PIN(C,1 ), /* D50  */\
-   PIN(C,0 ), /* D51  */
+/* CN8 lift side    */\
+   PIN(A,0 ), /* A0/D46  */\
+   PIN(A,1 ), /* A1/D47  */\
+   PIN(A,4 ), /* A2/D48  */\
+   PIN(B,0 ), /* A3/D49  */\
+   PIN(C,1 ), /* A4/D50  */\
+   PIN(C,0 ), /* A5/D51  */
 
 #endif
