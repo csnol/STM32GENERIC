@@ -4,14 +4,33 @@
 #include "Wire.h"
 #include "stm32_gpio_af.h"
 
-#if defined(STM32F0)||defined(STM32L0)  /*F0/L0*/
-#define I2C1_EV_IRQn I2C1_IRQn
-#define I2C2_EV_IRQn I2C1_IRQn
-#endif
+/* Redefinition of IRQ for F0 & L0 family */
+#if defined(STM32F0) || defined(STM32L0) || defined(GD32F1x0)
+#if defined(I2C1_BASE)
+#define I2C1_EV_IRQn        I2C1_IRQn
+#define I2C1_EV_IRQHandler  I2C1_IRQHandler
+#endif // defined(I2C1_BASE)
+#if defined(I2C2_BASE)
+#define I2C2_EV_IRQn        I2C2_IRQn
+#define I2C2_EV_IRQHandler  I2C2_IRQHandler
+#endif // defined(I2C2_BASE)
+#if defined(I2C3_BASE)
+#define I2C3_EV_IRQn        I2C3_IRQn
+#define I2C3_EV_IRQHandler  I2C3_IRQHandler
+#endif // defined(I2C3_BASE)
+#if defined(I2C4_BASE)
+#define I2C4_EV_IRQn        I2C4_IRQn
+#define I2C4_EV_IRQHandler  I2C4_IRQHandler
+#endif // defined(I2C4_BASE)-
+#endif // defined(STM32F0xx) || defined(STM32L0xx)
 
 /** TwoWire object used when in slave interrupt
  */
-#if defined(I2C4)
+#if defined(I2C6)
+# define I2C_PORT_NR 6
+#elif defined(I2C5)
+# define I2C_PORT_NR 5
+#elif defined(I2C4)
 # define I2C_PORT_NR 4
 #elif defined(I2C3)
 # define I2C_PORT_NR 3
@@ -75,6 +94,16 @@ void TwoWire::Init(void){
         __HAL_RCC_I2C4_CLK_ENABLE();
     }
 #endif
+#if defined(I2C5) && (USE_I2C5)
+    if (pdev->handle.Instance == I2C5) {
+        __HAL_RCC_I2C5_CLK_ENABLE();
+    }
+#endif
+#if defined(I2C6) && (USE_I2C6)
+    if (pdev->handle.Instance == I2C6) {
+        __HAL_RCC_I2C6_CLK_ENABLE();
+    }
+#endif
 	
     stm32AfI2CInit(pdev->handle.Instance,
 				   variant_pin_list[pdev->sda].port,
@@ -110,6 +139,10 @@ void TwoWire::Init(uint8_t address) {
         __HAL_RCC_I2C1_CLK_ENABLE();
         HAL_NVIC_SetPriority(I2C1_EV_IRQn, I2C_PRIORITY, 0);
         HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C1_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C1_ER_IRQn);
+#endif
     }
 #endif
 #if defined(I2C2) && (USE_I2C2)
@@ -118,6 +151,10 @@ void TwoWire::Init(uint8_t address) {
         __HAL_RCC_I2C2_CLK_ENABLE();
         HAL_NVIC_SetPriority(I2C2_EV_IRQn, I2C_PRIORITY, 0);
         HAL_NVIC_EnableIRQ(I2C2_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C2_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C2_ER_IRQn);
+#endif
     }
 #endif
 #if defined(I2C3) && (USE_I2C3)
@@ -126,6 +163,10 @@ void TwoWire::Init(uint8_t address) {
         __HAL_RCC_I2C3_CLK_ENABLE();
         HAL_NVIC_SetPriority(I2C3_EV_IRQn, I2C_PRIORITY, 0);
         HAL_NVIC_EnableIRQ(I2C3_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C3_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C3_ER_IRQn);
+#endif
     }
 #endif
 #if defined(I2C4) && (USE_I2C4)
@@ -134,6 +175,34 @@ void TwoWire::Init(uint8_t address) {
         __HAL_RCC_I2C4_CLK_ENABLE();
         HAL_NVIC_SetPriority(I2C4_EV_IRQn, I2C_PRIORITY, 0);
         HAL_NVIC_EnableIRQ(I2C4_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C4_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C4_ER_IRQn);
+#endif
+    }
+#endif
+#if defined(I2C5) && (USE_I2C5)
+    if (pdev->handle.Instance == I2C5) {
+        slaveTwoWire[4] = this;
+        __HAL_RCC_I2C5_CLK_ENABLE();
+        HAL_NVIC_SetPriority(I2C5_EV_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C5_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C5_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C5_ER_IRQn);
+#endif
+    }
+#endif
+#if defined(I2C6) && (USE_I2C6)
+    if (pdev->handle.Instance == I2C6) {
+        slaveTwoWire[5] = this;
+        __HAL_RCC_I2C6_CLK_ENABLE();
+        HAL_NVIC_SetPriority(I2C6_EV_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C6_EV_IRQn);
+#if !defined(STM32F0) && !defined(GD32F1x0) &&!defined(STM32G0) && !defined(STM32L0)
+        HAL_NVIC_SetPriority(I2C6_ER_IRQn, I2C_PRIORITY, 0);
+        HAL_NVIC_EnableIRQ(I2C6_ER_IRQn);
+#endif
     }
 #endif
 
@@ -154,7 +223,7 @@ void TwoWire::Init(uint8_t address) {
     HAL_I2C_Slave_Receive_IT(&pdev->handle, &pdev->slaveBuffer, 1);
 
     //TODO rewrite IRQ handling to not use HAL_I2C_EV_IRQHandler, so F1 can also work L0?
-#if !(defined(STM32F1)||defined(GD32F2)||defined(STM32L0))
+#if !(defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X)||defined(GD32F2)||defined(STM32L0))
      HAL_I2C_EnableListen_IT(&pdev->handle);
 #endif
 }
@@ -169,9 +238,9 @@ void TwoWire::deInit(void) {
 
 void TwoWire::setClock(uint32_t frequency) {
 
-#if defined(STM32F1)  || defined(GD32F2) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X)  || defined(GD32F2) || defined(STM32F2) || defined(STM32F4) || defined(STM32L1)
         pdev->handle.Init.ClockSpeed = frequency;
-        pdev->handle.Init.DutyCycle = I2C_DUTYCYCLE_2;
+        pdev->handle.Init.DutyCycle = (frequency > 100000)?I2C_DUTYCYCLE_16_9:I2C_DUTYCYCLE_2;
 #else
         UNUSED(frequency);
         // I2C1_100KHZ_TIMING needs to be #defined in variant.h for these boards
@@ -416,62 +485,6 @@ void TwoWire::flush(void) {
 
 }
 
-TwoWire *interruptWire;
-
-#if defined(I2C1) && (USE_I2C1)
-extern "C" void I2C1_EV_IRQHandler(void ) {
-    interruptWire = slaveTwoWire[0];
-    HAL_I2C_EV_IRQHandler(&interruptWire->pdev->handle);
-}
-#endif
-#if defined(I2C2) && (USE_I2C2)
-extern "C" void I2C2_EV_IRQHandler(void ) {
-    interruptWire = slaveTwoWire[1];
-    HAL_I2C_EV_IRQHandler(&interruptWire->pdev->handle);
-}
-#endif
-#if defined(I2C3) && (USE_I2C3)
-extern "C" void I2C3_EV_IRQHandler(void ) {
-    interruptWire = slaveTwoWire[2];
-    HAL_I2C_EV_IRQHandler(&interruptWire->pdev->handle);
-}
-#endif
-#if defined(I2C4) && (USE_I2C4)
-extern "C" void I2C4_EV_IRQHandler(void ) {
-    interruptWire = slaveTwoWire[3];
-    HAL_I2C_EV_IRQHandler(&interruptWire->pdev->handle);
-}
-#endif
-
-extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef __attribute__ ((unused)) *handle) {
-    HAL_I2C_Slave_Receive_IT(&interruptWire->pdev->handle, &interruptWire->pdev->slaveBuffer, 1);
-
-    if (interruptWire != NULL) {
-        interruptWire->onReceiveService(&interruptWire->pdev->slaveBuffer, 1);
-    }
-}
-
-extern "C" void HAL_I2C_AddrCallback(I2C_HandleTypeDef *handle, uint8_t TransferDirection, uint16_t __attribute__ ((unused)) AddrMatchCode) {
-    if (interruptWire != NULL && TransferDirection == 0) {
-        interruptWire->user_onRequest();
-
-        if (interruptWire->pdev->txBufferLength > 0) {
-
-            handle->pBuffPtr    = interruptWire->pdev->txBuffer;
-            handle->XferCount   = interruptWire->pdev->txBufferLength;
-            handle->XferSize    = interruptWire->pdev->txBufferLength;
-
-            interruptWire->pdev->txBufferIndex = 0;
-            interruptWire->pdev->txBufferLength = 0;
-
-#ifdef I2C_IT_BUF
-            __HAL_I2C_ENABLE_IT(handle, I2C_IT_EVT | I2C_IT_BUF);
-#endif
-        }
-    }
-
-}
-
 // behind the scenes function that is called when data is received
 void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes) {
   // don't bother if user hasn't registered a callback
@@ -522,6 +535,133 @@ void TwoWire::onRequest( void (*function)(void) ) {
     user_onRequest = function;
 }
 
+
+static TwoWire* getObj(I2C_HandleTypeDef *twihandle){
+	TwoWire* obj = NULL;
+	for(uint8_t i = 0; i< I2C_PORT_NR;i++){
+		if (slaveTwoWire[i]->pdev->handle.Instance == twihandle->Instance){
+		   obj = slaveTwoWire[i];
+		   break;
+		}
+	}
+	return obj;
+}
+
+/*---------------------------------- I2Cx_IRQHandler--------------------------------*/
+#if defined(I2C1) && (USE_I2C1)
+extern "C" void I2C1_EV_IRQHandler(void ) {
+    if(slaveTwoWire[0]){
+       HAL_I2C_EV_IRQHandler(&slaveTwoWire[0]->pdev->handle);
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L0) || defined(GD32F1x0)
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[0]->pdev->handle);
+#endif /* STM32F0 || STM32G0 || STM32L0 */
+   }
+}
+#if !defined(STM32F0) && !defined(STM32G0) && !defined(STM32L0) && !defined(GD32F1x0)
+extern "C" void I2C1_ER_IRQHandler(void)
+{
+    if(slaveTwoWire[0]){
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[0]->pdev->handle);
+	}
+}
+#endif /* !STM32F0 && !STM32G0 && !STM32L0 */
+#endif /* I2C1*/
+
+#if defined(I2C2) && (USE_I2C2)
+extern "C" void I2C2_EV_IRQHandler(void ) {
+    if(slaveTwoWire[1]){
+       HAL_I2C_EV_IRQHandler(&slaveTwoWire[1]->pdev->handle);
+#if defined(STM32F0) || defined(STM32G0) || defined(STM32L0) || defined(GD32F1x0)
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[1]->pdev->handle);
+#endif /* STM32F0 || STM32G0 || STM32L0 */
+	}
+}
+#if !defined(STM32F0) && !defined(STM32G0) && !defined(STM32L0) && !defined(GD32F1x0)
+extern "C" void I2C2_ER_IRQHandler(void)
+{
+    if(slaveTwoWire[1])
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[1]->pdev->handle);
+}
+#endif /* !STM32F0 && !STM32G0 && !STM32L0 */
+#endif /*I2C2*/
+
+#if defined(I2C3) && (USE_I2C3)
+extern "C" void I2C3_EV_IRQHandler(void ) {
+    if(slaveTwoWire[2]){
+      HAL_I2C_EV_IRQHandler(&slaveTwoWire[2]->pdev->handle);
+#if defined(STM32L0)
+      HAL_I2C_ER_IRQHandler(&slaveTwoWire[2]->pdev->handle);
+#endif
+	}
+}
+#if !defined(STM32L0)
+extern "C" void I2C3_ER_IRQHandler(void ) {
+    if(slaveTwoWire[2])
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[2]->pdev->handle);
+}
+#endif
+#endif
+
+#if defined(I2C4) && (USE_I2C4)
+extern "C" void I2C4_EV_IRQHandler(void ) {
+    if(slaveTwoWire[3])
+       HAL_I2C_EV_IRQHandler(&slaveTwoWire[3]->pdev->handle);
+}
+extern "C" void I2C4_ER_IRQHandler(void ) {
+    HAL_I2C_ER_IRQHandler(&slaveTwoWire[3]->pdev->handle);
+}
+#endif
+
+#if defined(I2C5) && (USE_I2C5)
+extern "C" void I2C5_EV_IRQHandler(void ) {
+    if(slaveTwoWire[4])
+       HAL_I2C_EV_IRQHandler(&slaveTwoWire[4]->pdev->handle);
+}
+extern "C" void I2C5_ER_IRQHandler(void ) {
+    if(slaveTwoWire[4])
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[4]->pdev->handle);
+}
+#endif
+
+#if defined(I2C6) && (USE_I2C6)
+extern "C" void I2C6_EV_IRQHandler(void ) {
+    if(slaveTwoWire[5])
+       HAL_I2C_EV_IRQHandler(&slaveTwoWire[5]->pdev->handle);
+}
+extern "C" void I2C6_ER_IRQHandler(void ) {
+    if(slaveTwoWire[5])
+       HAL_I2C_ER_IRQHandler(&slaveTwoWire[5]->pdev->handle);
+}
+#endif
+
+extern "C" void HAL_I2C_SlaveRxCpltCallback(I2C_HandleTypeDef *handle) {
+	TwoWire* _m_toWire = getObj(handle);
+    if (_m_toWire != NULL){
+		HAL_I2C_Slave_Receive_IT(handle, &_m_toWire->pdev->slaveBuffer, 1);
+//        if (_m_toWire->onReceiveService)
+            _m_toWire->onReceiveService(&_m_toWire->pdev->slaveBuffer, 1);
+    }
+}
+
+extern "C" void HAL_I2C_AddrCallback(I2C_HandleTypeDef *handle, uint8_t TransferDirection, uint16_t __attribute__ ((unused)) AddrMatchCode) {
+	TwoWire* _m_toWire = getObj(handle);
+    if (_m_toWire != NULL && TransferDirection == 0) {
+        if(_m_toWire->user_onRequest) _m_toWire->user_onRequest();
+
+        if (_m_toWire->pdev->txBufferLength > 0) {
+            handle->pBuffPtr    = _m_toWire->pdev->txBuffer;
+            handle->XferCount   = _m_toWire->pdev->txBufferLength;
+            handle->XferSize    = _m_toWire->pdev->txBufferLength;
+
+            _m_toWire->pdev->txBufferIndex = 0;
+            _m_toWire->pdev->txBufferLength = 0;
+
+#ifdef I2C_IT_BUF
+            __HAL_I2C_ENABLE_IT(handle, I2C_IT_EVT | I2C_IT_BUF);
+#endif
+        }
+    }
+}
 
 #if defined(SDA) && defined(SCL)
     TwoWire Wire = TwoWire(SDA, SCL);
