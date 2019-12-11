@@ -278,7 +278,7 @@ void HardwareSerial::begin(const uint32_t baud, uint8_t config) {
     __HAL_RCC_USART5_CLK_ENABLE();
     HAL_NVIC_SetPriority(USART5_IRQn, USART_PRIORITY, 0);
     HAL_NVIC_EnableIRQ(USART5_IRQn);
-	interruptUART6 = this;
+	interruptUART5 = this;
   }
 #endif
 
@@ -757,7 +757,7 @@ HardwareSerial SerialUART5(UART5);
 # ifdef USART5
 #   if (USE_SERIAL5)
 extern "C" void USART5_IRQHandler(void) {
-  if(interruptUART6) HAL_UART_IRQHandler(interruptUART6->handle);
+  if(interruptUART5) HAL_UART_IRQHandler(interruptUART5->handle);
 }
 HardwareSerial SerialUART5(USART5);
 #   endif
@@ -837,52 +837,53 @@ HardwareSerial SerialLPUART1(LPUART1);
 
 
 static HardwareSerial* getObj(UART_HandleTypeDef *huart){
-	HardwareSerial* rtn = interruptUART1;
 
-	if(huart->Instance == USART1) rtn = interruptUART1;
+#if defined(USART1) && (USE_SERIAL1)
+	if(huart->Instance == USART1) return interruptUART1;
+#endif
 #if defined(USART2) && (USE_SERIAL2)
-	else if (huart->Instance == USART2)   rtn = interruptUART2;
+	if (huart->Instance == USART2)   return interruptUART2;
 #endif
 #if defined(USART3) && (USE_SERIAL3)
-	else if (huart->Instance == USART3)   rtn = interruptUART3;
+	if (huart->Instance == USART3)   return interruptUART3;
 #endif
 #if (defined UART4) && (USE_SERIAL4)
-	else if (huart->Instance == UART4)    rtn = interruptUART4;
+	if (huart->Instance == UART4)    return interruptUART4;
 #endif
 #if  (defined USART4) && (USE_SERIAL4)
-	else if (huart->Instance == USART4)   rtn = interruptUART4;
+	if (huart->Instance == USART4)   return interruptUART4;
 #endif
 #if (defined UART5) && (USE_SERIAL5)
-	else if (huart->Instance == UART5)    rtn = interruptUART5;
+	if (huart->Instance == UART5)    return interruptUART5;
 #endif
 #if (defined USART5) && (USE_SERIAL5)
-	else if (huart->Instance == USART5)   rtn = interruptUART5;
+	if (huart->Instance == USART5)   return interruptUART5;
 #endif
 #if defined(USART6) && (USE_SERIAL6)
-	else if (huart->Instance == USART6)   rtn = interruptUART6;
+	if (huart->Instance == USART6)   return interruptUART6;
 #endif
 #if (defined UART7) && (USE_SERIAL7)
-	else if (huart->Instance == UART7)    rtn = interruptUART7;
+	if (huart->Instance == UART7)    return interruptUART7;
 #endif
 #if (defined USART7) && (USE_SERIAL7)
-	else if (huart->Instance == USART7)   rtn = interruptUART7;
+	if (huart->Instance == USART7)   return interruptUART7;
 #endif
 #if (defined UART8) && (USE_SERIAL8)
-	else if (huart->Instance == UART8)    rtn = interruptUART8;
+	if (huart->Instance == UART8)    return interruptUART8;
 #endif
 #if (defined USART8) && (USE_SERIAL8)
-	else if (huart->Instance == USART8)   rtn = interruptUART8;
+	if (huart->Instance == USART8)   return interruptUART8;
 #endif
 #if (defined UART9) && (USE_SERIAL9)
-	else if (huart->Instance == UART9)    rtn = interruptUART9;
+	if (huart->Instance == UART9)    return interruptUART9;
 #endif
 #if (defined UART10)  && (USE_SERIAL10)
-	else if (huart->Instance == UART10)  rtn = interruptUART10;
+	if (huart->Instance == UART10)  return interruptUART10;
 #endif
 #if (defined LPUART1) && (USE_LPUART1)
-	else if (huart->Instance == LPUART1) rtn = interruptLPUART1;
+	if (huart->Instance == LPUART1) return interruptLPUART1;
 #endif
-    return rtn;
+    return NULL;
  }
  
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
