@@ -6,7 +6,7 @@
 
 #include "stm32_HAL/stm32XXxx_ll_spi.h"
 
-#if defined(STM32F1)  || defined(GD32F20X) || defined(STM32F4)
+#if defined(STM32F1) ||defined(GD32F10X)||defined(GD32F20X) || defined(STM32F4)
 #define SPI_HAS_OLD_DMATRANSFER
 #endif
 
@@ -50,10 +50,10 @@
 #define SPI_CLOCK_DIV64	 64
 #define SPI_CLOCK_DIV128 128
 
-#define SPI_MODE0 0x00
-#define SPI_MODE1 0x01
-#define SPI_MODE2 0x02
-#define SPI_MODE3 0x03
+#define SPI_MODE0 0x00  /*clock polarity (CPOL) /The clock phase (CPHA) 00 */
+#define SPI_MODE1 0x01  /*                                              01 */
+#define SPI_MODE2 0x02  /*                                              10 */
+#define SPI_MODE3 0x03  /*                                              11 */
 
 #if defined(STM32F4) || defined(STM32F7)||defined(STM32H7)
 	#define _SPISetDMAFIFO(hdma_handler)	do { hdma_handler.Init.FIFOMode = DMA_FIFOMODE_DISABLE; \
@@ -65,6 +65,7 @@
 #else
     #define _SPISetDMAFIFO(hdma_handler)
 #endif
+
 
 class SPISettings {
   public:
@@ -83,37 +84,24 @@ class SPIClass {
   public:
     SPIClass(){};
 	
-	
+    SPIClass(SPI_TypeDef *instance){spiHandle.Instance=instance;}
+
+    SPIClass(SPI_TypeDef *instance, uint8_t mosi, uint8_t miso, uint8_t sck):
+            mosiPin(mosi),misoPin(miso),sckPin(sck){spiHandle.Instance=instance;}
+
     SPIClass(uint8_t mosi, uint8_t miso, uint8_t sck) {
         setPins(mosi,miso,sck);
-    };
-	
-    SPIClass(SPI_TypeDef *instance) {
-    	spiHandle.Instance = instance;
-    };
-	
-    SPIClass(SPI_TypeDef *instance, uint8_t mosi, uint8_t miso, uint8_t sck) {
-		spiHandle.Instance = instance;
-	    mosiPin = mosi;
-	    misoPin = miso;
-	    sckPin  = sck;
-	};
-	
+    }
 
-	HAL_StatusTypeDef setPins(uint8_t mosi,uint8_t miso,uint8_t sck);
-	
-    __deprecated("have a new func instead: setPins(mosipin,misopin,sckpin) add by huaweiwx")
-    void stm32SetMOSI(uint8_t mosi);
-	
-    __deprecated("have a new func instead: setPins(mosipin,misopin,sckpin) add by huaweiwx")
-    void stm32SetMISO(uint8_t miso);
-	
-    __deprecated("have a new func instead: setPins(mosipin,misopin,sckpin) add by huaweiwx")
-    void stm32SetSCK(uint8_t sck);
-	
-    void stm32SetInstance(SPI_TypeDef *instance);
-	
-    void Init();
+    inline void stm32SetInstance(SPI_TypeDef *instance) {spiHandle.Instance = instance;}
+    inline void stm32SetMOSI(uint8_t mosi) {mosiPin = mosi;}
+    inline void stm32SetMISO(uint8_t miso) {misoPin = miso;}
+    inline void stm32SetSCK(uint8_t sck){sckPin = sck;}
+    inline void stm32SetNSS(uint8_t nss){nssPin = nss;}
+
+	HAL_StatusTypeDef setPins(uint8_t mosi,uint8_t miso,uint8_t sck,uint8_t nss = 0xff);
+    void Init(uint32_t mode = SPI_MODE_MASTER);
+
 	void deInit();
 	
 #if USE_ITERATOR == 0  /*for stl begin/end is keywords for iteration*/
@@ -121,12 +109,29 @@ class SPIClass {
 	void end(){deInit();}
 #endif
 
-    void beginTransaction(SPISettings settings);
-	void endTransaction();
+    void beginTransaction(void);
+	 
+    inline void beginTransaction(SPISettings settings) {
+      if (this->settings.clock == settings.clock
+          && this->settings.bitOrder == settings.bitOrder
+          && this->settings.dataMode == settings.dataMode) {
+        return;
+      }
+      this->settings = settings;
+	  beginTransaction();
+    }
+	
+	void endTransaction(){}
 
-	void setBitOrder(uint8_t);
-	void setDataMode(uint8_t);
-	void setClockDivider(uint8_t);
+	inline void setBitOrder(uint8_t bitOrder) {
+	  beginTransaction(SPISettings(settings.clock, bitOrder, settings.dataMode));
+    }
+	inline void setDataMode(uint8_t dataMode) {
+	  beginTransaction(SPISettings(settings.clock, settings.bitOrder, dataMode));
+    }
+	inline void setClockDivider(uint8_t clockDevider) {
+	  beginTransaction(SPISettings(apb_freq / clockDevider, settings.bitOrder, settings.dataMode));
+    }
 
     uint8_t transfer(uint8_t data);
     uint16_t transfer16(uint16_t data);
@@ -207,6 +212,20 @@ class SPIClass {
 	uint8_t __attribute__ ((deprecated)) dmaSend(uint8_t *transmitBuf, uint16_t length, bool minc = 1);
 
 
+/**
+  * @brief  Not implemented.
+  */
+    void usingInterrupt(uint8_t interruptNumber){ UNUSED(interruptNumber);}
+/**
+  * @brief  Not implemented.
+  */
+    void attachInterrupt(void){/* Should be enableInterrupt()*/ }
+
+/**
+  * @brief  Not implemented.
+  */
+    void detachInterrupt(void){/* Should be disableInterrupt()*/}
+
     SPI_HandleTypeDef spiHandle = {};
 
     uint16_t repeatTransmitData = 0XFFFF;
@@ -217,27 +236,50 @@ class SPIClass {
   private:
     uint32_t apb_freq = 0;
 
-    SPISettings settings = {};
+    SPISettings settings = {
+      .clock = 4'000'000,
+      .bitOrder = MSBFIRST,
+      .dataMode = SPI_MODE0,
+	};
 
     DMA_HandleTypeDef hdma_spi_rx = {};
     DMA_HandleTypeDef hdma_spi_tx = {};
 	
     uint8_t mosiPin = 0xff;
     uint8_t misoPin = 0xff;
-    uint8_t sckPin = 0xff;
-
+    uint8_t sckPin  = 0xff;
+    uint8_t nssPin  = 0xff;
+	
+    uint8_t usedCallback;
 };
 
 
 inline uint8_t SPIClass::transfer(uint8_t data) {
+#if 0	
     while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_TXE) == RESET){};
 
-	*(volatile uint8_t*)&spiHandle.Instance->DR = data;
-
+#if defined(STM32H7)
+    *(volatile uint16_t*)&spiHandle.Instance->TXDR = data;
+//	while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_RXNE) == RESET){};
+//	while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_BSY) == SET){};
+#else
+    *(volatile uint16_t*)&spiHandle.Instance->DR = data;
 	while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_RXNE) == RESET){};
 	while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_BSY) == SET){};
+#endif
 
-	return *(volatile uint8_t*)&spiHandle.Instance->DR;
+
+#if defined(STM32H7)
+    return *(volatile uint16_t*)&spiHandle.Instance->TXDR = data;
+#else
+    return *(volatile uint16_t*)&spiHandle.Instance->DR = data;
+#endif
+
+#else
+	uint8_t ret = data;
+	HAL_SPI_TransmitReceive(&spiHandle, &ret,&ret, 1, 1000);
+	return ret;
+#endif
 }
 
 #if defined ( __GNUC__ )
@@ -247,18 +289,29 @@ inline uint8_t SPIClass::transfer(uint8_t data) {
 
 inline uint16_t SPIClass::transfer16(uint16_t data) {
     LL_SPI_SetDataWidth(spiHandle.Instance, LL_SPI_DATAWIDTH_16BIT);
-
+	
+#if 0
     while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_TXE) == RESET){};
-
+#if defined(STM32H7)
+    *(volatile uint16_t*)&spiHandle.Instance->TXDR = data;
+//    while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_RXNE) == RESET){};
+//    while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_BSY) == SET){};
+#else
     *(volatile uint16_t*)&spiHandle.Instance->DR = data;
-
     while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_RXNE) == RESET){};
     while(__HAL_SPI_GET_FLAG(&spiHandle, SPI_FLAG_BSY) == SET){};
-
+#endif
+#if defined(STM32H7)
+    uint16_t ret = *(volatile uint16_t*)&spiHandle.Instance->RXDR;
+#else
     uint16_t ret = *(volatile uint16_t*)&spiHandle.Instance->DR;
+#endif
+#else
+	uint16_t ret = data;
+	HAL_SPI_TransmitReceive(&spiHandle, (uint8_t *)&ret,(uint8_t *)&ret, sizeof(uint16_t), 1000);
+#endif
 
     LL_SPI_SetDataWidth(spiHandle.Instance, LL_SPI_DATAWIDTH_8BIT);
-
     return ret;
 }
 #if defined ( __GNUC__ )
