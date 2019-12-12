@@ -320,7 +320,8 @@ extern "C" void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
 extern "C" void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi) {
   stm32SpiDmaFinished(hspi);
 }
-
+/*
 extern "C" void SPI1_IRQHandler(void) {
   HAL_SPI_IRQHandler(&spiClass[0]->spiHandle);
 }
+*/
