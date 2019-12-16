@@ -417,22 +417,22 @@ typedef struct
 
 
 #if defined(GD32F10X)  //add by huaweiwx@sina.com 2017.6.28
-#define ll_RCC_PLL_MUL_17                  RCC_CFGR_PLLMULL17
-#define ll_RCC_PLL_MUL_18                  RCC_CFGR_PLLMULL18
-#define ll_RCC_PLL_MUL_19                  RCC_CFGR_PLLMULL19
-#define ll_RCC_PLL_MUL_20                  RCC_CFGR_PLLMULL20
-#define ll_RCC_PLL_MUL_21                  RCC_CFGR_PLLMULL21
-#define ll_RCC_PLL_MUL_22                  RCC_CFGR_PLLMULL22
-#define ll_RCC_PLL_MUL_23                  RCC_CFGR_PLLMULL23
-#define ll_RCC_PLL_MUL_24                  RCC_CFGR_PLLMULL24
-#define ll_RCC_PLL_MUL_25                  RCC_CFGR_PLLMULL25
-#define ll_RCC_PLL_MUL_26                  RCC_CFGR_PLLMULL26
-#define ll_RCC_PLL_MUL_27                  RCC_CFGR_PLLMULL27
-#define ll_RCC_PLL_MUL_28                  RCC_CFGR_PLLMULL28
-#define ll_RCC_PLL_MUL_29                  RCC_CFGR_PLLMULL29
-#define ll_RCC_PLL_MUL_30                  RCC_CFGR_PLLMULL30
-#define ll_RCC_PLL_MUL_31                  RCC_CFGR_PLLMULL31
-#define ll_RCC_PLL_MUL_32                  RCC_CFGR_PLLMULL32
+#define LL_RCC_PLL_MUL_17                  RCC_CFGR_PLLMULL17
+#define LL_RCC_PLL_MUL_18                  RCC_CFGR_PLLMULL18
+#define LL_RCC_PLL_MUL_19                  RCC_CFGR_PLLMULL19
+#define LL_RCC_PLL_MUL_20                  RCC_CFGR_PLLMULL20
+#define LL_RCC_PLL_MUL_21                  RCC_CFGR_PLLMULL21
+#define LL_RCC_PLL_MUL_22                  RCC_CFGR_PLLMULL22
+#define LL_RCC_PLL_MUL_23                  RCC_CFGR_PLLMULL23
+#define LL_RCC_PLL_MUL_24                  RCC_CFGR_PLLMULL24
+#define LL_RCC_PLL_MUL_25                  RCC_CFGR_PLLMULL25
+#define LL_RCC_PLL_MUL_26                  RCC_CFGR_PLLMULL26
+#define LL_RCC_PLL_MUL_27                  RCC_CFGR_PLLMULL27
+#define LL_RCC_PLL_MUL_28                  RCC_CFGR_PLLMULL28
+#define LL_RCC_PLL_MUL_29                  RCC_CFGR_PLLMULL29
+#define LL_RCC_PLL_MUL_30                  RCC_CFGR_PLLMULL30
+#define LL_RCC_PLL_MUL_31                  RCC_CFGR_PLLMULL31
+#define LL_RCC_PLL_MUL_32                  RCC_CFGR_PLLMULL32
 #endif
 
 /**

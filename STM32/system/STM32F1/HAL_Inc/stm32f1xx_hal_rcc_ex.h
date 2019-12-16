@@ -204,7 +204,7 @@
  || defined(STM32F103xB) || defined(STM32F103xE) || defined(STM32F103xG)
   #ifdef GD32F10X
     #define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5) || \
-	                                          ((__USBCLK__) == RCC_USBCLKSOURCE_PLL2) || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV2_5))
+	                                          ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV2) || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV2_5))
   #else
     #define IS_RCC_USBPLLCLK_DIV(__USBCLK__) (((__USBCLK__) == RCC_USBCLKSOURCE_PLL)  || ((__USBCLK__) == RCC_USBCLKSOURCE_PLL_DIV1_5))
   #endif
