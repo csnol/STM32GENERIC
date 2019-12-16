@@ -4,7 +4,7 @@
 
 // W25Q64
 #ifndef SPIFLASH_DEV
-# define SPIFLASH_DEV	SPI2
+# define SPIFLASH_DEV	SPI1
 #endif
 #ifndef SPIFLASH_CS
 # define SPIFLASH_CS	PA2
