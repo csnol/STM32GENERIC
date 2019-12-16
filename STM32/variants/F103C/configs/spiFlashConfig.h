@@ -4,7 +4,7 @@
 
 // W25Q64
 #ifndef SPIFLASH_DEV
-# define SPIFLASH_DEV	SPI2
+# define SPIFLASH_DEV	SPI1
 #endif
 #ifndef SPIFLASH_CS
 # define SPIFLASH_CS	PA2
@@ -20,7 +20,7 @@
 #endif
 
 #ifndef SPIFLASH_SPEED_Mhz
-#define SPIFLASH_SPEED_Mhz 30
+#define SPIFLASH_SPEED_Mhz 18
 #endif
 
 #endif   //__BSP_SPIFLASH_H__
