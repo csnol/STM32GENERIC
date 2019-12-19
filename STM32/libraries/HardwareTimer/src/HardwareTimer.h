@@ -1,6 +1,22 @@
 /*
-  2018.5.18  add TIM5/8~17 21~22 by huaweiwx
-  2018.5.28  for F3/F7/L4/H7 support channel5&6 by huaweiwx
+  Copyright (c) 2017 Daniel Fekete
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+  Copyright (c) 2019 STMicroelectronics
+  Modified to support Arduino_Core_STM32
 */
 
 #ifndef HARDWARETIMER_H_
@@ -50,12 +66,27 @@ typedef enum {
 } TimerFormat_t;
 
 typedef enum {
-  TICK_COMPARE_FORMAT, // default
+  RESOLUTION_1B_COMPARE_FORMAT = 1,  // used for Dutycycle: [0 .. 1]
+  RESOLUTION_2B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 3]
+  RESOLUTION_3B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 7]
+  RESOLUTION_4B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 15]
+  RESOLUTION_5B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 31]
+  RESOLUTION_6B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 63]
+  RESOLUTION_7B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 127]
+  RESOLUTION_8B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 255]
+  RESOLUTION_9B_COMPARE_FORMAT,      // used for Dutycycle: [0 .. 511]
+  RESOLUTION_10B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 1023]
+  RESOLUTION_11B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 2047]
+  RESOLUTION_12B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 4095]
+  RESOLUTION_13B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 8191]
+  RESOLUTION_14B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 16383]
+  RESOLUTION_15B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 32767]
+  RESOLUTION_16B_COMPARE_FORMAT,     // used for Dutycycle: [0 .. 65535]
+
+  TICK_COMPARE_FORMAT = 0x80, // default
   MICROSEC_COMPARE_FORMAT,
   HERTZ_COMPARE_FORMAT,
   PERCENT_COMPARE_FORMAT,  // used for Dutycycle
-  RESOLUTION_8B_COMPARE_FORMAT,  // used for Dutycycle: [0.. 255]
-  RESOLUTION_12B_COMPARE_FORMAT  // used for Dutycycle: [0.. 4095]
 } TimerCompareFormat_t;
 
 #define TIMER_DEFAULT_PIN 0xFF
@@ -104,7 +135,7 @@ public:
     TIM_IC_InitTypeDef channelIC[TIMER_CHANNELS];
 	
     //Callbacks: 0 for update, 1-4 for channels
-    void (*callbacks[TIMER_CHANNELS])(void);
+    void (*callbacks[TIMER_CHANNELS+1])(void);
 
     const stm32_tim_pin_list_type *tim_pin_list;
 
@@ -119,64 +150,64 @@ private:
 
 #pragma GCC diagnostic pop
 
-#ifdef TIM1
+#ifdef TIM1_BASE
     extern HardwareTimer Timer1;
 #endif
 
-#ifdef TIM2
+#ifdef TIM2_BASE
     extern HardwareTimer Timer2;
 #endif
 
-#ifdef TIM3
+#ifdef TIM3_BASE
     extern HardwareTimer Timer3;
 #endif
 
-#ifdef TIM4
+#ifdef TIM4_BASE
     extern HardwareTimer Timer4;
 #endif
 
-#ifdef TIM5
+#ifdef TIM5_BASE
     extern HardwareTimer Timer5;
 #endif
 
-#ifdef TIM8
+#ifdef TIM8_BASE
     extern HardwareTimer Timer8;
 #endif
 
 //F2/4/7 H7 L1
-#ifdef TIM9
+#ifdef TIM9_BASE
     extern HardwareTimer Timer9;
 #endif
-#ifdef TIM10
+#ifdef TIM10_BASE
     extern HardwareTimer Timer10;
 #endif
-#ifdef TIM11
+#ifdef TIM11_BASE
 # if  (FREERTOS == 0) || (portTickUSE_TIMx != 11) 
     extern HardwareTimer Timer11;
 # endif
 #elif defined(TIM21)	/*L0 only*/
     extern HardwareTimer Timer21;
 #endif
-#ifdef TIM12
+#ifdef TIM12_BASE
     extern HardwareTimer Timer12;
 #elif defined(TIM22)	/*L0 only*/
     extern HardwareTimer Timer22;
 #endif
-#ifdef TIM13
+#ifdef TIM13_BASE
     extern HardwareTimer Timer13;
 #endif
-#ifdef TIM14
-    extern HardwareTimer Timer13;
+#ifdef TIM14_BASE
+    extern HardwareTimer Timer14;
 #endif
 
 // F0/3 L4 H7
-#ifdef TIM15
+#ifdef TIM15_BASE
     extern HardwareTimer Timer15;
 #endif
-#ifdef TIM16
+#ifdef TIM16_BASE
     extern HardwareTimer Timer16;
 #endif
-#ifdef TIM17
+#ifdef TIM17_BASE
 # if  (FREERTOS == 0) || (portTickUSE_TIMx != 17) 
     extern HardwareTimer Timer17;
 # endif
