@@ -318,7 +318,7 @@ void HardwareTimer::resume( TIMER_MODES mode, int channel) {
     handle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 
 #if !defined(STM32L1) && !defined(STM32L0)  /*huaweiwx*/
-//    handle.Init.RepetitionCounter = 0;
+    handle.Init.RepetitionCounter = 0;
 #endif
     HAL_TIM_Base_Init(&handle);
 
@@ -350,8 +350,8 @@ int HardwareTimer::getChannel(int channel){
 	if(channel == 3) return TIM_CHANNEL_3;
 	if(channel == 4) return TIM_CHANNEL_4;
 #if defined(TIM_CHANNEL_6) // Some chip(F3/7 L4 H7) there are 6 channels.  huaweiwx 2018.5.28
-	if(channel == 5) return TIM_CHANNEL_5;
-	if(channel == 6) return TIM_CHANNEL_6;
+//	if(channel == 5) return TIM_CHANNEL_5;
+//	if(channel == 6) return TIM_CHANNEL_6;
 #endif
 	return -1;
 }
