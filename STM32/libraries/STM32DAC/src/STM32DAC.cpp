@@ -296,7 +296,7 @@ static DMA_HandleTypeDef  hdma_dac1;
 extern "C"
 void DAC_Start_DMA(uint32_t DACx, uint32_t* pData, uint32_t Length, uint32_t Alignment) {
     /* DMA1 clock enable */
-#if defined(STM32L0)|| defined(STM32F0)||defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
+#if defined(STM32L0) || defined(STM32F0) || defined(GD32F1x0) || defined(STM32F2) || defined(STM32F4) || defined(STM32F7)
     __HAL_RCC_DMA1_CLK_ENABLE();
 #else	
     __HAL_RCC_DMA2_CLK_ENABLE(); 

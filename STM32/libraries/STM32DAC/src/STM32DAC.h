@@ -32,32 +32,37 @@ class STM32DAC {
       DAC_Init(channel, trig);
     }
 
-    void write(uint16_t value) {
-      DAC_SetValue(channel, value);
+    template<typename T>
+	inline void write(T value) {
+      DAC_SetValue(channel, (uint16_t)value);
     }
 
-    inline uint16_t read(void) {
-      return DAC_GetValue(channel);
+    template<typename T>
+    inline T read(void) {
+      return (T) DAC_GetValue(channel);
     }
 
     void pause(void) {
       DAC_Stop(channel);
     }
 
-    void triangleWaveGenerate(uint32_t Amplitude, uint32_t dataHolding = 0) {
-      DACEx_TriangleWaveGenerate(channel, Amplitude, dataHolding);
+    template<typename T>
+    void triangleWaveGenerate(T Amplitude, uint32_t dataHolding = 0) {
+      DACEx_TriangleWaveGenerate(channel, (uint32_t)Amplitude, dataHolding);
     }
 
-    void noiseWaveGenerate(uint32_t Amplitude, uint32_t dataHolding = 0) {
-      DACEx_NoiseWaveGenerate(channel, Amplitude, dataHolding);
+    template<typename T>
+    void noiseWaveGenerate(T Amplitude, uint32_t dataHolding = 0) {
+      DACEx_NoiseWaveGenerate(channel,(uint32_t)Amplitude, dataHolding);
     }
 
     void resume(void) {
       DAC_Start(channel);
     }
 
-    void startDMA(uint32_t* pData, uint32_t Length, uint32_t Alignment = DAC_ALIGN_12B_R) {
-      DAC_Start_DMA(channel, pData, Length, Alignment);
+    template<typename T>
+    void startDMA(uint32_t* pData, T Length, uint32_t Alignment = DAC_ALIGN_12B_R) {
+      DAC_Start_DMA(channel, pData, (uint32_t) Length, Alignment);
     }
 
     void stopDMA(void) {
