@@ -297,6 +297,10 @@ void STM_FSMC_LCD_Init(void)
 #ifndef DATA_IN_ExtSRAM
 void initVariant() {
 	STM_FSMC_SRAM_Init();
+/** 
+   Disconnect NADV  
+  */
+  __HAL_AFIO_FSMCNADV_DISCONNECTED();
 }
 #endif
 

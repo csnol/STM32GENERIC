@@ -309,6 +309,10 @@ void initVariant() {
 #endif
 //	STM_FSMC_NOR_Init();
 //	STM_FSMC_NAND_Init();
+/** 
+   Disconnect NADV  
+  */
+  __HAL_AFIO_FSMCNADV_DISCONNECTED();
 }
 
 #if USE_EXTRAMSYSMALLOC

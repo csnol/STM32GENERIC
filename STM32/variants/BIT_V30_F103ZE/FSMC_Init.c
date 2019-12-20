@@ -110,6 +110,12 @@ void STM_FSMC_LCD_TimeSet(uint8_t _as, uint8_t _ds)
   {
     _Error_Handler(__FILENAME__, __LINE__);
   }
+
+/** 
+   Disconnect NADV  
+  */
+  __HAL_AFIO_FSMCNADV_DISCONNECTED();
+
 }
 
 

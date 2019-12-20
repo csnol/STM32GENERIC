@@ -506,10 +506,14 @@ void initVariant() {
 #ifdef FSMC_NANDBANK
     STM_FSMC_NAND_Init();
 #endif
+/** 
+   Disconnect NADV  
+  */
+  __HAL_AFIO_FSMCNADV_DISCONNECTED();
 }
 #endif
 
-#if USE_EXTRAMSYSMALLOC
+#if defined(FSMC_SRAMBANK) && USE_EXTRAMSYSMALLOC
 extern void setHeap(unsigned char* s, unsigned char* e);
 void setHeapAtSram(void){
  setHeap((unsigned char*)SRAM_START, (unsigned char*)(SRAM_START +SRAM_LENGTH));
