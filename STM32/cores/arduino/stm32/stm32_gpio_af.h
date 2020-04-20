@@ -39,7 +39,7 @@ typedef enum {
     TIM_ETR
 } TIMER_SIGNALS;
 
-#ifdef STM32F1
+#if defined(STM32F1)||defined(GD32F10X)|| defined(GD32F20X)
 
 typedef void (*stm32_af_callback)();
 
@@ -103,7 +103,16 @@ void stm32AfLPUARTInit(const USART_TypeDef *instance,
 void stm32AfSPIInit(const SPI_TypeDef *instance,
     GPIO_TypeDef *mosiPort, uint32_t mosiPin,
     GPIO_TypeDef *misoPort, uint32_t misoPin,
-	GPIO_TypeDef *sckPort, uint32_t sckPin);
+	GPIO_TypeDef *sckPort,  uint32_t sckPin);
+	
+void stm32AfSPIInitMasterNss(const SPI_TypeDef *instance,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin);        /*for master*/
+	
+void stm32AfSPIInitSlave(const SPI_TypeDef *instance,
+    GPIO_TypeDef *mosiPort, uint32_t mosiPin,
+    GPIO_TypeDef *misoPort, uint32_t misoPin,
+	GPIO_TypeDef *sckPort,  uint32_t sckPin,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin);
 
 SPI_TypeDef *stm32GetSPIInstance(GPIO_TypeDef *mosiPort, uint32_t mosiPin,
     GPIO_TypeDef *misoPort, uint32_t misoPin,
@@ -167,9 +176,9 @@ void stm32AfSDIO8BitInit(const SD_TypeDef *instance,
 uint32_t stm32GetClockFrequency(void *instance);
 
 /**
- * Get the ADC1 channel for the specified port / pin
+ * Get the ADC1 channel for the specified port / pin 
  */
-stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pinMask);
+stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pinMask, uint8_t start);
 
 /**
  * Internal: set the AF function for the selected peripheral on the selected pin, with GPIO_SPEED_FREQ_VERY_HIGH speed

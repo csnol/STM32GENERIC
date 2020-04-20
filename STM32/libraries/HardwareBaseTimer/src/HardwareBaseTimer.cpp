@@ -24,14 +24,18 @@
 
 #include "HardwareBaseTimer.h"
 
+#if defined(TIM6)||defined(TIM7)
+
 #include CHIP_PERIPHERAL_INCLUDE
 
 #ifdef TIM6
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 6) 
   HardwareBaseTimer* interruptTimer6;
+#endif
 #endif
 
 #ifdef TIM7
-# if  FREERTOS == 0
+# if  (FREERTOS == 0) || (portTickUSE_TIMx != 7) 
   HardwareBaseTimer* interruptTimer7;
 # endif
 #endif
@@ -39,30 +43,32 @@
 static void handleInterrupt(HardwareBaseTimer *timer);
 
 
-void HardwareBaseTimer::resume(void) {
+void HardwareBaseTimer::resume(uint32_t mode) {
     bool hasInterrupt = false;
     if (callbacks[0] != NULL) {
        hasInterrupt = true;
     }
 
 #ifdef TIM6
+# if  (FREERTOS == 0)|| (portTickUSE_TIMx != 6)
     if (handle.Instance == TIM6) {
         __HAL_RCC_TIM6_CLK_ENABLE();
         interruptTimer6 = this;
         if (hasInterrupt) {
-#if defined(STM32F0)||defined(STM32F1)|| defined(STM32L0)||defined(STM32L1)||(STM32F412xx)
+#if defined(STM32F0)||defined(STM32F1)||defined(GD32F2)|| defined(STM32L0)||defined(STM32L1)||(STM32F412xx)
             HAL_NVIC_SetPriority(TIM6_IRQn, TIM_PRIORITY, 0);
             HAL_NVIC_EnableIRQ(TIM6_IRQn);
 #else
-           HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TIM_PRIORITY, 0);
+            HAL_NVIC_SetPriority(TIM6_DAC_IRQn, TIM_PRIORITY, 0);
             HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
 #endif
         }
     }
 #endif
+#endif
 
 #ifdef TIM7
-# if  FREERTOS == 0
+# if  (FREERTOS == 0)|| (portTickUSE_TIMx != 7)
     if (handle.Instance == TIM7) {
         __HAL_RCC_TIM7_CLK_ENABLE();
         interruptTimer7 = this;
@@ -82,10 +88,18 @@ void HardwareBaseTimer::resume(void) {
 #endif
     HAL_TIM_Base_Init(&handle);
 
+	switch(mode){
+      case TIM_TRGO_UPDATE:  		
+         TIM_MasterConfigTypeDef sMasterConfig;
+         sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+         sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+         HAL_TIMEx_MasterConfigSynchronization(&handle, &sMasterConfig);
+	  break;	 
+	}
+
     if (callbacks[0] != NULL) {
         HAL_TIM_Base_Start_IT(&handle);
     } else {
-
         HAL_TIM_Base_Start(&handle);
     }
 }
@@ -152,8 +166,6 @@ uint32_t HardwareBaseTimer::setPeriod(uint32_t microseconds) {
     return overflow;
 }
 
-
-
 static void handleInterrupt(HardwareBaseTimer *timer) {
     if(__HAL_TIM_GET_FLAG(&timer->handle, TIM_FLAG_UPDATE) != RESET) {
         __HAL_TIM_CLEAR_IT(&timer->handle, TIM_IT_UPDATE);
@@ -162,8 +174,9 @@ static void handleInterrupt(HardwareBaseTimer *timer) {
 }
 
 #ifdef TIM6
+# if   (FREERTOS == 0) || (portTickUSE_TIMx != 6) 
  HardwareBaseTimer Timer6(TIM6);
-#if defined(STM32F0)||defined(STM32F1)|| defined(STM32L0)||defined(STM32L1)||(STM32F412xx)
+#if defined(STM32F0)||defined(STM32F1)||defined(GD32F2)|| defined(STM32L0)||defined(STM32L1)||(STM32F412xx)
   extern "C" void TIM6_IRQHandler(void)
 #else 
   extern "C" void TIM6_DAC_IRQHandler(void)
@@ -171,14 +184,17 @@ static void handleInterrupt(HardwareBaseTimer *timer) {
  {
     if (interruptTimer6 != NULL) handleInterrupt(interruptTimer6);
  }
-#endif
-#ifdef TIM7
-# if FREERTOS == 0    
-    HardwareBaseTimer Timer7(TIM7);
-    
-    extern "C" void TIM7_IRQHandler(void) {
-       if (interruptTimer7 != NULL) handleInterrupt(interruptTimer7);
-    }
-# endif 
-#endif
+#endif 
+#endif //TIM6
 
+#ifdef TIM7
+# if (FREERTOS == 0) || (portTickUSE_TIMx != 7)   
+HardwareBaseTimer Timer7(TIM7);
+
+extern "C" void TIM7_IRQHandler(void) {
+   if (interruptTimer7 != NULL) handleInterrupt(interruptTimer7);
+}
+# endif 
+#endif //TIM7
+
+#endif //defined(TIM6)||defined(TIM7)

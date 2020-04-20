@@ -1,7 +1,7 @@
 /*
-  Example  9. Deleting tasks  删除任务
+  Example 9. Deleting tasks  删除任务
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -24,7 +24,6 @@
   the source code for any proprietary components.  See the licensing section
   of http://www.FreeRTOS.org for full details of how and when the exception
   can be applied.
-
 */
 
 #include "FreeRTOS.h"
@@ -60,7 +59,7 @@ void setup( void )
 
 void vTask1( void *pvParameters )
 {
-const TickType_t xDelay100ms = 100 / portTICK_PERIOD_MS;
+  const TickType_t xDelay100ms = 100 / portTICK_PERIOD_MS;
 
   for( ;; )
   {

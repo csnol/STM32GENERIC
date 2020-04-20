@@ -1,12 +1,47 @@
-/* spiflashconfig.h specific board spiflash config file, arduino have not autoload! */
+/* bsp_spiflash.h specific board spiflash config file, arduino have not autoload! */
 #ifndef __BSP_SPIFLASH_H__
 #define __BSP_SPIFLASH_H__
 
-#define SPIFLASH_TYPE AT45DB161
-#define SPIFLASH_DEV	SPI5
-#define SPIFLASH_CS	PF6
-#define SPIFLASH_SCK	PF7
-#define SPIFLASH_MISO	PF8
-#define SPIFLASH_MOSI	PF9
+#ifndef
+# define SERIALFLASH_USE_SPIx  1
+#endif
+
+#if   (SERIALFLASH_USE_SPIx == 2)
+#ifndef SPIFLASH_DEV
+# define SPIFLASH_DEV	SPI2
+#endif
+#ifndef SPIFLASH_CS
+# define SPIFLASH_CS	PB12
+#endif
+#ifndef SPIFLASH_SCK
+# define SPIFLASH_SCK	PB13
+#endif
+#ifndef SPIFLASH_MISO
+# define SPIFLASH_MISO	PB14
+#endif
+#ifndef SPIFLASH_MOSI
+# define SPIFLASH_MOSI	PB15
+#endif
+
+#elif (SERIALFLASH_USE_SPIx == 1)
+#ifndef SPIFLASH_DEV
+# define SPIFLASH_DEV	SPI1
+#endif
+#ifndef SPIFLASH_CS
+# define SPIFLASH_CS	PA4
+#endif
+#ifndef SPIFLASH_SCK
+# define SPIFLASH_SCK	PA5
+#endif
+#ifndef SPIFLASH_MISO
+# define SPIFLASH_MISO	PA6
+#endif
+#ifndef SPIFLASH_MOSI
+# define SPIFLASH_MOSI	PA7
+#endif
+
+#endif
+
+#define SPIFLASH_SPEED_Mhz 20
 
 #endif   //__BSP_SPIFLASH_H__

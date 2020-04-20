@@ -3,11 +3,24 @@
 #define __SPIFLASHCONFIG_H__
 
 // W25Q64
-#define SPIFLASH_DEV	SPI1
-#define SPIFLASH_CS		PA2
-#define SPIFLASH_SCK	PA5
-#define SPIFLASH_MISO	PA6
-#define SPIFLASH_MOSI	PA7
+#ifndef SPIFLASH_DEV
+# define SPIFLASH_DEV	SPI1
+#endif
+#ifndef SPIFLASH_CS
+# define SPIFLASH_CS	PA2
+#endif
+#ifndef SPIFLASH_SCK
+# define SPIFLASH_SCK	PA5
+#endif
+#ifndef SPIFLASH_MISO
+# define SPIFLASH_MISO	PA6
+#endif
+#ifndef SPIFLASH_MOSI
+# define SPIFLASH_MOSI	PA7
+#endif
+
+#ifndef SPIFLASH_SPEED_Mhz
 #define SPIFLASH_SPEED_Mhz 30
+#endif
 
 #endif   //__BSP_SPIFLASH_H__

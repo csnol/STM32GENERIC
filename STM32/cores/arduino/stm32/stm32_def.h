@@ -1,9 +1,9 @@
 #ifndef STM32_DEF_H
 #define STM32_DEF_H
-
+#include "util/toolschain.h"
 #include "stm32_build_defines.h"
 
-#ifdef STM32F0
+#if  defined(STM32F0)
     #include "stm32f0xx.h"
     #include "stm32f0xx_hal.h"
 #elif defined(STM32F1)
@@ -33,8 +33,15 @@
 #elif defined(STM32L4)
     #include "stm32l4xx.h"
     #include "stm32l4xx_hal.h"
+#elif  defined(GD32F1x0)
+    #include "gd32f1xx.h"
+    #include "gd32f1x0_hal.h"
+#elif defined(GD32F2)
+    #include "gd32f20x.h"
+    #include "gd32f2xx_hal.h"
 #else
     #error "STM32XX is not defined in boards.txt"
 #endif
+
 
 #endif  // STM32_DEF_H

@@ -24,7 +24,7 @@
 #ifdef USE_FULL_ASSERT
 #define portINFO 1  /* Displaying port information at compiling*/
 /* ------------------------------------------------------------------
- * set USE_ERRORBLINK 1 enable blink a err code for debug 
+ * set USE_ERRORBLINK 1  for _Error_Handler/AssertError output information redirect to led blinking the err code 
  * blink err code:
  *   HardFault       31
  *   MemManage fault 32
@@ -36,7 +36,7 @@
  */
  
 #define USE_ERRORBLINK 1
-#undef configASSERT
+#undef  configASSERT
 #define configASSERT( x ) if( ( x ) == 0 ) {assertMsg(__FILE__,__LINE__);}
 
 #define configUSE_MALLOC_FAILED_HOOK   1
@@ -55,8 +55,8 @@
 #undef  INCLUDE_vTaskDelayUntil
 #define INCLUDE_vTaskDelayUntil 1
 
-#undef   configUSE_IDLE_HOOK 
-#define  configUSE_IDLE_HOOK 1
+#undef  configUSE_IDLE_HOOK 
+#define configUSE_IDLE_HOOK 1
 
 #undef  configUSE_TICK_HOOK
 #define configUSE_TICK_HOOK  1

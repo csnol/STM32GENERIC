@@ -22,27 +22,40 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
 #include "stm32_def.h"
-#include "util/toolschain.h"
-
-/*C including option*/
-#if USE_BITCONSTANTS
-  #include "bit_constants.h"
-#endif
+#include "bit_constants.h"
 
 #ifdef __cplusplus
-extern "C"{
+ #include <algorithm>
+ using std::min;
+ using std::max;
+#else // C
+ #include <stdlib.h>
+ #ifndef min
+  #define min(a,b) ((a)<(b)?(a):(b))
+ #endif
+ #ifndef max
+  #define max(a,b) ((a)>(b)?(a):(b))
+ #endif
+ #ifndef abs
+  #define abs(x) ((x)>0?(x):-(x))
+ #endif
 #endif
 
-void yield(void);
 
-#define HIGH 0x1
-#define LOW  0x0
 
+#define LOW     0x0
+#define HIGH    0x1
+#define CHANGE  0x2
+#define FALLING 0x3
+#define RISING  0x4
+
+#ifdef PI
+#undef PI
+#endif
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398
 #define TWO_PI 6.283185307179586476925286766559
@@ -58,16 +71,9 @@ enum BitOrder {  /*compatible with arduino sam huaweiwx@sina.com 2018.1.12*/
 	MSBFIRST = 1
 };
 
-#define CHANGE 1
-#define FALLING 2
-#define RISING 3
 
-
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define abs(x) ((x)>0?(x):-(x))
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define round(x)     ((x)>=0?(long long)((x)+0.5):(long long)((x)-0.5))
+
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
 #define sq(x) ((x)*(x))
@@ -99,6 +105,10 @@ typedef unsigned int word;
 typedef bool boolean;
 typedef uint8_t byte;
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 void init(void);
 void initVariant(void);
 
@@ -109,7 +119,10 @@ void pinMode(uint8_t, uint8_t);
 //int digitalRead(uint8_t);
 int analogRead(uint8_t);
 void analogReadResolution(int resolution);
-void analogReference(uint8_t mode);
+
+#define analogReference(x)  /*huaweiwx@sina.com 2018.9*/
+//void analogReference(uint8_t mode);
+
 void analogWrite(uint8_t, int);
 void analogWriteResolution(int bits);
 uint8_t getAnalogWriteResolution(void);
@@ -124,7 +137,7 @@ void pwmWrite(uint8_t pin, int dutyCycle16Bits, int frequency, int durationMilli
 //void delayMicroseconds(uint32_t us);
 
 uint32_t shiftIn( uint32_t ulDataPin, uint32_t ulClockPin, uint32_t ulBitOrder ); //add by huaweiwx@sina.com
-void shiftOut( uint32_t ulDataPin, uint32_t ulClockPin, uint32_t ulBitOrder, uint32_t ulVal ); //add by huaweiwx@sina.com
+void shiftOut( uint32_t ulDataPin, uint32_t ulClockPin, uint32_t ulBitOrder, uint8_t ucVal ); //add by huaweiwx@sina.com
 
 //void attachInterrupt(uint8_t, void (*)(void), int mode);
 //void detachInterrupt(uint8_t);
@@ -183,6 +196,7 @@ long map(long, long, long, long, long);
 
 #include "stm32_clock.h"
 #include "stm32_gpio.h"
+#include "wiring_pulse.h"  /*copy from Arduino_core_STM32 huaweiwx@sina.com 2017.11*/
 #include "stm32_debug.h"
 
 #ifdef __cplusplus
@@ -190,7 +204,6 @@ long map(long, long, long, long, long);
 #include "HardwareSerial.h"
 #include <SerialUSB.h>
 #include <STM32System.h>
-#include "wiring_pulse.h"  /*copy from Arduino_core_STM32 huaweiwx@sina.com 2017.11*/
 
 /*C++ including option*/
 #if USE_ARDUINOSTREAMING

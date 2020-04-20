@@ -14,9 +14,10 @@ ArduinoInStream cin(Serial);
 void setup() {
   Serial.begin(115200);
   // Wait for USB Serial
-  while (!Serial) {
-    yield();
-  }
+  cout << "\IO test\n";
+//  while (!Serial) {
+//    yield();
+//  }
   delay(2000); //wait for usart link and ready
 }
 //------------------------------------------------------------------------------

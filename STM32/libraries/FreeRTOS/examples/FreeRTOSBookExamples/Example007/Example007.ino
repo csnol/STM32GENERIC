@@ -1,7 +1,7 @@
 /*
-  Example  7. Defining an Idle Task Hook Function   定义空闲任务挂钩函数
+  Example 7. Defining an Idle Task Hook Function   定义空闲任务挂钩函数
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -31,9 +31,6 @@
 */
 
 #include "FreeRTOS.h"
-
-/* Demo includes. */
-#include "basic_io_arm.h"
 
 /* The task function. */
 void vTaskFunction( void *pvParameters );
@@ -91,24 +88,20 @@ void vTaskFunction( void *pvParameters )
 }
 /*-----------------------------------------------------------*/
 
-//------------------  vApplicationIdleHook: default idle hook ----------------
-//
-extern "C" {
-  void vApplicationIdleHook( void );
-  void vApplicationIdleHook( void ) // FreeRTOS expects C linkage
-  {
-    /* This hook function does nothing but increment a counter. */
-    ulIdleCycleCount++;
-  }
+/*------------  vApplicationIdleHook: idle hook ------------*/
+void vApplicationIdleHook( void ) // FreeRTOS expects C linkage
+{
+  /* This hook function does nothing but increment a counter. */
+  ulIdleCycleCount++;
 }
 
 
 /****************  default idle hook callback if configUSE_IDLE_HOOK ***************************
- * 1  STM32GENERIC loop() is call by default idle hook if enable(set configUSE_IDLE_HOOK to 1) *
- * 2  Idle loop has a very small stack (check or set configMINIMAL_STACK_SIZE)                 * 
- * 3  Loop must never block.                                                                   * 
- * 4  This default idle hook can be overload by vApplicationIdleHook()                         * 
+   1  STM32GENERIC loop() is call by default idle hook if enable(set configUSE_IDLE_HOOK to 1)
+   2  Idle loop has a very small stack (check or set configMINIMAL_STACK_SIZE)
+   3  Loop must never block.
+   4  This default idle hook can be overload by vApplicationIdleHook()
  ***********************************************************************************************/
 void loop() {
-  for(;;){} //This example Not used.
+  for (;;) {} //This example Not used.
 }

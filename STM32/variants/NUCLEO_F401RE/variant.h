@@ -31,54 +31,78 @@
 #define A5 PC0
 
 #define VARIANT_PIN_LIST \
-   PIN(A,3 ), /* D0 */ \
-   PIN(A,2 ), /* D1 */ \
-   PIN(A,10), /* D2 */ \
-   PIN(B,3 ), /* D3 */ \
-   PIN(B,5 ), /* D4 */ \
-   PIN(B,4 ), /* D5 */ \
-   PIN(B,10), /* D6 */ \
-   PIN(A,8 ), /* D7 */ \
-   PIN(A,9 ), /* D8 */ \
-   PIN(C,7 ), /* D9 */ \
-   PIN(B,6 ), /* D10 */ \
-   PIN(A,7 ), /* D11 */ \
-   PIN(A,6 ), /* D12 */ \
-   PIN(A,5 ), /* D13 */ \
-   PIN(B,9 ), /* D14 */ \
-   PIN(B,8 ), /* D15 */ \
-   PIN(A,0 ), /* D16 / A0 */ \
-   PIN(A,1 ), /* D17 / A1 */ \
-   PIN(A,4 ), /* D18 / A2 */ \
-   PIN(B,0 ), /* D19 / A3 */ \
-   PIN(C,1 ), /* D20 / A4 */ \
-   PIN(C,0 ), /* D21 / A5 */ \
-   PIN(A,11), \
-   PIN(A,12), \
-   PIN(A,13), \
-   PIN(A,14), \
-   PIN(A,15), \
-   PIN(B,1 ), \
-   PIN(B,2 ), \
-   PIN(B,7 ), \
-   PIN(B,12), \
-   PIN(B,13), \
-   PIN(B,14), \
-   PIN(B,15), \
-   PIN(C,2 ), \
-   PIN(C,3 ), \
-   PIN(C,4 ), \
-   PIN(C,5 ), \
-   PIN(C,6 ), \
-   PIN(C,8 ), \
-   PIN(C,9 ), \
-   PIN(C,10), \
-   PIN(C,11), \
-   PIN(C,12), \
-   PIN(C,13), \
-   PIN(C,14), \
-   PIN(C,15), \
-   PIN(D,2 ),
+/* CN9 right Side    */\
+   PIN(A,3 ), /* D0  */\
+   PIN(A,2 ), /* D1  */\
+   PIN(A,10), /* D2  */\
+   PIN(B,3 ), /* D3  */\
+   PIN(B,5 ), /* D4  */\
+   PIN(B,4 ), /* D5  */\
+   PIN(B,10), /* D6  */\
+   PIN(A,8 ), /* D7  */\
+/* CN5 right Side    */\
+   PIN(A,9 ), /* D8  */\
+   PIN(C,7 ), /* D9  */\
+   PIN(B,6 ), /* D10 */\
+   PIN(A,7 ), /* D11 */\
+   PIN(A,6 ), /* D12 */\
+   PIN(A,5 ), /* D13 */\
+   PIN(B,9 ), /* D14 */\
+   PIN(B,8 ), /* D15 */\
+     /* ST Morpho    */\
+     /* CN7 Left Side*/\
+   PIN(C,10), /* D16  */\
+   PIN(C,12), /* D17  */\
+   PIN(A,13), /* D18  */\
+   PIN(A,14), /* D19  */\
+   PIN(A,15), /* D20  */\
+   PIN(B,7 ), /* D21  */\
+   PIN(C,13), /* D22  */\
+   PIN(C,14), /* D23  */\
+   PIN(C,15), /* D24  */\
+ /*  PIN(H,0 ),  D25  PD0/H0/F0*/\
+ /*  PIN(H,1 ),  D26  PD0/H0/F0*/\
+   PIN(C,2 ), /* D27  */\
+   PIN(C,3 ), /* D28  */\
+ /* CN7 Right Side    */\
+   PIN(C,11), /* D29  */\
+   PIN(D,2 ), /* D30  */\
+ /* CN10 Right Side   */\
+   PIN(C,9 ), /* D31  */\
+ /* CN10 Left Side    */\
+   PIN(C,8 ), /* D32  */\
+   PIN(C,6 ), /* D33  */\
+   PIN(C,5 ), /* D34  */\
+   PIN(A,12), /* D35  */\
+   PIN(A,11), /* D36  */\
+   PIN(B,12), /* D37  */\
+/*   PIN(B,11),  D38 F401 not */\
+   PIN(B,2 ), /* D39  */\
+   PIN(B,1 ), /* D40  */\
+   PIN(B,15), /* D41  */\
+   PIN(B,14), /* D42  */\
+   PIN(B,13), /* D43  */\
+   PIN(C,4 ), /* D44  */\
+ /* CN8 lift side    */\
+   PIN(A,0 ), /* A0/D45 */\
+   PIN(A,1 ), /* A1/D46 */\
+   PIN(A,4 ), /* A2/D47 */\
+   PIN(B,0 ), /* A3/D48 */\
+   PIN(C,1 ), /* A4/D49 */\
+   PIN(C,0 ), /* A5/D50 */
 
+
+#ifndef  PINA_MASK
+#define  PINA_MASK  0b1001111111110011
+#endif
+#ifndef  PINB_MASK
+#define  PINB_MASK  0b1111111111111111
+#endif
+#ifndef  PINC_MASK
+#define  PINC_MASK  0b1111111111111111
+#endif
+#ifndef  PIND_MASK
+#define  PIND_MASK  0b0000000000000100
+#endif
 
 #endif

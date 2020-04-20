@@ -20,7 +20,7 @@
   SOFTWARE.
 */
 
-#if defined(STM32F1)
+#if defined(STM32F1)||defined(GD32F10X)||defined(GD32F20X)
 
 #include "stm32_gpio_af.h"
 

@@ -75,7 +75,6 @@
  #include "bsp.h"
 #endif
 
-#ifdef  HAVE_NOR  // else skip this code  
 #include <Arduino.h>
 #include "stm32_eval_nor.h"
 
@@ -96,7 +95,8 @@ extern  NOR_HandleTypeDef norHandle;
   */
 uint8_t NOR_Init(void)
 { 
-  return STM_FSMC_NOR_Init();
+  STM_FSMC_NOR_Init();
+  return NOR_STATUS_OK;
 }
 
 /**
@@ -166,11 +166,11 @@ uint8_t NOR_ProgramData(uint32_t WriteAddr, uint16_t* pBuffer, uint32_t uwDataSi
     /* Store last loaded address & data value (for polling) */
     lastloadedaddress = currentaddress;
  
-    NOR_WRITE(ADDR_SHIFT(currentaddress), *pBuffer++);
+    NOR_WRITE(ADDR_SHIFT16(currentaddress), *pBuffer++);
     currentaddress += 1; 
   }
 
-  NOR_WRITE(ADDR_SHIFT(lastloadedaddress), 0x29);
+  NOR_WRITE(ADDR_SHIFT16(lastloadedaddress), 0x29);
   
   /* Return the NOR memory status */
   if(HAL_NOR_GetStatus(&norHandle, NOR_DEVICE_ADDR, PROGRAM_TIMEOUT) != HAL_NOR_STATUS_SUCCESS)
@@ -291,26 +291,18 @@ uint8_t NOR_ReadID(NOR_IDTypeDef *pNOR_ID)
   */
 void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout)
 {
+  UNUSED(hnor);	
   uint32_t timeout = Timeout;
   
   /* Polling on Ready/Busy signal */
-#ifndef   NOR_WAIT_PIN
-  while((HAL_GPIO_ReadPin(NOR_READY_BUSY_GPIO, NOR_READY_BUSY_PIN) != NOR_BUSY_STATE) && (timeout > 0)) 
-#else
+#ifdef   NOR_WAIT_PIN
   while((digitalRead(NOR_WAIT_PIN) != NOR_BUSY_STATE) && (timeout > 0))
+#else
+  while((HAL_GPIO_ReadPin(NOR_READY_BUSY_GPIO, NOR_READY_BUSY_PIN) != NOR_BUSY_STATE) && (timeout > 0)) 
 #endif
   {
     timeout--;
   }
-  
-  timeout = Timeout;
-  
-  /* Polling on Ready/Busy signal */
-//  while((HAL_GPIO_ReadPin(NOR_READY_BUSY_GPIO, NOR_READY_BUSY_PIN) != NOR_READY_STATE) && (timeout > 0)) 
-  while((digitalRead(NOR_WAIT_PIN) != NOR_READY_STATE) && (timeout > 0)) 
-  {
-    timeout--;
-  }  
 }
 
 /**
@@ -328,5 +320,4 @@ void HAL_NOR_MspWait(NOR_HandleTypeDef *hnor, uint32_t Timeout)
 /**
   * @}
   */ 
-#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -33,8 +33,8 @@
 */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_def.h"
-#include "usbd_desc.h"
-#include "usbd_def.h"
+#include <usbd_desc.h>
+#include <usbd_def.h>
 #include "usbd_core.h"
 #include "cdc/usbd_cdc.h"
 #include "msc/usbd_msc.h"
@@ -44,7 +44,11 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+#if defined (USB_OTG_FS)
+PCD_HandleTypeDef hpcd_USB_OTG_FS;
+#else
 PCD_HandleTypeDef hpcd_USB_FS;
+#endif
 void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
@@ -63,12 +67,22 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state);
 
 void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 {
-  if(pcdHandle->Instance==USB)
+#if defined (USB_OTG_FS)
+  if(pcdHandle->Instance==USB_OTG_FS)
   {
   /* USER CODE BEGIN USB_MspInit 0 */
 
   /* USER CODE END USB_MspInit 0 */
     /* Peripheral clock enable */
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(OTG_FS_IRQn, USB_LP_PRIORITY, 0);
+    HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
+  }
+#else	
+  if(pcdHandle->Instance==USB)
+  {
     __HAL_RCC_USB_CLK_ENABLE();
 
     /* Peripheral interrupt init */
@@ -78,10 +92,28 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* pcdHandle)
 
   /* USER CODE END USB_MspInit 1 */
   }
+#endif	
 }
 
 void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 {
+#if defined (USB_OTG_FS)
+  if(pcdHandle->Instance==USB_OTG_FS)
+  {
+  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 0 */
+
+  /* USER CODE END USB_OTG_FS_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_USB_OTG_FS_CLK_DISABLE();
+
+    /* Peripheral interrupt Deinit*/
+    HAL_NVIC_DisableIRQ(OTG_FS_IRQn);
+
+  /* USER CODE BEGIN USB_OTG_FS_MspDeInit 1 */
+
+  /* USER CODE END USB_OTG_FS_MspDeInit 1 */
+  }  
+#else  
   if(pcdHandle->Instance==USB)
   {
   /* USER CODE BEGIN USB_MspDeInit 0 */
@@ -97,6 +129,7 @@ void HAL_PCD_MspDeInit(PCD_HandleTypeDef* pcdHandle)
 
   /* USER CODE END USB_MspDeInit 1 */
   }
+#endif
 }
 
 /**
@@ -153,6 +186,11 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
   /*Set USB Current Speed*/
   switch (hpcd->Init.speed)
   {
+#if defined (USB_OTG_FS)
+  case PCD_SPEED_HIGH:
+    speed = USBD_SPEED_HIGH;
+    break;
+#endif
   case PCD_SPEED_FULL:
     speed = USBD_SPEED_FULL;
     break;
@@ -255,6 +293,26 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
 {
   /* Init USB_IP */
   /* Link The driver to the stack */
+#if defined (USB_OTG_FS)
+  hpcd_USB_OTG_FS.pData = pdev;
+  pdev->pData = &hpcd_USB_OTG_FS;
+  
+  hpcd_USB_OTG_FS.Instance = USB_OTG_FS;
+  hpcd_USB_OTG_FS.Init.dev_endpoints = 4;
+  hpcd_USB_OTG_FS.Init.speed = PCD_SPEED_FULL;
+  hpcd_USB_OTG_FS.Init.ep0_mps = DEP0CTL_MPS_64;
+  hpcd_USB_OTG_FS.Init.Sof_enable = DISABLE;
+  hpcd_USB_OTG_FS.Init.low_power_enable = DISABLE;
+  hpcd_USB_OTG_FS.Init.vbus_sensing_enable = DISABLE;
+  if (HAL_PCD_Init(&hpcd_USB_OTG_FS) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  
+  HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_FS, 0x80);
+  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 0, 0x40);
+  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_FS, 1, 0x80);
+#else
   hpcd_USB_FS.pData = pdev;
   pdev->pData = &hpcd_USB_FS;
 
@@ -269,7 +327,6 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
   {
     Error_Handler();
   }
-
   if (pdev->pDesc == &MSC_Desc) {
 	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
 	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
@@ -290,6 +347,7 @@ USBD_StatusTypeDef  USBD_LL_Init (USBD_HandleTypeDef *pdev)
     HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x01 , PCD_SNG_BUF, 0x110);
     HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x82 , PCD_SNG_BUF, 0x100);
    }
+#endif
   return USBD_OK;
 }
 

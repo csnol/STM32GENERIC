@@ -2,7 +2,7 @@
   Example 10. Blocking When Receiving From a Queue
 			  从队列接收时阻塞
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -83,8 +83,8 @@ void setup( void )
 
 static void vSenderTask( void *pvParameters )
 {
-long lValueToSend;
-portBASE_TYPE xStatus;
+  long lValueToSend;
+  portBASE_TYPE xStatus;
 
   /* Two instances are created of this task so the value that is sent to the
   queue is passed in via the task parameter rather than be hard coded.  This way
@@ -122,10 +122,10 @@ portBASE_TYPE xStatus;
 
 static void vReceiverTask( void *pvParameters )
 {
-/* Declare the variable that will hold the values received from the queue. */
-long lReceivedValue;
-portBASE_TYPE xStatus;
-const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
+  /* Declare the variable that will hold the values received from the queue. */
+  long lReceivedValue;
+  portBASE_TYPE xStatus;
+  const TickType_t xTicksToWait = 100 / portTICK_PERIOD_MS;
 
   /* This task is also defined within an infinite loop. */
   for( ;; )

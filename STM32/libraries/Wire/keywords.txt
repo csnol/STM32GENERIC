@@ -6,8 +6,8 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-WIRE_StatusTypeDef KEYWORD1
-TWOWIRE_TypeDef KEYWORD1
+WIRE_StatusTypeDef	KEYWORD1
+TWOWIRE_TypeDef	KEYWORD1
 
 #######################################
 # Instances (KEYWORD1)
@@ -35,8 +35,8 @@ onRequest	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 I2C_FAST_MODE	LITERAL1
-SOFT_STANDARD
-SOFT_FAST
+SOFT_STANDARD	LITERAL1
+SOFT_FAST	LITERAL1
 
 #######################################
 

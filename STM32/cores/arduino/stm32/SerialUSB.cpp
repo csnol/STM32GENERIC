@@ -45,14 +45,14 @@ void SerialUSBClass::init(void) {
 void SerialUSBClass::begin(uint32_t baud_count){
   init();
   // suppress "unused parameter" warning
-	(void)baud_count;
+  (void)baud_count;
 }
 
 void SerialUSBClass::begin(uint32_t baud_count, uint8_t config){
   init();
 	//suppress "unused parameter" warning
-	(void)baud_count;
-	(void)config;
+  (void)baud_count;
+  (void)config;
 }
 
 void SerialUSBClass::end(void){

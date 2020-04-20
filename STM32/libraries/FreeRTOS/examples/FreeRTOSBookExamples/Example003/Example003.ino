@@ -1,7 +1,7 @@
 /*
-  Example  3. Experimenting with priorities  尝试优先级
+  Example 3. Experimenting with priorities  尝试优先级
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -66,8 +66,8 @@ void setup( void )
 
 void vTaskFunction( void *pvParameters )
 {
-char *pcTaskName;
-volatile unsigned long ul;
+  char *pcTaskName;
+  volatile unsigned long ul;
 
   /* The string to print out is passed in via the parameter.  Cast this to a
   character pointer. */

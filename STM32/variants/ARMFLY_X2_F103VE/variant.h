@@ -44,4 +44,6 @@
   #define USB_DISC_PIN      PE1  //103Zet6 is PB14
 #endif
 
+#define GPIO_CLOCKOPEN  1  /*GPIO clock had opend by FSMC_Init*/
+
 #endif

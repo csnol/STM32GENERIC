@@ -30,10 +30,12 @@
 #  include "configs/i2cEepromConfig.h"
 #endif
 
+#ifndef BUFFER_LENGTH
 #define BUFFER_LENGTH 32
+#endif
 
 // WIRE_HAS_END means Wire has end()
-#define WIRE_HAS_END 1
+#define WIRE_HAS_END    1
 #define MASTER_ADDRESS  0x33
 
 /*
@@ -81,67 +83,58 @@ typedef enum
 
 typedef struct {
 	WIRE_StatusTypeDef status;
-    I2C_HandleTypeDef handle;
-    uint8_t sda;
-	uint8_t scl;
+    uint8_t sda,scl;
     uint8_t rxBuffer[BUFFER_LENGTH];
-    uint8_t rxBufferIndex;
-    uint8_t rxBufferLength;
+    uint8_t rxBufferIndex,rxBufferLength;
 
     uint8_t txAddress;
     uint8_t txBuffer[BUFFER_LENGTH];
     uint8_t txBufferIndex;
     uint8_t txBufferLength;
 
-    uint8_t isMaster,transmitting;
-    uint8_t address;
+    uint8_t isMaster,transmitting,address;
 
     uint8_t slaveBuffer;
+    I2C_HandleTypeDef handle;
 } TWOWIRE_TypeDef;
 
 class TwoWire : public Stream {
   public:
-/*    uint8_t rxBuffer[BUFFER_LENGTH];
-    uint8_t rxBufferIndex;
-    uint8_t rxBufferLength;
-
-    uint8_t txAddress;
-    uint8_t txBuffer[BUFFER_LENGTH];
-    uint8_t txBufferIndex;
-    uint8_t txBufferLength;
-
-    uint8_t isMaster,transmitting;
-    uint8_t address;
-
-    uint8_t slaveBuffer;
-//    GPIO_TypeDef *sdaPort = NULL;
-    uint8_t sda = 0;
-//    GPIO_TypeDef *sclPort = NULL;
-    uint8_t scl = 0;
-*/
-
     void (*user_onRequest)(void) = NULL;
     void (*user_onReceive)(int) = NULL;
     void onRequestService(void);
     void onReceiveService(uint8_t*, int);
 
 
+	TwoWire(){this->setPins(0xff,0xff);pdev->handle.Instance = NULL;}; //add huaweiwx@sina.com 2017.8.2
+    TwoWire(uint8_t sda,uint8_t scl) {this->setPins(sda,scl);}//add huaweiwx@sina.com 2017.8.2
+    TwoWire(I2C_TypeDef *instance){pdev->handle.Instance = instance;this->setPins(0xff,0xff);}
 
-
-	TwoWire(){}; //add huaweiwx@sina.com 2017.8.2
-    TwoWire(uint8_t,uint8_t); //add huaweiwx@sina.com 2017.8.2
-    TwoWire(I2C_TypeDef *instance);
-    TwoWire(I2C_TypeDef *instance, uint8_t sda, uint8_t scl){
-		    pdev->handle.Instance = instance;
-            pdev->sda = sda;
+    inline void setPins(uint8_t sda,uint8_t scl){
+		    pdev->sda = sda;
             pdev->scl = scl;
-			};
-    WIRE_StatusTypeDef setPins(uint8_t sda,uint8_t scl);
+	}
+    inline void setInstance(I2C_TypeDef *instance){pdev->handle.Instance = instance;};
 	
-    void begin();
-    void begin(uint8_t);
-    void begin(int);
-    void end();
+    __deprecated("have a new func instead: setPins(sdapin,sclpin) add by huaweiwx")
+    inline void setSDA(uint8_t sda){pdev->sda = sda;};
+	__deprecated("have a new func instead: setPins(sdapin,sclpin) add by huaweiwx")
+    inline void setSCL(uint8_t scl){pdev->scl = scl;};
+	
+#if USE_ITERATOR == 0
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    inline void begin(){Init();}
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    inline void begin(uint8_t adr){Init(adr);}
+    __deprecated("This wire init func, if you use begin() as iterator must set USE_ITERATOR to 1, chandged by huaweiwx")
+    inline void begin(int adr){Init((uint8_t)adr);}
+    inline void end(){deInit();};
+#endif
+
+    void Init();
+    void Init(uint8_t);
+    void Init(int);
+    void deInit();
 	
     void setClock(uint32_t);
 	
@@ -163,14 +156,6 @@ class TwoWire : public Stream {
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
 
-    void stm32SetInstance(I2C_TypeDef *instance){pdev->handle.Instance = instance;};
-
-    __deprecated("have a new func instead: setPins(sdapin,sclpin) add by huaweiwx")
-    void stm32SetSDA(uint8_t sda){pdev->sda = sda;};
-  
-	__deprecated("have a new func instead: setPins(sdapin,sclpin) add by huaweiwx")
-    void stm32SetSCL(uint8_t scl){pdev->scl = scl;};
-
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
@@ -180,12 +165,6 @@ class TwoWire : public Stream {
 	TWOWIRE_TypeDef *pdev = &sdev;	
  private:
 	TWOWIRE_TypeDef sdev;
-/*	= {
-		.status = WIRE_OK,
-		.sda = 0xff,
-		.scl = 0xff,
-	};
-	*/
 };
 
 extern TwoWire Wire;

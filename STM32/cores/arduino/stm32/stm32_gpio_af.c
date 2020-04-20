@@ -20,7 +20,12 @@
   SOFTWARE.
 */
 
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include "stm32_gpio_af.h"
+
+#ifndef GPIO_MODE_AF_INPUT  // GPIO_MODE_AF_INPUT for STM32F1/GD32F10X/GD32F20X
+#define GPIO_MODE_AF_INPUT  GPIO_MODE_AF_PP
+#endif
 
 #include CHIP_PERIPHERAL_INCLUDE
 
@@ -48,13 +53,12 @@ uint32_t stm32GetClockFrequency(void *instance) {
 	return 0;
 }
 
-stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pinMask) {
-    for(size_t i=0; i<sizeof(chip_adc1_channel) / sizeof(chip_adc1_channel[0]); i++) {
-        if (chip_adc1_channel[i].port == port && chip_adc1_channel[i].pinMask == pinMask) {
-            return chip_adc1_channel[i];
-        }
+stm32_chip_adc1_channel_type stm32ADC1GetChannel(GPIO_TypeDef *port, uint32_t pinMask, uint8_t start) {
+    for(size_t i=start; i<sizeof(chip_adc1_channel) / sizeof(chip_adc1_channel[0]); i++) {
+       if (chip_adc1_channel[i].port == port && chip_adc1_channel[i].pinMask == pinMask) {
+         return chip_adc1_channel[i];
+       }
     }
-
     stm32_chip_adc1_channel_type notFound = {0};
     return notFound;
 }
@@ -64,13 +68,8 @@ void stm32AfUARTInit(const USART_TypeDef *instance,
     GPIO_TypeDef *rxPort, uint32_t rxPin,
     GPIO_TypeDef *txPort, uint32_t txPin) {
 
-#ifdef STM32F1
     stm32AfInit(chip_af_usart_rx, sizeof(chip_af_usart_rx) / sizeof(chip_af_usart_rx[0]), instance, rxPort, rxPin, GPIO_MODE_AF_INPUT, GPIO_PULLUP);
-#else
-    stm32AfInit(chip_af_usart_rx, sizeof(chip_af_usart_rx) / sizeof(chip_af_usart_rx[0]), instance, rxPort, rxPin, GPIO_MODE_AF_PP, GPIO_PULLUP);
-#endif
-    stm32AfInit(chip_af_usart_tx, sizeof(chip_af_usart_tx) / sizeof(chip_af_usart_tx[0]), instance, txPort, txPin, GPIO_MODE_AF_PP, GPIO_PULLUP);
-
+    stm32AfInit(chip_af_usart_tx, sizeof(chip_af_usart_tx) / sizeof(chip_af_usart_tx[0]), instance, txPort, txPin, GPIO_MODE_AF_PP,    GPIO_PULLUP);
 }
 
 #if defined(LPUART1)
@@ -83,15 +82,34 @@ void stm32AfLPUARTInit(const USART_TypeDef *instance,
 }
 #endif
 
+/*
+ * According the STM32 Datasheet for SPI peripheral we need to PULLDOWN
+ * or PULLUP the SCK pin according the polarity used.
+ * here used pushpoll
+**/
 void stm32AfSPIInit(const SPI_TypeDef *instance,
     GPIO_TypeDef *mosiPort, uint32_t mosiPin,
     GPIO_TypeDef *misoPort, uint32_t misoPin,
-	GPIO_TypeDef *sckPort, uint32_t sckPin) {
+	GPIO_TypeDef *sckPort,  uint32_t sckPin) {
 
-    stm32AfInit(chip_af_spi_mosi, sizeof(chip_af_spi_mosi) / sizeof(chip_af_spi_mosi[0]), instance, mosiPort, mosiPin, GPIO_MODE_AF_PP, GPIO_NOPULL);
-    stm32AfInit(chip_af_spi_miso, sizeof(chip_af_spi_miso) / sizeof(chip_af_spi_miso[0]), instance, misoPort, misoPin, GPIO_MODE_AF_PP, GPIO_NOPULL);
-    stm32AfInit(chip_af_spi_sck, sizeof(chip_af_spi_sck) / sizeof(chip_af_spi_sck[0]), instance, sckPort, sckPin, GPIO_MODE_AF_PP, GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_mosi,sizeof(chip_af_spi_mosi) / sizeof(chip_af_spi_mosi[0]), instance, mosiPort, mosiPin, GPIO_MODE_AF_PP,    GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_miso,sizeof(chip_af_spi_miso) / sizeof(chip_af_spi_miso[0]), instance, misoPort, misoPin, GPIO_MODE_AF_INPUT, GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_sck, sizeof(chip_af_spi_sck)  / sizeof(chip_af_spi_sck[0]),  instance, sckPort,  sckPin,  GPIO_MODE_AF_PP,    GPIO_NOPULL);
+}
+void stm32AfSPIInitSlave(const SPI_TypeDef *instance,
+    GPIO_TypeDef *mosiPort, uint32_t mosiPin,
+    GPIO_TypeDef *misoPort, uint32_t misoPin,
+	GPIO_TypeDef *sckPort,  uint32_t sckPin,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin) {
 
+    stm32AfInit(chip_af_spi_mosi,sizeof(chip_af_spi_mosi) / sizeof(chip_af_spi_mosi[0]),instance, mosiPort, mosiPin, GPIO_MODE_AF_INPUT, GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_miso,sizeof(chip_af_spi_miso) / sizeof(chip_af_spi_miso[0]),instance, misoPort, misoPin, GPIO_MODE_AF_PP,    GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_sck, sizeof(chip_af_spi_sck)  / sizeof(chip_af_spi_sck[0]), instance, sckPort,  sckPin,  GPIO_MODE_AF_PP,    GPIO_NOPULL);
+    stm32AfInit(chip_af_spi_nss, sizeof(chip_af_spi_nss)  / sizeof(chip_af_spi_nss[0]), instance, nssPort,  nssPin,  GPIO_MODE_AF_INPUT, GPIO_NOPULL);
+}
+void stm32AfSPIInitMasterNss(const SPI_TypeDef *instance,
+	GPIO_TypeDef *nssPort,  uint32_t nssPin) {
+    stm32AfInit(chip_af_spi_nss, sizeof(chip_af_spi_nss)  / sizeof(chip_af_spi_nss[0]), instance, nssPort,  nssPin,  GPIO_MODE_AF_PP, GPIO_NOPULL);	
 }
 
 SPI_TypeDef *stm32GetSPIInstance(GPIO_TypeDef *mosiPort, uint32_t mosiPin,

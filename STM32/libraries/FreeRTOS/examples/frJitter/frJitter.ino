@@ -53,8 +53,7 @@ static void vPrintTask(void *pvParameters) {
 //------------------------------------------------------------------------------
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
-  delay(1000);
+
 
   // create high priority thread
   xTaskCreate(vJitter,

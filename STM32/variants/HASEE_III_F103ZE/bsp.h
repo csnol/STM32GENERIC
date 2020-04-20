@@ -40,14 +40,14 @@
 #define TOUCH_MOSI PB15
 #define TOUCH_NIRQ PG7
 
-#define TOUCH_XOFF 38  //int16
+#define TOUCH_XOFF 38     //int16
 #define TOUCH_XFAC 94.19  //float *1000
-#define TOUCH_YOFF 29   //int16
-#define TOUCH_YFAC 71.83 //float *1000
+#define TOUCH_YOFF 29     //int16
+#define TOUCH_YFAC 71.83  //float *1000
 #define TOUCH_XYCHG 1
 
 
-// SRAM BANK1_3
+//SRAM BANK1_3
 #ifdef HAVE_SRAM
 #define SRAM_START            (0x60000000 | 0x08000000)  /*FSMC_BANK1_3*/
 #define SRAM_LENGTH			  (2*256*1024)               /*25616 256*16*/ 

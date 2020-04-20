@@ -17,7 +17,7 @@
 // the setup routine runs once when you press reset:
 void setup() {
   // initialize serial communication at 15200 bits per second:
-  SerialUSB.begin(15200);
+  SerialUSB.begin(115200);
   while (!SerialUSB.available()); //wait for usb_serial input a char; 
 
 }

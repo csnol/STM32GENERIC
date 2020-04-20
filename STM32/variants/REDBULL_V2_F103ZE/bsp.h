@@ -75,7 +75,7 @@ extern "C"{
 void STM_FSMC_LCD_TimeSet(uint8_t _as, uint8_t _ds);
 void STM_FSMC_LCD_Init(void);
 void STM_FSMC_SRAM_Init(void);
-uint8_t STM_FSMC_NOR_Init(void);
+void STM_FSMC_NOR_Init(void);
 void STM_FSMC_NAND_Init(void);
 
 #if USE_EXTRAMSYSMALLOC

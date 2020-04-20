@@ -57,6 +57,4 @@
     PIN(B,9), \
     PIN(D,0), \
     PIN(D,1),
-
-	
 #endif

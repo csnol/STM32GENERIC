@@ -34,7 +34,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_def.h"
 
-#include "usbd_def.h"
+#include <usbd_def.h>
 #include "usbd_core.h"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 //#pragma GCC diagnostic ignored "-Wwrite-strings"

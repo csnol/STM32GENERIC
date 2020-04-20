@@ -35,10 +35,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32_def.h"
-
-#include "usbd_desc.h"
-
-#include "usbd_def.h"
+#include <usbd_def.h>
 #include "usbd_core.h"
 #include "cdc/usbd_cdc.h"
 

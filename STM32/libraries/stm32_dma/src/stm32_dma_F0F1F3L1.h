@@ -1,3 +1,6 @@
+/*
+  add dma request type: DAC by huaweiwx@sina.com 2018.7.22
+*/
 
 #if defined(STM32F0)
 #define DMA1_Channel2_IRQn DMA1_Channel2_3_IRQn
@@ -35,8 +38,17 @@ const dma_request_to_instance_t dmaRequestToStream[] = {
     {SDIO, SDIO_RXTX, DMA2_Channel4, 4 + 8, DMA2_Channel4_IRQn},
 #endif
 
+#if defined(DAC)
+#if defined(STM32F0)
+    {DAC,  DAC1_CH1, DMA1_Channel3,3 ,    DMA1_Channel3_IRQn},
+#else
+    {DAC,  DAC1_CH1, DMA2_Channel3,3 + 8, DMA2_Channel3_IRQn},
+    {DAC,  DAC1_CH2, DMA2_Channel4,4 + 8, DMA2_Channel4_IRQn},
+#endif
+#endif
+
 };
 
-inline static void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
+static inline void setDmaInstance(DMA_HandleTypeDef *handle, dma_request_to_instance_t dmaRequestToStream) {
     handle->Instance = dmaRequestToStream.dmaInstance;
 }

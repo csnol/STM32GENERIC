@@ -32,10 +32,20 @@
 #include "stm32_gpio.h"
 #include "Stream.h"
 #include "util/toolschain.h"
+//#include "RingBuffer.h"
+
+#ifndef BUFFER_SIZE
 #define BUFFER_SIZE 128
+#endif
+#ifndef RX_BUFFER_SIZE
+#define RX_BUFFER_SIZE BUFFER_SIZE
+#endif
+#ifndef TX_BUFFER_SIZE
+#define TX_BUFFER_SIZE BUFFER_SIZE
+#endif
 
 /*from Arduino_Core*/
-#ifdef UART_WORDLENGTH_7B
+#ifdef  UART_WORDLENGTH_7B
 #define SERIAL_7N1 0x04
 #define SERIAL_7N2 0x0C
 #define SERIAL_6E1 0x22
@@ -55,16 +65,16 @@
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-class HardwareSerial : public Stream  {
+class HardwareSerial : public Stream{
   public:
     HardwareSerial(USART_TypeDef *instance);
-    void begin(const uint32_t baud, uint8_t config = SERIAL_8N1);
+    void begin(const uint32_t baud = 115200, uint8_t config = SERIAL_8N1);
     void configForLowPower(void);
     void end(void);
-    int available(void);
-    int availableForWrite();
-    int peek(void);
-    int read(void);
+    int  available(void);
+    int  availableForWrite();
+    int  peek(void);
+    int  read(void);
     void flush(void);
     size_t write(const uint8_t c);
     using Print::write; // pull in write(str) and write(buf, size) from Print
@@ -80,19 +90,28 @@ class HardwareSerial : public Stream  {
     __deprecated("have a new func instead: setPins(tx,rx).add by huaweiwx")
     void stm32SetTX(uint8_t tx);
 
-    USART_TypeDef *instance = NULL;
     UART_HandleTypeDef *handle = NULL;
+    USART_TypeDef *instance = NULL;
 
     uint8_t receive_buffer = 0;
 
     uint8_t *txBuffer = NULL;
+#if TX_BUFFER_SIZE >256
+    volatile uint16_t txStart = 0;
+    volatile uint16_t txEnd = 0;
+#else
     volatile uint8_t txStart = 0;
     volatile uint8_t txEnd = 0;
+#endif
 
     uint8_t *rxBuffer = NULL;
+#if RX_BUFFER_SIZE >256
+    volatile uint16_t rxStart = 0;
+    volatile uint16_t rxEnd = 0;
+#else	
     volatile uint8_t rxStart = 0;
     volatile uint8_t rxEnd = 0;
-
+#endif
     //    GPIO_TypeDef *rxPort = NULL;
     //    uint32_t rxPin = 0;
     //    GPIO_TypeDef *txPort = NULL;
@@ -103,7 +122,6 @@ class HardwareSerial : public Stream  {
 
   private:
     uint8_t _config;
-
 };
 
 #if defined(USART1) && (USE_SERIAL1)
@@ -149,7 +167,7 @@ extern HardwareSerial SerialUART7;
 
 #if defined(USART8) || defined(UART8)
 #if (USE_SERIAL8)
-extern HardwareSerial SerialUART7;
+extern HardwareSerial SerialUART8;
 #define Serial8 SerialUART8
 #endif
 #endif

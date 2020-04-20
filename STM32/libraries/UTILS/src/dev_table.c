@@ -34,7 +34,9 @@
 #define SZ_128K	0x00020000
 #define SZ_256K	0x00040000
 
-#if defined(STM32F1)
+#if defined(GD32F207IK)
+        const uint16_t appCodeSegAddr[] =  {2,128,2*128};	/*use fast flash only. GD32207IKT6 have 384k fast flash + 2688k slow flash */
+#elif defined(STM32F1)
 #  if (FLASH_BANK1_END >  0x0801FFFFU) /*512k flash 64k ram for xC/xE*/
 #    ifdef GD32F10X
         const  uint16_t appCodeSegAddr[] = {3,64,2*64,3*64};
@@ -51,7 +53,7 @@
 #elif defined(STM32F401CC)
         const uint16_t appCodeSegAddr[] =  {2,64,2*64};
 #elif defined(STM32F303RE)||defined(STM32F303VE)||defined(STM32F401RE)||\
-      defined(STM32F411RE)||defined(STM32F401ZE)||defined(STM32F407ZE)||defined(STM32F407VE)
+      defined(STM32F411RE)||defined(STM32F401ZE)||defined(STM32F407ZE)||defined(STM32F407VE)||defined(STM32L476RE)
         const uint16_t appCodeSegAddr[] =  {3,128,2*128,3*128};
 #elif defined(STM32F407VG)||defined(STM32F407ZG)||(STM32F407IG)||(STM32F429IG)
         const uint16_t appCodeSegAddr[] =  {7,128,2*128,3*128,4*128,5*128,6*128,7*128};
@@ -61,7 +63,7 @@
         const uint16_t appCodeSegAddr[] =  {7,256,2*256,3*256,4*256,5*256,6*256,7*256};
 #elif defined(STM32L476RG)
         const uint16_t appCodeSegAddr[] =  {7,128,2*128,3*128,4*128,5*128,6*128,7*128};
-#else /*f4/7*/
+#else /*add me*/
 
 #warning "please add me!"
 

@@ -9,15 +9,15 @@
 extern "C" {
 #endif
 
-void DAC_Init(const uint32_t channel,const uint32_t trig);
+void DAC_Init(const uint32_t channel, const uint32_t trig);
 void DAC_SetValue(uint32_t channel, uint16_t value);
 uint16_t DAC_GetValue(uint32_t channel);
 void DAC_Stop(uint32_t channel);
 void DAC_Start(uint32_t channel);
-void DAC_Start_DMA(uint32_t channel,uint32_t* pData, uint32_t Length, uint32_t Alignment);
+void DAC_Start_DMA(uint32_t channel, uint32_t* pData, uint32_t Length, uint32_t Alignment);
 void DAC_Stop_DMA(uint32_t channel);
-void DACEx_TriangleWaveGenerate(uint32_t channel, uint32_t Amplitude,uint32_t dataHolding);
-void DACEx_NoiseWaveGenerate(uint32_t channel, uint32_t Amplitude,uint32_t dataHolding);
+void DACEx_TriangleWaveGenerate(uint32_t channel, uint32_t Amplitude, uint32_t dataHolding);
+void DACEx_NoiseWaveGenerate(uint32_t channel, uint32_t Amplitude, uint32_t dataHolding);
 
 #ifdef __cplusplus
 }
@@ -29,47 +29,54 @@ class STM32DAC {
     STM32DAC() {}
 
     void Init(uint32_t trig = DAC_TRIGGER_NONE) {
-      DAC_Init(channel,trig);
+      DAC_Init(channel, trig);
     }
 
-    void write(uint16_t value) {
-      DAC_SetValue(channel, value);
-    }
-	
-    inline uint16_t read(void){
-	  	return DAC_GetValue(channel);
-	}
-
-    void pause(void){
-	  DAC_Stop(channel);
+    template<typename T>
+	inline void write(T value) {
+      DAC_SetValue(channel, (uint16_t)value);
     }
 
-	void triangleWaveGenerate(uint32_t Amplitude,uint32_t dataHolding = 0){
-	  DACEx_TriangleWaveGenerate(channel, Amplitude,dataHolding);	
-	}
+    template<typename T>
+    inline T read(void) {
+      return (T) DAC_GetValue(channel);
+    }
 
-	void noiseWaveGenerate(uint32_t Amplitude,uint32_t dataHolding = 0){
-	  DACEx_NoiseWaveGenerate(channel, Amplitude,dataHolding);	
-	}
+    void pause(void) {
+      DAC_Stop(channel);
+    }
 
-    void resume(void){
-	  DAC_Start(channel);
+    template<typename T>
+    void triangleWaveGenerate(T Amplitude, uint32_t dataHolding = 0) {
+      DACEx_TriangleWaveGenerate(channel, (uint32_t)Amplitude, dataHolding);
     }
-	
-    void startDMA(uint32_t* pData, uint32_t Length, uint32_t Alignment = DAC_ALIGN_12B_R){
-		DAC_Start_DMA(channel,pData,Length,Alignment);
+
+    template<typename T>
+    void noiseWaveGenerate(T Amplitude, uint32_t dataHolding = 0) {
+      DACEx_NoiseWaveGenerate(channel,(uint32_t)Amplitude, dataHolding);
     }
-	
-    void stopDMA(void){
-		DAC_Stop_DMA(channel);
+
+    void resume(void) {
+      DAC_Start(channel);
     }
-	
+
+    template<typename T>
+    void startDMA(uint32_t* pData, T Length, uint32_t Alignment = DAC_ALIGN_12B_R) {
+      DAC_Start_DMA(channel, pData, (uint32_t) Length, Alignment);
+    }
+
+    void stopDMA(void) {
+      DAC_Stop_DMA(channel);
+    }
+
     STM32DAC &operator = (uint16_t value) {
       write(value);
       return *this;
     }
 
-    operator uint16_t () { return read();}
+    operator uint16_t () {
+      return read();
+    }
 
     virtual ~STM32DAC() {}  // Do nothing
 };
@@ -80,7 +87,7 @@ extern STM32DAC<DAC_CHANNEL_1>PA4_DACOUT;
 extern STM32DAC<DAC_CHANNEL_2>PA5_DACOUT;
 #endif
 
-#endif
+#endif /*__cplusplus*/
 
 #else
 #error "This mcu does not support DAC!"

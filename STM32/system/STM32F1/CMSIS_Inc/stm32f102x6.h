@@ -65,8 +65,12 @@
 /**
   * @brief Configuration of the Cortex-M3 Processor and Core Peripherals 
  */
+#if defined(GD32F10X)
+#define __CM3_REV                  0x0201U  /*!< Core Revision r2p1                           */
+#else
 #define __CM3_REV                  0x0200U  /*!< Core Revision r2p0                           */
- #define __MPU_PRESENT             0U       /*!< Other STM32 devices does not provide an MPU  */
+#endif
+#define __MPU_PRESENT             0U       /*!< Other STM32 devices does not provide an MPU  */
 #define __NVIC_PRIO_BITS           4U       /*!< STM32 uses 4 Bits for the Priority Levels    */
 #define __Vendor_SysTickConfig     0U       /*!< Set to 1 if different SysTick Config is used */
 
@@ -6797,7 +6801,11 @@ typedef struct
 #define RCC_HSE_MIN         4000000U
 #define RCC_HSE_MAX        16000000U
 
-#define RCC_MAX_FREQUENCY  72000000U
+#ifdef GD32F10X    //add by huaweiwx@sina.com 2017.6.28
+# define RCC_MAX_FREQUENCY  120000000U
+#else
+# define RCC_MAX_FREQUENCY  72000000U
+#endif
 
 /**
   * @}

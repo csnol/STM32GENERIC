@@ -21,27 +21,24 @@
 */
 
 #include "Arduino.h"
-#include "stm32_debug.h"
-
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
 #pragma GCC diagnostic ignored "-Wformat"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 //------------------------------------------------------------------------------
-/** calibration factor for delayMS */
-#if defined(STM32F7)||defined(STM32H7)
-# define CAL_FACTOR (F_CPU/2000)
-#else
-# define CAL_FACTOR (F_CPU/7000)
-#endif
+
+#if  __CORTEX_M  > 0  /* M0/M0+ not swo */
+#  if USE_ITMRXBUFFER > 0
+  volatile int32_t ITM_RxBuffer;                    /*!< External variable to receive characters. */
+#  endif
+#endif 
 /** delay between led error flashes
  * \param[in] millis milliseconds to delay
  */
 static void delayMS(uint32_t millis) {
-  uint32_t iterations = millis * CAL_FACTOR;
   uint32_t i;
-  for(i = 0; i < iterations; ++i) {
-    asm volatile("nop\n\t");
+  for(i = millis; i ; i--) {
+    _delay_loop_us(1000);
   }
 }
 
@@ -49,19 +46,21 @@ static void nblink(int n, int l){
   if(l){	
 	for  (uint8_t i = 0; i < 2*n; i++) {
       digitalToggle(LED_BUILTIN);
-      delayMS(250);
+      delayMS(500);
     }
   }else{
+    delayMS(490);
     for (uint8_t i = 0; i < n; i++) {
       digitalToggle(LED_BUILTIN);
       delayMS(10);
       digitalToggle(LED_BUILTIN);
-      delayMS(240);
+      delayMS(490);
     }
   }
 }
 
-void errorLedBlink(int n) {
+void errorLedBlink(char* file, uint32_t n) {
+  UNUSED(file);	
   noInterrupts();
   pinMode(LED_BUILTIN, OUTPUT);
 #if (LED_BUILTIN_MASK & 0x01)
@@ -85,7 +84,7 @@ void errorLedBlink(int n) {
 	nblink(h,0);
 	nblink(d,1);
     nblink(l,0);
-	delayMS(1000);
+	delayMS(4000);
   }
 }
 
@@ -97,6 +96,15 @@ void debug(const char *format, ...) {
     va_end(args);
 }
 
+void printErrFileLine(char* file, uint32_t n) {
+  debug("\r\nErr! File:'%s' on Line:%d",file,n);
+}
+
+#if USE_ERRORBLINK >0
+void errorCallback(char* file, uint32_t n) __attribute__ ((weak, alias("errorLedBlink")));
+#else
+void errorCallback(char* file, uint32_t n) __attribute__ ((weak, alias("printErrFileLine")));
+#endif
 
 //debug_if add by huaweiwx@sina.com  2017.12.8
 void debug_if(int condition, const char *format, ...) {	
@@ -109,13 +117,16 @@ void debug_if(int condition, const char *format, ...) {
 }
 
 void print_log(const char *level, const char *format, const char *file, const int line, ...) {
-
+#if USE_TIMESTAMP  /*arduino Serial Monitor can output timestamp huaweiwx@sina.com 2019.10.15*/
     uint32_t m = micros();
 
     uint32_t seconds = m / 1000000;
     uint32_t fractions = m % 1000000;
 
     debug("[%2u.%-6u]%10s %3d %s:", seconds, fractions, file, line, level);
+#else
+    debug("%10s %3d %s:",file, line, level);
+#endif
 
     va_list argList;
     va_start(argList, line);
@@ -135,28 +146,31 @@ char *stm32PortPinName(GPIO_TypeDef *port, uint32_t pinMask) {
 
 char *stm32PinName(uint8_t pin) {
     if (pin >= NUM_DIGITAL_PINS) {
-//        return (char*)"Unknown";
         return NULL;
     }
     static char ret[10];
     int index = 0;
 
-    if (variant_pin_list[0].port != GPIOA || variant_pin_list[0].pinMask != GPIO_PIN_0) {
-        if (pin < 10) {
-            ret[index++] = '0' + pin;
-        } else {
-            ret[index++] = '0' + pin / 10;
-            ret[index++] = '0' + pin % 10;
-        }
-        ret[index++] = ' ';
-        ret[index++] = '(';
+    if (pin < 10) {
+        ret[index++] = '0' + pin;
+    } else {
+        ret[index++] = '0' + pin / 10;
+        ret[index++] = '0' + pin % 10;
     }
-
+    ret[index++] = '(';
     ret[index++] = 'P';
 
     stm32_port_pin_type port_pin = variant_pin_list[pin];
-
+#ifdef GD32F20X
+    if((uint32_t)port_pin.port <= (uint32_t)GPIOG){
+        ret[index++] = 'A' + ((uint32_t)port_pin.port - (uint32_t)GPIOA) / ((uint32_t)GPIOB - (uint32_t)GPIOA);
+	}
+	else {  /*for GD32F20X GPIOH/I */
+        ret[index++] = 'H' + ((uint32_t)port_pin.port - (uint32_t)GPIOH) / ((uint32_t)GPIOI - (uint32_t)GPIOH);
+	}
+#else
     ret[index++] = 'A' + ((uint32_t)port_pin.port - (uint32_t)GPIOA) / ((uint32_t)GPIOB - (uint32_t)GPIOA);
+#endif	
     int num = __builtin_ffs(port_pin.pinMask) - 1;
     if (num < 10) {
         ret[index++] = '0' + num;
@@ -165,89 +179,167 @@ char *stm32PinName(uint8_t pin) {
         ret[index++] = '0' + num % 10;
     }
 
-    if (variant_pin_list[0].port != GPIOA || variant_pin_list[0].pinMask != GPIO_PIN_0) {
-        ret[index++] = ')';
-    }
-
+    ret[index++] = ')';
     ret[index] = 0;
 
     return ret;
-
 }
 
 //_Error_Handler() created by CubeMX. huaweiwx@sina.com  2017.12.8
 void _Error_Handler(char* file, uint32_t line) __weak;
 void _Error_Handler(char* file, uint32_t line){
-#ifdef USE_FULL_ASSERT
-  #if USE_ERRORBLINK
-    errorLedBlink(line);
-  #else	
-	debug("\r\nerrFailed! File:'%s' on Line:%d",file,line);
+    errorCallback(file,line);
 	while(1)
-		yield();	
-  #endif
-#endif
+		yield();
 }
+
+#if USE_HARDFAUILTHOOK
+void ProcessHardFault(uint32_t lr, uint32_t msp, uint32_t psp)
+{
+    uint32_t exception_num;
+    uint32_t r0, r1, r2, r3, r12, pc, psr;
+    uint32_t *stack;
+
+    stack = (uint32_t *)msp;
+
+    /* Get information from stack */
+    r0  = stack[0];
+    r1  = stack[1];
+    r2  = stack[2];
+    r3  = stack[3];
+    r12 = stack[4];
+    lr  = stack[5];
+    pc  = stack[6];
+    psr = stack[7];
+
+    /* Check T bit of psr */
+    if((psr & (1 << 24)) == 0)
+    {
+        debug("PSR T bit is 0.\nHard fault caused by changing to ARM mode!\n");
+         while(1);
+    }
+
+    /* Check hard fault caused by ISR */
+    exception_num = psr & xPSR_ISR_Msk;
+    if(exception_num > 0)
+    {
+        /*
+        Exception number
+            0 = Thread mode
+            1 = Reserved
+            2 = NMI
+            3 = HardFault
+            4-10 = Reserved11 = SVCall
+            12, 13 = Reserved
+            14 = PendSV
+            15 = SysTick, if implemented[a]
+            16 = IRQ0.
+                .
+                .
+            n+15 = IRQ(n-1)[b]
+            (n+16) to 63 = Reserved.
+        The number of interrupts, n, is 32
+        */
+
+        debug("Hard fault is caused in IRQ #%d\n", exception_num - 16);
+      while(1);
+    }
+
+    debug("Hard fault location is at 0x%08x\n", pc);
+    /*
+        If the hard fault location is a memory access instruction, You may debug the load/store issues.
+
+        Memory access faults can be caused by:
+            Invalid address - read/write wrong address
+            Data alignment issue - Violate alignment rule of Cortex-M processor
+            Memory access permission - MPU violations or unprivileged access (Cortex-M0+)
+            Bus components or peripheral returned an error response.
+    */
+    debug("r0  = 0x%x\n", r0);
+    debug("r1  = 0x%x\n", r1);
+    debug("r2  = 0x%x\n", r2);
+    debug("r3  = 0x%x\n", r3);
+    debug("r12 = 0x%x\n", r12);
+    debug("lr  = 0x%x\n", lr);
+    debug("pc  = 0x%x\n", pc);
+    debug("psr = 0x%x\n", psr);
+    while(1);
+}
+
+void hard_fault_handler_hook(uint32_t lr, uint32_t msp, uint32_t psp) __attribute__ ((weak, alias("ProcessHardFault")));
+
+#endif
 
 #ifdef USE_FULL_ASSERT
 //assert_failed() used by stm32_hal. huaweiwx@sina.com  2017.12.8
 void assert_failed(uint8_t* file, uint32_t line) __weak;
 void assert_failed(uint8_t* file, uint32_t line)
 {
-#if USE_ERRORBLINK
-    errorLedBlink(line);
-#else	
-	debug("\r\nAssert failed! File: '%s' on Line:%d",(char *)file,line);
+    errorCallback((char*)file,line);
 	while(1)
 		yield();
-#endif
 };
-#endif
 
  /**
 * @brief This function handles Hard fault interrupt.
 */
+void HardFault_callback(void) __attribute__ ((weak));
+void HardFault_callback(void){
+	errorCallback((char*)"HardFault",31);
+}
 void HardFault_Handler(void)
 {
-#if USE_ERRORBLINK
-	errorLedBlink(31);
-#else
-    while(1);	
-#endif
+  #if USE_HARDFAUILTHOOK
+    __asm volatile(
+    " tst lr, #4   \n" 
+    " ite eq       \n" 
+    " mrseq r0,msp \n"
+    " mrsne r0,psp \n"
+    " b hard_fault_handler_hook \n"
+    );
+  #else
+    HardFault_callback();
+  #endif
+    while(1);
 }
 
 /**
 * @brief This function handles Memory management fault.
 */
+void MemManage_callback(void) __attribute__ ((weak));
+void MemManage_callback(void){
+	errorCallback((char*)"MemFault",32);	
+}
 void MemManage_Handler(void)
 {
-#if USE_ERRORBLINK
-	errorLedBlink(32);
-#else
-    while(1);	
-#endif
+    MemManage_callback();
+    while(1){
+	};
 }
 
 /**
 * @brief This function handles Pre-fetch fault, memory access fault.
 */
+void BusFault_callback(void) __attribute__ ((weak));
+void BusFault_callback(void){
+	errorCallback((char*)"BusFault",33);	
+}
 void BusFault_Handler(void)
 {
-#if USE_ERRORBLINK
-	errorLedBlink(33);
-#else
-    while(1);	
-#endif
+    BusFault_callback();
+    while(1);
 }
 
 /**
 * @brief This function handles Undefined instruction or illegal state.
 */
+void UsageFault_callback(void) __attribute__ ((weak));
+void UsageFault_callback(void){
+	errorCallback((char*)"Usage fault",34);
+}
 void UsageFault_Handler(void)
 {
-#if USE_ERRORBLINK
-	errorLedBlink(34);
-#else
-    while(1);	
-#endif
+    UsageFault_callback();
+    while(1);
 }
+#endif

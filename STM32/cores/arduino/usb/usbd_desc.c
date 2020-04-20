@@ -33,9 +33,10 @@
 */
 
 /* Includes ------------------------------------------------------------------*/
+#include <stm32_def.h>
 #include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_conf.h"
+#include <usbd_desc.h>
+#include <usbd_conf.h>
 #if (USER_USBDDESC < 1)
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 //#pragma GCC diagnostic ignored "-Wwrite-strings"
@@ -68,22 +69,30 @@ typedef struct __attribute__((__packed__)) {
 
 /** @defgroup USBD_DESC_Private_Defines
   * @{
-  */ 
+  */
+
+#ifndef USUSBD_VID
 #define USBD_VID                         1155
 #define USBD_LANGID_STRING               1033
 #define USBD_MANUFACTURER_STRING         u"STMicroelectronics"
+#endif
 
+#ifndef USBD_CDC_PID_FS
 #define USBD_CDC_PID_FS                  22336
 #define USBD_CDC_PRODUCT_STRING_FS       u"STM32 Virtual ComPort"
 #define USBD_CDC_SERIALNUMBER_STRING_FS  u"00000000001A"
 #define USBD_CDC_CONFIGURATION_STRING_FS u"CDC Config"
 #define USBD_CDC_INTERFACE_STRING_FS     u"CDC Interface"
+#endif
 
+#ifndef USBD_MSC_PID_FS
 #define USBD_MSC_PID_FS                  22314
 #define USBD_MSC_PRODUCT_STRING_FS       u"STM32 Mass Storage"
 #define USBD_MSC_SERIALNUMBER_STRING_FS  u"00000000001A"
 #define USBD_MSC_CONFIGURATION_STRING_FS u"MSC Config"
 #define USBD_MSC_INTERFACE_STRING_FS     u"MSC Interface"
+#endif
+
 
 static const usb_descriptor_string USB_MANUFACTURER_STRING_DESCRIPTOR = {
     .bLength = sizeof(USBD_MANUFACTURER_STRING),
@@ -170,7 +179,7 @@ __ALIGN_BEGIN uint8_t USBD_CDC_DeviceDesc[USB_LEN_DEV_DESC] __ALIGN_END =
   {
     0x12,                       /*bLength */
     USB_DESC_TYPE_DEVICE,       /*bDescriptorType*/
-    0x00,                       /* bcdUSB */  
+    0x00,                       /* bcdUSB: USB2.0 */  
     0x02,
     0x02,                        /*bDeviceClass*/
     0x02,                       /*bDeviceSubClass*/

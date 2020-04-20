@@ -110,7 +110,7 @@ void pwmWrite(uint8_t pin, int dutyCycle, int frequency, int durationMillis) {
             if (pwm_config[i].port == NULL) {
                 pinMode(pin, OUTPUT);
             }
-#ifdef STM32F0  // there is no pclk2
+#if defined(STM32F0)||defined(GD32F1x0)  // there is no pclk2
 			uint32_t timerFreq = HAL_RCC_GetPCLK1Freq();
 #else
 			uint32_t timerFreq = HAL_RCC_GetPCLK2Freq();
@@ -158,7 +158,7 @@ void stm32ScheduleMicros(uint32_t microseconds, void (*callback)()) {
         if (pwm_config[i].port == NULL && pwm_config[i].callback == NULL) {
 
             pwm_config[i].callback = callback;
-#ifdef STM32F0  // there is no pclk2
+#if  defined(STM32F0)||defined(GD32F1x0)  // there is no pclk2
             pwm_config[i].waveLengthCycles = HAL_RCC_GetPCLK1Freq() * (uint64_t)microseconds / 1000000;
 #else
             pwm_config[i].waveLengthCycles = HAL_RCC_GetPCLK2Freq() * (uint64_t)microseconds / 1000000;
@@ -203,18 +203,10 @@ void pwm_callback() {
             for(size_t i=0; i<sizeof(pwm_config); i++) {
                 if (pwm_config[i].port != NULL) {
                     if (pwm_config[i].dutyCycle > counter % pwm_config[i].waveLengthCycles) {
-                      #ifdef STM32H7
-						pwm_config[i].port->BSRRL = pwm_config[i].pinMask;
-					  #else
 					    pwm_config[i].port->BSRR = pwm_config[i].pinMask;
-					  #endif
                         nextWaitCycles = min(nextWaitCycles, pwm_config[i].dutyCycle - (counter % pwm_config[i].waveLengthCycles));
                     } else {
-                      #ifdef STM32H7
-						pwm_config[i].port->BSRRH = pwm_config[i].pinMask;
-					  #else
                         pwm_config[i].port->BSRR = pwm_config[i].pinMask << 16;
-					  #endif
                         nextWaitCycles = min(nextWaitCycles, pwm_config[i].waveLengthCycles - counter % pwm_config[i].waveLengthCycles);
                     }
 

@@ -1,6 +1,6 @@
 #if defined(STM32F0)||defined(STM32L0)
 	#include "ARM_CM0/portmacro.h"
-#elif defined(STM32F1)||defined(STM32L1)||defined(STM32F2)
+#elif defined(STM32F1)||defined(GD32F10X)||defined(GD32F1x0)||defined(GD32F2)||defined(STM32L1)||defined(STM32F2)
 	#include "ARM_CM3/portmacro.h"
 #elif defined(STM32F4)||defined(STM32L4)||defined(STM32F3)
 	#include "ARM_CM4F/portmacro.h"

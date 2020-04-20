@@ -1,29 +1,69 @@
-/* appAdminister.ino app administer for have not vdisk
-   from the menu
-   Select Serial Communication: SerialUSB/SerialUART1
-   Select Startup adr:flash(WithRamBoot xxkRAM used Only)
+/* addAdminister.ino stm32 vdisk/mcu administer
+    ---------------------------------------------------------------------------------------
+   1 selected: one of  in HAL_Conf.h file option if built in: USE_SDIOSDCARD/USE_SPISDCARD/USE_SPIFLASH
+   2 from the menu option selected:  Startup adr: flash(WhitRamboo xxkRAM used only) to build the project.
    ---------------------------------------------------------------------------------------
    cmd usage:
    type help or h or ? for Display list of commands.
 
    ---------------------------------------------------------------------------------------
-
-   tested for xE/xG  by huaweiwx@sina.com 2017.12
-
+   tested for F103xE/F407xE  by huaweiwx@sina.com 2017.10
    ---------------------------------------------------------------------------------------
 */
-#include <Streaming.h>
-#include <cmdline.h>
 
+#if  USE_SPISDCARD > 0
+# include <SD.h>
+# include "configs/sdCardConfig.h"
+#elif  USE_SDIOSDCARD > 0
+# include <STM32SD.h>
+#elif  USE_SPIFLASH >0
+# include <SerialFlash.h>
+#endif
+
+#include <cmdline.h>
 char cmdline[256];
 int ptr;
 
-#include <utils.h>
-#include <LED.h>
+#include "utils.h"
+#include "LED.h"
+#if  USE_KEYS
+#include "Keys.h"
+#endif
 
 void setup() {
+#if !defined(GPIO_CLOCKOPEN) ||  (GPIO_CLOCKOPEN< 1)  /*if gpio clock have not opened*/
+#ifdef GPIOA
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+#endif
+#ifdef GPIOB
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+#endif
+#ifdef GPIOC
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+#endif
+#ifdef GPIOD
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+#endif
+#ifdef GPIOE
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+#endif
+#ifdef GPIOF
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+#endif
+#ifdef GPIOG
+  __HAL_RCC_GPIOG_CLK_ENABLE();
+#endif
+#ifdef GPIOH
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+#endif
+#ifdef GPIOI
+  __HAL_RCC_GPIOI_CLK_ENABLE();
+#endif
+#endif
+
   Serial.begin(115200);
   Led.Init();
+  Led.flash(10, 320, 3);
 
   //for  use SerialUSB if selected from menu
 #if (MENU_USB_SERIAL || MENU_USB_IAD)
@@ -33,12 +73,40 @@ void setup() {
 #endif
 
   Serial.println(F("\n****************************************"));
-  Serial.println(F("*     STM32 appAdminister demo v1.0    *"));
+  Serial.print("*  STM32 vdos demo v1.10  "); Serial.print(__DATE__); Serial.println("  *");
   Serial.println(F("*  Type help Display list of commands  *"));
   Serial.println(F("****************************************\n"));
 
-  ptr = 0;
+#if  USE_SPISDCARD > 0
+  if (!card.init(SPI_HALF_SPEED, chipSelect))
+    Serial.println("initialization failed. Things to check!");
+  else if (!volume.init(card))
+    Serial.println("Could not find FAT16/FAT32 partition.\nMake sure you've formatted the card");
+
+#elif USE_SDIOSDCARD >0
+  for (uint8_t i = 0; i < 5; i++) {
+#ifdef   SD_DETECT_PIN
+    if (SD.begin(SD_DETECT_PIN) != TRUE)
+#else
+    if (SD.begin() != TRUE)
+#endif
+    {
+      Led.flash(10, 190, 1);
+      Serial.println("initialization fault.");
+    } else {
+      Serial.println("initialization done.");
+      break;
+    }
+  }
+#elif  USE_SPIFLASH > 0
+  if (!SerialFlash.begin()) {
+    Serial.println("Unable to access SPI Flash chip");
+    while (1);
+  }
+#endif
+
   Serial.print(F(">"));
+  ptr = 0;
 }
 
 boolean stringComplete = false;  // whether the string is complete
@@ -82,10 +150,6 @@ void serialEvent() {
   }
 }
 
-//*****************************************************************************
-// This function implements the "help" command.  It prints a simple list of the
-// available commands with a brief description.
-//*****************************************************************************
 void print_port(char* str, uint16_t val) {
   Serial <<  str << " : ";
   for (uint8_t i = 15; i > 0; i--) {
@@ -95,8 +159,15 @@ void print_port(char* str, uint16_t val) {
   Serial << _BIN(val) << "(0x" << _HEX(val) << ")\n";
 }
 
+
+//*****************************************************************************
+// This function implements the "help" command.  It prints a simple list of the
+// available commands with a brief description.
+//*****************************************************************************
+
 int Cmd_help(int argc, char *argv[])
 {
+
   if (argc == 2) { //  ?[ pin/P/A/B/C/D]
     char* pstr = argv[1];
     if (isdigit(pstr[0])) {
@@ -115,42 +186,46 @@ int Cmd_help(int argc, char *argv[])
       }
     }
     if (pstr[0] == 'A') {
-      print_port((char*)"GPIOA->IDR  ", GPIOA->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOA->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOA->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOA->IDR", GPIOA->IDR);
+      print_port((char*)"      ->CRH", GPIOA->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOA->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOA->IDR  ", GPIOA->IDR);
       print_port((char*)"      ->MODER", GPIOA->MODER);
 #endif
       return 0;
     }
     if (pstr[0] == 'B') {
-      print_port((char*)"GPIOB->IDR  ", GPIOB->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOB->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOB->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOB->IDR", GPIOB->IDR);
+      print_port((char*)"      ->CRH", GPIOB->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOB->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOB->IDR  ", GPIOB->IDR);
       print_port((char*)"      ->MODER", GPIOB->MODER);
 #endif
       return 0;
     }
     if (pstr[0] == 'C') {
-      print_port((char*)"GPIOC->IDR  ", GPIOC->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOC->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOC->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOC->IDR", GPIOC->IDR);
+      print_port((char*)"      ->CRH", GPIOC->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOC->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOC->IDR  ", GPIOC->IDR);
       print_port((char*)"      ->MODER", GPIOC->MODER);
 #endif
       return 0;
     }
 #ifdef GPIOD
     if (pstr[0] == 'D') {
-      print_port((char*)"GPIOD->IDR  ", GPIOD->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOD->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOD->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOD->IDR", GPIOD->IDR);
+      print_port((char*)"      ->CRH", GPIOD->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOD->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOD->IDR  ", GPIOD->IDR);
       print_port((char*)"      ->MODER", GPIOD->MODER);
 #endif
       return 0;
@@ -158,11 +233,12 @@ int Cmd_help(int argc, char *argv[])
 #endif
 #ifdef GPIOE
     if (pstr[0] == 'E') {
-      print_port((char*)"GPIOE->IDR  ", GPIOE->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOE->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOE->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOE->IDR", GPIOE->IDR);
+      print_port((char*)"      ->CRH", GPIOE->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOE->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOE->IDR  ", GPIOE->IDR);
       print_port((char*)"      ->MODER", GPIOE->MODER);
 #endif
       return 0;
@@ -170,11 +246,12 @@ int Cmd_help(int argc, char *argv[])
 #endif
 #ifdef GPIOF
     if (pstr[0] == 'F') {
-      print_port((char*)"GPIOF->IDR  ", GPIOF->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOF->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOF->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOF->IDR", GPIOF->IDR);
+      print_port((char*)"      ->CRH", GPIOF->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOF->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOF->IDR  ", GPIOF->IDR);
       print_port((char*)"      ->MODER", GPIOF->MODER);
 #endif
       return 0;
@@ -182,11 +259,12 @@ int Cmd_help(int argc, char *argv[])
 #endif
 #ifdef GPIOG
     if (pstr[0] == 'G') {
-      print_port((char*)"GPIOG->IDR  ", GPIOG->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOG->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOG->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOG->IDR", GPIOG->IDR);
+      print_port((char*)"      ->CRH", GPIOG->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOG->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOG->IDR  ", GPIOG->IDR);
       print_port((char*)"      ->MODER", GPIOG->MODER);
 #endif
       return 0;
@@ -194,24 +272,26 @@ int Cmd_help(int argc, char *argv[])
 #endif
 #ifdef GPIOH
     if (pstr[0] == 'H') {
-      print_port((char*)"GPIOH->IDR  ", GPIOH->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOH->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOH->CRL & 0xffff);
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOH->IDR", GPIOH->IDR);
+      print_port((char*)"      ->CRH", GPIOH->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOH->CRL & 0xffff);
 #else
+      print_port((char*)"GPIOH->IDR  ", GPIOH->IDR);
       print_port((char*)"      ->MODER", GPIOH->MODER);
 #endif
       return 0;
     }
 #endif
-#ifdef GPIOH
-    if (pstr[0] == 'H') {
-      print_port((char*)"GPIOH->IDR  ", GPIOH->IDR);
-#if defined(STM32F1)
-      print_port((char*)"      ->CRH  ", GPIOH->CRH & 0xffff);
-      print_port((char*)"      ->CRL  ", GPIOH->CRL & 0xffff);
+#ifdef GPIOI
+    if (pstr[0] == 'I') {
+#if defined(STM32F1) || defined(GD32F20X)
+      print_port((char*)"GPIOI->IDR", GPIOI->IDR);
+      print_port((char*)"      ->CRH", GPIOI->CRH & 0xffff);
+      print_port((char*)"      ->CRL", GPIOI->CRL & 0xffff);
 #else
-      print_port((char*)"      ->MODER", GPIOH->MODER);
+      print_port((char*)"GPIOI->IDR  ", GPIOI->IDR);
+      print_port((char*)"      ->MODER", GPIOI->MODER);
 #endif
       return 0;
     }
@@ -230,27 +310,27 @@ int Cmd_help(int argc, char *argv[])
   }
 
   Serial << "\nPIN list:";
-  for (uint8_t i = 0; i < sizeof(variant_pin_list) / sizeof(variant_pin_list[0]); i++)
-    Serial << stm32PinName(i) <<"(" << i << "), ";
-
+  for (uint8_t i = 0; i < sizeof(variant_pin_list) / sizeof(variant_pin_list[0]); i++) {
+    Serial << stm32PinName(i) << ", ";
+  }
   uint8_t leds[] = {LEDS_LIST};
-  Serial << "\nLED list:\n";
+  Serial << "\nLED list:";
   for (uint8_t i = 0; i < sizeof(leds) / sizeof(leds[0]); i++)
-    Serial << "LED" << i << "_BUILTIN " <<  stm32PinName(leds[i]) << ", ";
+    Serial << "LED" << i << "_BUILTIN(" <<  stm32PinName(leds[i]) << "), ";
 
-#ifdef KEYS_LIST
-  uint8_t keys[] = {KEYS_LIST};
+#ifdef BUTTONS_LIST
+  uint8_t keys[] = {BUTTONS_LIST};
   Serial << "\nKEYS list:";
   for (uint8_t i = 0; i < sizeof(keys) / sizeof(keys[0]); i++)
-    Serial << "BUILTIN" << i << " " << stm32PinName(keys[i]) << ", ";
+    Serial << "BUILTIN" << i << "(" << stm32PinName(keys[i]) << "), ";
 #endif
 
 #ifdef MOSI
   Serial << "\nSPI pins:";
-  Serial << "MOSI " <<  stm32PinName(MOSI);
-  Serial << ",MISO " <<  stm32PinName(MISO);
-  Serial << ",SCK " <<  stm32PinName(SCK);
-  Serial << ",SS " <<  stm32PinName(SS);
+  Serial << "MOSI(" <<  stm32PinName(MOSI);
+  Serial << "), MISO(" <<  stm32PinName(MISO);
+  Serial << "), SCK(" <<  stm32PinName(SCK);
+  Serial << "), SS(" <<  stm32PinName(SS) << "),";
 #endif
 
 #ifdef SDA
@@ -260,31 +340,156 @@ int Cmd_help(int argc, char *argv[])
 #endif
 
 #ifdef DBGMCU
-  Serial << "\nMCU_IDCODE:" << _HEX(HAL_GetDEVID());
+  if (HAL_GetDEVID()) {
+    Serial << "\nMCU_ID:" << _HEX(HAL_GetDEVID()) << " REV:" << _HEX(HAL_GetREVID());
+  } else {
+    Serial << "\nMCU isn't a stm32 core or Core Revision lower with  r2p0";
+  }
 #endif
 
-#ifdef OB_BASE
+#ifdef UID_BASE
   uint32_t UID[3];
-#if defined(STM32F0)||defined(STM32F3)
+# if defined(STM32F1)||defined(STM32F2)||defined(GD32F207Ix)
+  HAL_GetUID(UID);
+# else
   UID[0] = HAL_GetUIDw0();
   UID[1] = HAL_GetUIDw1();
   UID[2] = HAL_GetUIDw2();
-#else
-  HAL_GetUID(UID);
-#endif
+# endif
   Serial << "\nUSERID:" << _HEX(UID[0]) << " " << _HEX(UID[1]) << " " <<  _HEX(UID[2]);
 #endif
   return (0);
 }
+#ifndef  PINA_MASK
+#define  PINA_MASK  0b1000000111111111  /* swd/usb/usart */
+#endif
+#ifndef  PINB_MASK  
+#define  PINB_MASK  0b1111111111111011  /* BOOT1 */
+#endif
+#ifndef  PINC_MASK
+#define  PINC_MASK  0b0011111111111111  /* OSC32 */
+#endif
+#ifndef  PIND_MASK  
+#define  PIND_MASK  0b1111111111111111
+#endif
+#ifndef  PINE_MASK
+#define  PINE_MASK  0b1111111111111111
+#endif
+#ifndef  PINF_MASK  
+#define  PINF_MASK  0b1111111111111111
+#endif
+#ifndef  PING_MASK
+#define  PING_MASK  0b1111111111111111
+#endif
+#ifndef  PINH_MASK
+#define  PINH_MASK  0b1111111111111111
+#endif
+#ifndef  PINI_MASK
+#define  PINI_MASK  0b0000111111111111
+#endif
 
+bool outVal(uint16_t val,uint16_t mask){
+  static uint16_t oldval;
+  if((val & mask) ^ (oldval & mask)){
+    oldval = val;
+    val &= mask;
+    for(uint8_t j=0;j<4;j++){
+      for (uint8_t i=0; i<4;i++) {
+        if (val & 0x8000){
+          Serial << "1";
+        }else{
+          Serial << "0";
+        }
+        val = val << 1;
+      }
+      Serial << "'";
+    }
+    Serial.println();
+  }
+  return (Serial.available()?0:1);
+}
+//  m A/B/C/D.. [mask]
+int Cmd_monport(int argc, char *argv[]){
+  uint32_t mask;
+  uint8_t  defaultMask = 1;
+  if (argc < 2) {
+    Serial << "err: not portname\n";
+    return 0;
+  }
+  if(argc >2) {
+    mask = atoi(argv[2]);
+    defaultMask  = 0;
+  }
+  Serial.println("port input moniter, any key exit...");
+  char* pstr = argv[1];
+  switch(pstr[0]){
+    case 'A':
+      if (defaultMask) mask = PINA_MASK;
+      while(outVal(GPIOA->IDR,mask));
+      break;
+    case 'B':
+      if (defaultMask) mask = PINB_MASK;
+      while(outVal(GPIOB->IDR,mask));
+      break;
+    case 'C':
+      if (defaultMask) mask = PINC_MASK;
+      while(outVal(GPIOC->IDR,mask));
+      break;
+#ifdef GPIOD
+    case 'D':
+      if (defaultMask) mask = PIND_MASK;
+      while(outVal(GPIOD->IDR,mask));
+      break;
+#endif
+#ifdef GPIOE
+    case 'E':
+      if (defaultMask) mask = PINE_MASK;
+      while(outVal(GPIOE->IDR,mask));
+      break;
+#endif
+#ifdef GPIOF
+    case 'F':
+      if (defaultMask) mask = PINF_MASK;
+      while(outVal(GPIOF->IDR,mask));
+      break;
+#endif
+#ifdef GPIOG
+    case 'G':
+      if (defaultMask) mask = PING_MASK;
+      while(outVal(GPIOG->IDR,mask));
+      break;
+#endif
+#ifdef GPIOH
+    case 'H':
+      if (defaultMask) mask = PINH_MASK;
+      while(outVal(GPIOH->IDR,mask));
+      break;
+#endif
+#ifdef GPIOI
+    case 'I':
+      if (defaultMask) mask = PINI_MASK;
+      while(outVal(GPIOI->IDR,mask));
+      break;
+#endif
+    default:
+      break;
+  }
+
+  return 0;
+}
 int Cmd_dir(int argc, char *argv[])  //exp: dir/ls
 {
   UNUSED(argc);  /*unused argc, move warnign*/
   UNUSED(argv);  /*unused argc, move warnign*/
   volatile uint32_t useradr;
 
-  Serial << "\ncodes on slot:\n";
+#if USE_FILESYSTEM > 0
+  //  SD.cacheClear();
+  Serial << "ls files: \n";
+  vdos_listFiles();
+#endif
 
+  Serial << "\ncodes on slot: \n";
   for (int i = 0; i < (appCodeSegAddr[0] + 1); i++) {
     if (i > 0)
       useradr = FLASH_BASE + appCodeSegAddr[i] * 1024;
@@ -303,9 +508,8 @@ int Cmd_dir(int argc, char *argv[])  //exp: dir/ls
 }
 
 void show_addr(uint32_t addr, uint8_t* data, uint8_t num = 16, uint8_t asc = 1);
-
 void show_addr(uint32_t addr, uint8_t* data, uint8_t num, uint8_t asc) {
-  Serial << ((addr < 0x10) ? "000" : ((addr < 0x100) ? "00" : ((addr < 0x1000) ? "0" : ""))) << _HEX(addr) << " :";
+  Serial << ((addr < 0x10) ? "000" : ((addr < 0x100) ? "00" : ((addr < 0x1000) ? "0" : ""))) << _HEX(addr) << " : ";
   for (uint8_t i = 0; i < num; i++) {
     if (data[i] < 0x10) Serial << "0";
     Serial << _HEX(data[i]) << " ";
@@ -336,6 +540,80 @@ int Cmd_dispmen (int argc, char *argv[]) {
   return (0);
 }
 
+#if ( USE_FILESYSTEM > 0)
+#if defined(STM32F4)||(FLASH_BANK1_END >  0x0801FFFFU)  //for hight density  xC/D/E
+//exp: load mydemo.bin
+int Cmd_load(int argc, char *argv[]) {
+  volatile uint8_t* prog_ram =  (uint8_t *) USER_CODE_RAM;
+  for (uint8_t i = 0; i < argc; i++)
+  {
+    Serial.print(argv[i]);
+    Serial.print(F("  "));
+  };
+  Serial.println();
+
+  File f = vdos_openfile(argv[1], FILE_READ);
+
+  if (!f) {
+    Serial << "file: " << argv[1] << "no found!\n";
+    return 0;
+  }
+
+  uint32_t fsize = f.size();
+  if ( fsize > MAX_PROG_RAM) {
+    Serial << "file " << argv[1] << "too larger to fit in ram!\n";
+    return 0;
+  }
+
+  uint16_t i = 0;
+  uint8_t t = 1;
+  char c;
+  while (t) {
+    if (f.available()) {
+      c = f.read();
+    } else {
+      c =  0;
+      t = 0;
+    }
+    prog_ram[i++] = (uint8_t) c;
+  }
+  f.close();
+
+  if (UTIL_checkUserCode(USER_CODE_RAM))
+  {
+    Serial << "load ok! reset run it\n";
+  } else {
+    Serial << "file: " << argv[1] << "is unavailed!\n";
+  }
+  return 0;
+}
+#endif
+#endif
+
+
+//exp: typr test.txt
+
+#if USE_FILESYSTEM > 0
+int Cmd_type(int argc, char *argv[])
+{
+  if (!(argc == 2)) return 0;
+  //  SD.cacheClear();
+  File f = vdos_openfile(argv[1], FILE_READ);
+  if (!f) {
+    Serial << "file: " << argv[1] << "no found!\n";
+    return 0;
+  }
+  char c;
+  while (f.available()) {
+    c = f.read();
+    if (isprint(c) || (c == '\r') || (c == '\n')) Serial.write(c);
+    else Serial.write('.');
+  }
+  f.close();
+  return 0;
+}
+#endif
+
 //exp:go 1/2/...
 int Cmd_go(int argc, char *argv[])
 {
@@ -357,6 +635,10 @@ int Cmd_go(int argc, char *argv[])
       USBDeviceFS.end();
 #endif
       delay(1000); /*wait  serial complated */
+
+      //    Serial1.end();  /*if open close it*/
+      //    Serial2.end();  /*if open close it*/
+      //    UTIL_jumpToUser(useradr);
       start_application(useradr);
     } else {
       Serial << "slot: " << argv[1] << " is unavailed!\n";
@@ -372,6 +654,24 @@ static uint8_t getpin(char* str) {
   else if (UTIL_isHexStr(str)) pin = UTIL_hexNum(str);
   else if (isdigit(str[0]))  pin = atoi(str);
   return pin;
+}
+
+// This function implements the "dr" command. digital pin read input
+// Usage: dr pin
+static int Cmd_digitalRead(int argc, char *argv[])
+{
+  static uint8_t pin = 0xff;
+  uint8_t tmp;
+  if (argc > 1) {
+    tmp = getpin(argv[1]);
+    if (tmp < 0xff) pin = tmp;
+  }
+  if (pin == 0xff) {
+    Serial << "error: pinName" << argv[1] << "\n";
+    return 0;
+  }
+  Serial << stm32PinName(pin) << "(" << pin  << "): "  << digitalRead(pin) << "\n";
+  return (0);
 }
 
 // This function implements the "dw" command. bit write to a pin output
@@ -447,20 +747,27 @@ static int Cmd_analogWrite(int argc, char *argv[])
 }
 
 // This function implements the "ar" command. analog pin read input
-// Usage: ar pin
+// Usage: ar pin [res]
 static int Cmd_analogRead(int argc, char *argv[])
 {
   static uint8_t pin = 0xff;
   uint8_t tmp;
+  if (argc > 2) {
+    uint8_t resolution = atoi(argv[2]);
+    if((resolution == 10)||(resolution == 12) || (resolution == 16)) analogReadResolution(resolution);
+    else Serial << "resolutin must be 10 / 12 / 16 for stm32\n";
+  }
   if (argc > 1) {
     tmp = getpin(argv[1]);
-    if (tmp < 0xff) pin = tmp;
+    if (tmp < 0xff) {
+      pin = tmp;
+    }else {
+      Serial << "error : pinName" << argv[1] << "\n";
+      return 0;
+    }
   }
-  if (pin == 0xff) {
-    Serial << "error: pinName" << argv[1] << "\n";
-    return 0;
-  }
-  Serial << stm32PinName(pin) << "(" << pin  << "):"  << analogRead(pin) << "\n";
+
+  Serial << stm32PinName(pin) << "(" << pin  << ") : "  << analogRead(pin) << "\n";
   return (0);
 }
 
@@ -476,7 +783,7 @@ static int Cmd_pinMode(int argc, char *argv[])
     if (tmp < 0xff) pin = tmp;
   }
   if (pin == 0xff) {
-    Serial << "err: pinName" << argv[1] << "\n";
+    Serial << "err : pinName" << argv[1] << "\n";
     return 0;
   }
 
@@ -512,10 +819,13 @@ int Cmd_shiftin(int argc, char *argv[])
     if (pin < 0xff) ord = pin;
   }
 
-  if ((dpin == 0xff) || (cpin == 0xff))
+  if ((dpin == 0xff) || (cpin == 0xff)){
     Serial.println(F(" argc err!\r\n"));
-  val = shiftIn(dpin, cpin, ord);
-  Serial << "\nshiftIn val=" << _HEX(val) << "\n";
+  }else{
+    val = shiftIn(dpin, cpin, ord);
+    Serial << "\nshiftIn val = " << _HEX(val) << "\n";
+  }
+
   return (0);
 }
 
@@ -546,11 +856,13 @@ int Cmd_shiftout(int argc, char *argv[])
     if (tmp < 0xff) ord = tmp;
   }
 
-  if ((dpin == 0xff) || (cpin == 0xff))
+  if ((dpin == 0xff) || (cpin == 0xff)){
     Serial.println(F(" argc err!\r\n"));
-  shiftOut(dpin, cpin, ord, val);
+  }else{
+    shiftOut(dpin, cpin, ord, val);
+    Serial << "shiftout " << _HEX(val) << " ok\n";
+  }
 
-  Serial << "shiftout " << _HEX(val) << " ok\n";
   return (0);
 }
 
@@ -571,37 +883,49 @@ int Cmd_pulsein(int argc, char *argv[])
     if (tmp < 0xff) state = tmp;
   }
 
-  if (ppin == 0xff)
+  if (ppin == 0xff){
     Serial.println(F(" argc err!\r\n"));
-
-  val = pulseIn(ppin, state);
-  Serial << "\npulseIn:" << val << " microseconds\n";
+  }else{
+    val = pulseIn(ppin, state);
+    Serial << "\npulseIn : " << val << " microseconds\n";
+  }
   return (0);
 }
 
 tCmdLineEntry g_sCmdTable[] =
-{
-  { "help",   Cmd_help,      " : Display list of commands & get mcu info..."} ,
-  { "?",      Cmd_help,   "    : alias for help"} ,
+  {
+    { "help",   Cmd_help,      " : Display list of commands & get mcu info..."} ,
+    { "?",      Cmd_help,      "    : alias for help"} ,
 
-  //debug
-  { "d",      Cmd_dispmen,   "    : disp memory([addr])"} ,
+    //debug
+    { "d",      Cmd_dispmen,   "    : disp memory([addr])"} ,
+    { "m",      Cmd_monport,   "    : port monitoring(port, [mask])"} ,
 
-  //vdisk function
-  { "ls",    Cmd_dir,      "   : list apps in mcu"} ,
+    //vdisk function
+    { "dir",    Cmd_dir,      "  : list vdisk files & apps"} ,
+    { "ls",     Cmd_dir,      "   : alias for dir"} ,
 
-  //go flash addr
-  { "go",     Cmd_go,      "   : goto n slot addr running(slot#)"},
+#if USE_FILESYSTEM > 0
+    { "type",   Cmd_type,      " : type a txt file(filename)"} ,
 
-  //arduino
-  { "pm",     Cmd_pinMode, "   : Set pinMode(pin,mode)" } ,
-  { "dw",     Cmd_digitalWrite, "   : digitalWrite(pin,val)" } ,
-  { "dt",     Cmd_digitalToggle, "   : digitalToggle(pin)"  },
-  { "aw",     Cmd_analogWrite, "   : analogWrite(pin,val)"} ,
-  { "ar",     Cmd_analogRead,  "   : analogRead(pin)"},
-  { "si",     Cmd_shiftin,     "   : shiftIn([dpin cpin order])"} ,
-  { "so",     Cmd_shiftout,    "   : shiftOut(val[ dpin cpin order])"},
-  { "pulse",  Cmd_pulsein,     ": pulseIn([pin state])"} ,
+#if defined(STM32F4)||(FLASH_BANK1_END >  0x0801FFFFU)  //for hight density  xC/D/E
+    { "load",   Cmd_load,      " : chech bin file and load it if available"} ,
+#endif
 
-  {  0, 0, 0 }
-};
+#endif
+
+    //go flash addr
+    { "go",     Cmd_go,      "   : goto n slot addr running(slot#)"},
+
+    //arduino
+    { "pm",     Cmd_pinMode, "   : Set pinMode(pin, mode)" } ,
+    { "dr",     Cmd_digitalRead, "   : digitalRead(pin)" } ,
+    { "dw",     Cmd_digitalWrite, "   : digitalWrite(pin, val)" } ,
+    { "dt",     Cmd_digitalToggle, "   : digitalToggle(pin)"  },
+    { "aw",     Cmd_analogWrite, "   : analogWrite(pin, val)"} ,
+    { "ar",     Cmd_analogRead,  "   : analogRead(pin [res])"},
+    { "si",     Cmd_shiftin,     "   : shiftIn([dpin cpin order])"} ,
+    { "so",     Cmd_shiftout,    "   : shiftOut(val[ dpin cpin order])"},
+    { "pulse",  Cmd_pulsein,     ": pulseIn([pin state])"} ,
+    {  0, 0, 0 },
+  };

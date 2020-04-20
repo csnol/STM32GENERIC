@@ -8,17 +8,22 @@
  */
 #include <FreeRTOS.h>
 
+/*Check environment configuration*/
+#if configUSE_COUNTING_SEMAPHORES == 1
+// Declare a semaphore handle.
+SemaphoreHandle_t sem;
+#else
+# error	"!The macro variable configUSE_COUNTING_SEMAPHORES must be set to 1 in file HAL_Conf.h!"
+#endif
+
 // The LED is attached to pin 13 on Arduino.
 #ifdef  LED_BUILTIN
 # define LED_PIN    LED_BUILTIN
-#  define LED_ON bitRead(LED_BUILTIN_MASK,0)
+# define LED_ON bitRead(LED_BUILTIN_MASK,0)
 #else
 # define LED_PIN  13    //fixd me
 # define LED_ON 1   //fixd me
 #endif
-
-// Declare a semaphore handle.
-SemaphoreHandle_t sem;
 //------------------------------------------------------------------------------
 /*
    Thread 1, turn the LED off when signalled by thread 2.
@@ -64,7 +69,6 @@ void setup() {
   portBASE_TYPE s1, s2;
 
   Serial.begin(115200);
-  delay(1000);
   
   // initialize semaphore
   sem = xSemaphoreCreateCounting(1, 0);
@@ -82,6 +86,7 @@ void setup() {
   } else {
     Serial.println(F("Creation ok"));
   }
+  
   // start scheduler
   vTaskStartScheduler();
   Serial.println("Insufficient RAM");
@@ -94,4 +99,6 @@ void setup() {
  * 3  loop must never block.                                                           *
  * 4  This default idle hook can be overload by vApplicationIdleHook()                 * 
  ***************************************************************************************/
-void loop() {}
+void loop() {
+	for(;;){}
+}

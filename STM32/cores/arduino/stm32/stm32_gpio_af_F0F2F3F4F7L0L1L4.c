@@ -20,7 +20,7 @@
   SOFTWARE.
 */
 
-#if defined(STM32F0) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4) || \
+#if defined(STM32F0) ||defined(GD32F1x0) || defined(STM32F2) || defined(STM32F3) || defined(STM32F4) || \
     defined(STM32F7) || defined(STM32H7)|| defined(STM32L0) || defined(STM32L1) || defined(STM32L4)
 
 #include "stm32_gpio_af.h"

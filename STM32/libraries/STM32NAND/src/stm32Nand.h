@@ -70,14 +70,14 @@
 /** 
   * @brief  NAND status structure definition  
   */     
-#define   NAND_OK         0x00U
+#define NAND_OK         0x00U
 
 #define NAND_DEVICE_ADDR  ((uint32_t)NAND_DEVICE1)  
   
 /** 
   * @brief  FSMC NAND memory parameters  
   */
-#ifndef   NAND_PAGE_SIZE
+#ifndef NAND_PAGE_SIZE
 #define NAND_PAGE_SIZE             ((uint16_t)0x0200) /* 512 bytes per page w/o Spare Area */
 #define NAND_BLOCK_SIZE            ((uint16_t)0x0020) /* 32x512 bytes pages per block */
 #define NAND_PLANE_SIZE            ((uint16_t)0x0400) /* 1024 Block per plane */
@@ -125,10 +125,10 @@ class STM32NAND
     void operator=(STM32NAND const&)  = delete;
 	
     uint8_t Init(void){STM_FSMC_NAND_Init();return HAL_OK;};
-	uint8_t readData(NAND_AddressTypeDef BlockAddress, uint8_t *pData, uint32_t uwNumPage){return HAL_NAND_Read_Page_8b(&nandHandle, &BlockAddress, pData, uwNumPage);};
-	uint8_t writeData(NAND_AddressTypeDef BlockAddress, uint8_t *pData, uint32_t uwNumPage){return HAL_NAND_Write_Page_8b(&nandHandle, &BlockAddress, pData, uwNumPage);};
-	uint8_t eraseBlock(NAND_AddressTypeDef BlockAddress){return HAL_NAND_Erase_Block(&nandHandle, &BlockAddress);};
-	uint8_t readID(NAND_IDTypeDef *pNAND_ID){return HAL_NAND_Read_ID(&nandHandle, pNAND_ID);};
+	uint8_t readData(NAND_AddressTypeDef BlockAddress, uint8_t *pData, uint32_t uwNumPage)const{return HAL_NAND_Read_Page_8b(&nandHandle, &BlockAddress, pData, uwNumPage);};
+	uint8_t writeData(NAND_AddressTypeDef BlockAddress, uint8_t *pData, uint32_t uwNumPage)const{return HAL_NAND_Write_Page_8b(&nandHandle, &BlockAddress, pData, uwNumPage);};
+	uint8_t eraseBlock(NAND_AddressTypeDef BlockAddress)const{return HAL_NAND_Erase_Block(&nandHandle, &BlockAddress);};
+	uint8_t readID(NAND_IDTypeDef *pNAND_ID)const{return HAL_NAND_Read_ID(&nandHandle, pNAND_ID);};
 
   private:
     STM32NAND(void){};

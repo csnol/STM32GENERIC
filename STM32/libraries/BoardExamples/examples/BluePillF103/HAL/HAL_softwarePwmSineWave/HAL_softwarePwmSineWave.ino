@@ -77,7 +77,7 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(SOUNDPIN, OUTPUT);
 
-  HAL_NVIC_SetPriority( TIM3_IRQn, 0, 0 );
+  HAL_NVIC_SetPriority( TIM3_IRQn, TIM_PRIORITY, 0 );
   HAL_NVIC_EnableIRQ  ( TIM3_IRQn );
 
   s_TimerInstance.Init.Prescaler = 0; //APB1 TIM3 has 84MHZ, 72MHz

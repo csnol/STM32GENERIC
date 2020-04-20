@@ -39,7 +39,7 @@ void setup() {
 
   PA4_DACOUT.Init(DAC_TRIGGER_T6_TRGO);
   PA4_DACOUT.triangleWaveGenerate(DAC_TRIANGLEAMPLITUDE_4095);
-  //PA4_DACOUT.noiseWaveGenerate(DAC_TRIANGLEAMPLITUDE_4095);
+  //PA4_DACOUT.noiseWaveGenerate(DAC_LFSRUNMASK_BITS11_0);
 }
 
 // the loop routine runs over and over again forever:

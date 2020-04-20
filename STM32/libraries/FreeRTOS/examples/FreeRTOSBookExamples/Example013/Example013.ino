@@ -2,7 +2,7 @@
   Example 13. Using a Counting Semaphore to Synchronize a Task with an Interrupt
               使用计数信号量将任务与中断同步
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -29,10 +29,6 @@
 
 #include "FreeRTOS.h"
 
-/* Demo includes. */
-#include "basic_io_arm.h"
-
-extern "C"  QueueHandle_t xQueueCreateCountingSemaphore( const UBaseType_t uxMaxCount, const UBaseType_t uxInitialCount );
 /* The tasks to be created. */
 static void vHandlerTask( void *pvParameters );
 static void vPeriodicTask( void *pvParameters );
@@ -139,7 +135,7 @@ static void vPeriodicTask( void *pvParameters )
 
 static void vExampleInterruptHandler( void )
 {
-static portBASE_TYPE xHigherPriorityTaskWoken;
+  static portBASE_TYPE xHigherPriorityTaskWoken;
 
   xHigherPriorityTaskWoken = pdFALSE;
 

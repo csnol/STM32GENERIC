@@ -43,7 +43,7 @@ void BSP_SDRAM_Init(void)
   /* TRC:  min=60 (7x11.11ns) */
   Timing.RowCycleDelay        = 7;
   /* TWR:  min=1+ 2ns (1+1x11.11ns) */
-  Timing.WriteRecoveryTime    = 3;
+  Timing.WriteRecoveryTime    = 2;
   /* TRP:  18ns => 2x11.11ns*/
   Timing.RPDelay              = 2;
   /* TRCD: 12ns => 2x11.11ns */
@@ -86,7 +86,7 @@ void BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount)
 
   /* Step 2: Insert 100 us minimum delay */ 
   /* Inserted delay is equal to 1 ms due to systick time base unit (ms) */
-  HAL_Delay(100);
+  HAL_Delay(1);
 
   /* Step 3: Configure a PALL (precharge all) command */ 
   Command.CommandMode             = FMC_SDRAM_CMD_PALL;
@@ -267,13 +267,9 @@ static void MspInit(void)
   HAL_NVIC_EnableIRQ(SDRAM_DMAx_IRQn);
 }
 
-
-#ifndef DATA_IN_ExtSDRAM
 void initVariant() {
 	BSP_SDRAM_Init();
-//  setHeapAtSram();
 }
-#endif
 
 #if USE_EXTRAMSYSMALLOC
 extern void setHeap(unsigned char* s, unsigned char* e);

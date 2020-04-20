@@ -1,10 +1,16 @@
 #include "stm32_build_defines.h"
 
-#ifdef STM32F0
+#if defined(STM32F0)
     #include "stm32f0xx_ll_gpio.h"
 #endif
-#ifdef STM32F1
+#if defined(GD32F1x0)
+    #include "gd32f1x0_ll_gpio.h"
+#endif
+#if defined(STM32F1)
     #include "stm32f1xx_ll_gpio.h"
+#endif
+#if defined(GD32F2)
+    #include "gd32f2xx_ll_gpio.h"
 #endif
 #ifdef STM32F2
     #include "stm32f2xx_ll_gpio.h"
@@ -19,7 +25,7 @@
     #include "stm32f7xx_ll_gpio.h"
 #endif
 #ifdef STM32H7
-//    #include "stm32h7xx_ll_gpio.h"
+    #include "stm32h7xx_ll_gpio.h"   
 #endif
 #ifdef STM32L0
     #include "stm32l0xx_ll_gpio.h"

@@ -28,9 +28,9 @@
 #ifndef _SERIAL_USB_H_INCLUDED
 #define _SERIAL_USB_H_INCLUDED
 
-#include "usb_device.h"
+#include <usb_device.h>
 #include "usbd_core.h"
-#include "usbd_desc.h"
+#include <usbd_desc.h>
 #include "cdc/usbd_cdc.h"
 #include "cdc/usbd_cdc_if.h"
 
@@ -64,9 +64,9 @@ class SerialUSBClass : public Stream{
 	// serial port. These aren't really used, but are offered here
 	// in case a sketch wants to act on these settings.
     uint32_t baud();
-	  uint8_t stopbits();
-	  uint8_t paritytype();
-	  uint8_t numbits();
+	uint8_t stopbits();
+	uint8_t paritytype();
+	uint8_t numbits();
     bool dtr();
     bool rts();
     enum {

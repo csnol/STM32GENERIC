@@ -2,7 +2,7 @@
   Example 12. Using a Binary Semaphore to Synchronize a Task with an Interrupt
               使用二进制信号量将任务与中断同步
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -57,7 +57,7 @@ const uint8_t outputPin = PB8;
 void setup( void )
 {
   Serial.begin(115200);
-  delay(1000);
+
     /* Before a semaphore is used it must be explicitly created.  In this example
   a binary semaphore is created. */
     vSemaphoreCreateBinary( xBinarySemaphore );
@@ -150,7 +150,7 @@ static void vPeriodicTask( void *pvParameters )
 
 static void  vExampleInterruptHandler( void )
 {
-static /*signed*/  portBASE_TYPE xHigherPriorityTaskWoken;
+  static portBASE_TYPE xHigherPriorityTaskWoken;
 
   xHigherPriorityTaskWoken = pdFALSE;
 

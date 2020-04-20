@@ -1,15 +1,12 @@
 /*
 * This example measures input frequency
-*
 * Select your board in https://danieleff.github.io/STM32GENERIC/ "STM32 Board" menu
-*
 * Check timer for which pin is the default TIM1/CH1 connected
-*
 * Check your board pinout which pin it is.
-*
-* Connect the testPwmPin to the previous input capture pin
-*
+* Connect the testPwmPin to the previous input capture pin 使用杜邦线连接pwm输出脚(PA1)和测试脚(PA8)
 * On Serial, you should see default PWM frequency
+*
+* TIM1~5/8~17/21~22 for all chip if have. by huaweiwx@sina.com  2018.5.28
 */
 
 #include "HardwareTimer.h"
@@ -19,7 +16,7 @@ const int testPwmOutputPin = PA1;
 const int testChannel = 1;  //(TIM1 channel1 is PA8) channel: 1 ~ 6  
 
 void setup() {
-    analogWrite(testPwmOutputPin, 128);
+    analogWrite(testPwmOutputPin, 128); /*PA1 pwm output 50% Duty cycle, default 1000Hz*/
 
     Serial.begin(115200);
 

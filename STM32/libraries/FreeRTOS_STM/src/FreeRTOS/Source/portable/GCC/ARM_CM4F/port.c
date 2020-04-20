@@ -207,7 +207,7 @@ static void prvTaskExitError( void );
  * Compensate for the CPU cycles that pass while the SysTick is stopped (low
  * power functionality only.
  */
-#if configUSE_TICKLESS_IDLE == 1
+#if (configUSE_TICKLESS_IDLE == 1)
 	static uint32_t ulStoppedTimerCompensation = 0;
 #endif /* configUSE_TICKLESS_IDLE */
 

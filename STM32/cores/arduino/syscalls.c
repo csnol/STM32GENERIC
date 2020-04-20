@@ -17,7 +17,7 @@
 */
 
 /**
-  * \file syscalls_sam3.c
+  * \file syscalls.c
   *
   * Implementation of newlib syscall.
   *
@@ -41,7 +41,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-#include <sys/errno.h>
 
 // Helper macro to mark unused parameters and prevent compiler warnings.
 // Appends _UNUSED to the variable name to prevent accidentally using them.
@@ -55,37 +54,74 @@
  *        Exported variables
  *----------------------------------------------------------------------------*/
 
+#include <sys/errno.h>
 #undef errno
 extern int errno ;
-extern int  _end ;
 
 static unsigned char *heap_brk = NULL;
 static unsigned char *heap_end = NULL;
+//extern int  _end ;
+extern char _end; /* Defined by the linker */
 
 void setHeap(unsigned char *start, unsigned char *end) {
     heap_brk = start;
     heap_end = end;
 }
 
-caddr_t _sbrk ( int incr )
-{
-   caddr_t prev_heap;
+__attribute__((weak))
+caddr_t _sbrk( int incr ) {
+  extern char _estack; /* Defined in the linker script */
+  extern char _Min_Stack_Size; /* Defined in the linker script */
+  static char *heap_end = &_end ;
+  char *prev_heap_end = heap_end;
 
-  if ( heap_brk == NULL )
-  {
-      heap_brk = (unsigned char *)&_end ;
+  if (heap_end + incr > (char *)__get_MSP()) {
+    /* Heap and stack collision */
+    errno = ENOMEM;
+    return (caddr_t) -1;
   }
-  prev_heap = (caddr_t)heap_brk;
-
-  if (heap_end != NULL && (heap_brk + incr) > heap_end) {
-      return (caddr_t)-1;
+  /* Ensure to keep minimun stack size defined in the linker script */
+  if (heap_end + incr >= (char*)(&_estack - &_Min_Stack_Size)) {
+    errno = ENOMEM;
+    return (caddr_t) -1;
   }
-  
-  heap_brk += incr ;
 
-  return prev_heap ;
+  heap_end += incr ;
+  return (caddr_t) prev_heap_end ;
 }
 
+/*
+ environ 
+ A pointer to a list of environment variables and their values.
+ For a minimal environment, this empty list is adequate:
+ */
+char *__env[1] = { 0 };
+char **environ = __env;
+
+__attribute__((weak))
+int _link(const char *old, const char *new)
+{
+    UNUSED(old);
+    UNUSED(new);	
+	errno = EMLINK;
+	return -1;
+}
+
+__attribute__((weak))
+int _unlink(char *name)
+{
+    UNUSED(name);
+	return -1;
+}
+
+__attribute__((weak))
+int _times(struct tms *buf)
+{
+    UNUSED(buf);
+	return -1;
+}
+
+__attribute__((weak))
 int _open(char *path, int flags, ...)
 {
 	/* Pretend like we always fail */
@@ -99,27 +135,6 @@ int _close( UNUSED_PARAM(int file) )
 {
   return -1 ;
 }
-
-int _link(char *old, char *new)
-{
-    UNUSED(old);
-    UNUSED(new);	
-	errno = EMLINK;
-	return -1;
-}
-
-int _unlink(char *name)
-{
-    UNUSED(name);
-	return -1;
-}
-
-int _times(struct tms *buf)
-{
-    UNUSED(buf);
-	return -1;
-}
-
 
 __attribute__((weak))
 int _fstat( UNUSED_PARAM(int file), struct stat *st )
@@ -146,18 +161,32 @@ int _read(UNUSED_PARAM(int file), UNUSED_PARAM(char *ptr), UNUSED_PARAM(int len)
 {
   return 0 ;
 }
+
+
 /*
-extern int _write( UNUSED_PARAM(int file), UNUSED_PARAM(char *ptr), int len )
+ wait
+ Wait for a child process. Minimal implementation:
+ */
+int _wait(int *status) {
+    UNUSED(status);
+    errno = ECHILD;
+    return -1;
+}
+
+/* move to STM32SYSTEM.cpp use Serial.
+__attribute__((weak))
+int _write( UNUSED_PARAM(int file), UNUSED_PARAM(char *ptr), int len )
 {
   int iIndex = 0;
-
   for ( iIndex=0 ; iIndex < len ; iIndex++) {
     //TODO write to Serial
   }
   return iIndex ;
 }
 */
-void _exit( int status )
+
+__attribute__((weak))
+void _exit(UNUSED_PARAM(int status))
 {
 //  printf( "Exiting with status %d.\n", status ) ;
   for ( ; ; ) ;
@@ -167,9 +196,10 @@ __attribute__((weak))
 int _kill( UNUSED_PARAM(int pid), UNUSED_PARAM(int sig) )
 {
   errno = EINVAL;	
-  return ;
+  return -1;
 }
 
+__attribute__((weak))
 int _getpid ( void )
 {
   return -1 ;

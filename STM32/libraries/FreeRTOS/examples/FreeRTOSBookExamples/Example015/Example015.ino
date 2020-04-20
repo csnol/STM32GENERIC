@@ -2,7 +2,7 @@
   Example 15. Rewriting vPrintString() to Use a Semaphore
               重写 vPrintString ()以使用信号量
 
-  FreeRTOS.org V9.0.0 - Copyright (C) 2003-2017 Richard Barry.
+  FreeRTOS.org V10.0.0 - Copyright (C) 2003-2017 Richard Barry.
 
   This file is part of the FreeRTOS.org distribution.
 
@@ -25,7 +25,6 @@
   the source code for any proprietary components.  See the licensing section
   of http://www.FreeRTOS.org for full details of how and when the exception
   can be applied.
-
 */
 
 #include "FreeRTOS.h"

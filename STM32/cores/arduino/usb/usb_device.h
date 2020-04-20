@@ -41,7 +41,7 @@
 
 #include "stm32_def.h"
 
-#include "usbd_def.h"
+#include <usbd_def.h>
 
 extern USBD_HandleTypeDef hUsbDeviceFS;
 

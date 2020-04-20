@@ -25,9 +25,37 @@
  * Its defined as a weak symbol and it can be redefined to implement a
  * real cooperative scheduler.
  */
-static void __empty() {
+static void hook_empty() {
 	// Empty
 }
-void yield(void) __attribute__ ((weak, alias("__empty")));
+void yield(void) __attribute__ ((weak, alias("hook_empty")));
+/**
+ * SysTick hook
+ *
+ * This function is called from SysTick handler, before the default
+ * handler provided by Arduino.
+ */
+ 
+static int hook_false(void)
+{
+	// Return false
+	return 0;
+}
+int sysTickHook(void) __attribute__ ((weak, alias("hook_false")));
 
-void Error_Handler() __attribute__ ((weak, alias("__empty"))); /*move from stm32_init.c*/
+/**
+ * SVC hook
+ * PendSV hook
+ *
+ * These functions are called from SVC handler, and PensSV handler.
+ * Default action is halting.
+ */
+static void hook_halt(void)
+{
+	// Halts
+	while (1);
+}
+void svcHook(void)    __attribute__ ((weak, alias("hook_halt")));
+void pendSVHook(void) __attribute__ ((weak, alias("hook_halt")));
+
+void Error_Handler() __attribute__ ((weak, alias("hook_empty"))); /* move from stm32_init.c for usb*/

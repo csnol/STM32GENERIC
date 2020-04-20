@@ -25,14 +25,12 @@
 #	define LED_ON 1   //fixd me
 #endif
 
-
-
-void void setup()
+void setup()
 {
   pinMode(LED, OUTPUT);
   Serial.begin(115200);
   setPwmFrequency(10000);  //set PWM Frequency as 10kHZ
-  analogWrite(LED,0x80);
+  analogWrite(LED,0x12);
 }
 
 // the loop function runs over and over again forever

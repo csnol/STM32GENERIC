@@ -68,7 +68,7 @@ vTaskStepTick	KEYWORD2
 vTaskSuspend	KEYWORD2
 vTaskSuspendAll	KEYWORD2
 taskYIELD	KEYWORD2
-
+assertMsg	KEYWORD2
 #######################################
 # Queue API
 #######################################
@@ -167,6 +167,7 @@ xEventGroupWaitBits	KEYWORD2
 #######################################
 BaseType_t	LITERAL1
 FREERTOS	LITERAL1
+portINFO	LITERAL1
 portCHAR	LITERAL1
 portFLOAT	LITERAL1
 portDOUBLE	LITERAL1

@@ -30,48 +30,65 @@
 #ifndef STM32_CLOCK_H
 #define STM32_CLOCK_H
 
+#include "dwt.h"
+
+#ifndef LOOP_PERCYCLE 
+# if __CORTEX_M == 7
+#   define  LOOP_PERCYCLE  1    /* F/H7*/
+# elif defined(GD32F20X) || (__CORTEX_M == 0)
+#   define  LOOP_PERCYCLE  9    /* 9 F0/L0/gd32f2/atsam4s */ 
+# else
+#   define  LOOP_PERCYCLE  6    /* 6 */
+# endif
+#endif 
+
 #ifdef __cplusplus
 extern "C"{
 #endif
 
-inline void delay(unsigned long millis) {
-    uint32_t tickstart = 0;
-    tickstart = HAL_GetTick();
-    while((HAL_GetTick() - tickstart) < millis) {
-        yield();
-    }
-}
+void yield(void);
+void delay(unsigned long millis);
+uint32_t micros();
+void delayMicroseconds(uint32_t microseconds);
+void stm32ScheduleMicros(uint32_t microseconds, void (*callback)());
 
-inline uint32_t millis() {
+
+static inline uint32_t millis() {
     return HAL_GetTick();
 }
 
-inline uint32_t micros() {
-  // by Pito 4/2017
-  uint32_t m = HAL_GetTick();
-  uint32_t u = SysTick->LOAD - SysTick->VAL;
-  uint32_t m1 = HAL_GetTick();
-  uint32_t u1 = SysTick->LOAD - SysTick->VAL;
-
-  if (m1 > m) {
-    return ( m1 * 1000 + (u1 * 1000) / SysTick->LOAD);
-  } else {
-    return ( m * 1000 + (u * 1000) / SysTick->LOAD);
-  }
+/*compatile with avr */
+#if (__CORTEX_M == 0)
+static inline void _delay_loop_2(uint32_t cnt){
+  do{
+	__asm__ volatile ("nop");
+  }while(--cnt);
 }
 
-inline void delayMicroseconds(uint32_t microseconds){
-  uint32_t start = micros();
+#else
+/* 1~9 cycle */
+static inline void _delay_loop_2(uint32_t cnt){
+  __asm__ volatile (
+	"1:   subs %0,  #1  \n"
+    "     bne  1b       \n"
+    :"+r" (cnt)             // '%0' is cnt variable with RW constraints
+    :"0"  (cnt)             // '%0' is cnt variable
+  ); 
+  // https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+  // https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Volatile
+}
+	
+#endif
 
-  while(start + microseconds > micros()) {
-      yield();
-  }
+static inline void _delay_loop_us(uint32_t us){
+	_delay_loop_2(((F_CPU/1000000)*us) / LOOP_PERCYCLE);
 }
 
-void stm32ScheduleMicros(uint32_t microseconds, void (*callback)());
- 
 #ifdef __cplusplus
 }
 #endif
+
+#define  _delay_loop_1(x) _delay_loop_2(x)
+#define systicCallback  HAL_SYSTICK_Callback
 
 #endif
